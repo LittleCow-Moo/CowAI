@@ -2,8 +2,12 @@
 
 <center>
 <img src="https://cowgl.xyz/cow.png" width="128" height="128" /><br>
-牛牛AI是一隻聰明的AI牛。
+牛牛AI是一隻聰明的AI牛。<br>
+<img src="https://img.shields.io/github/package-json/v/LittleCow-moo/CowAI?logo=github&amp;style=for-the-badge&amp;label=版本" alt="Version"> <img src="https://img.shields.io/github/license/LittleCow-moo/CowAI?style=for-the-badge&amp;logo=github&amp;label=許可證" alt="License"> <a href="https://github.com/prettier/prettier"><img src="https://img.shields.io/badge/程式碼樣式-Prettier-ff69b4.svg?style=for-the-badge" alt="Prettier"></a><br>
+這個專案目前是個未完成品，可能有很多 bug 及無法調整的內建設定，請見諒。
+
 </center>
+<br>
 
 # 執行
 

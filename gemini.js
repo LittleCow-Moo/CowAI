@@ -63,7 +63,7 @@ wss.on("connection", (ws) => {
           ],
         });
       } else {
-        console.log("[User] empty prompt");
+        console.log("[User] (empty prompt)");
       }
       const result = await model.generateContentStream({
         contents: ws.messages.slice(-1 * memory),
