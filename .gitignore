@@ -1,0 +1,10 @@
+node_modules/
+awd_folder/
+.env
+lineMsg.json
+package-lock.json
+poeRateLimit.json
+rateLimit.json
+savedMessages.json
+tgMsg.json
+poe.js
