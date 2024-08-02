@@ -50,7 +50,8 @@ wss.on("connection", (ws) => {
     await db.push(`/used/${ws.key}`, used + 1);
     var prompt = message.toString();
     ws.send(JSON.stringify({ type: "confirm", message: prompt }));
-    var full = ""(async () => {
+    var full = "";
+    (async () => {
       if (prompt != "") {
         console.log(`[User] ${prompt}`);
         ws.asked.push(prompt);
