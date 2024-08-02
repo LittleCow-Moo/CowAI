@@ -8,3 +8,4 @@ rateLimit.json
 savedMessages.json
 tgMsg.json
 poe.js
+openai.js

@@ -8,7 +8,6 @@ const express = require("express");
 const { JsonDB, Config } = require("node-json-db");
 const moment = require("moment");
 const fs = require("fs");
-const path = require("path");
 
 var db = new JsonDB(new Config("rateLimit", true, true));
 var savedMsg = new JsonDB(new Config("savedMessages", true, true));
