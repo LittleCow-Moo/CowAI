@@ -163,7 +163,7 @@ module.exports = {
         {
           name: "GenerateImage",
           description:
-            'Generates an image. Paratemer "url" in the response is URL of the generated image, and the "seed" paratemer is the seed of the generated picture.',
+            'Generates an image. Paratemer "url" in the response is URL of the generated image, and the "seed" paratemer is the seed of the generated picture. English prompt only.',
           parameters: {
             type: "OBJECT",
             properties: {
