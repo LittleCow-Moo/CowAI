@@ -12,8 +12,8 @@ const path = require("path");
 
 var db = new JsonDB(new Config("rateLimit", true, true));
 var savedMsg = new JsonDB(new Config("savedMessages", true, true));
-if (!fs.existsSync("images/")) fs.mkdirSync("images")
-db.push(`/max/${process.env.ADMIN_KEY}`,"infinity")
+if (!fs.existsSync("images/")) fs.mkdirSync("images");
+db.push(`/max/${process.env.ADMIN_KEY}`, "infinity");
 
 const genAI = new GoogleGenerativeAI(process.env.KEY);
 const model = genAI.getGenerativeModel({
@@ -50,7 +50,7 @@ wss.on("connection", (ws) => {
     await db.push(`/used/${ws.key}`, used + 1);
     var prompt = message.toString();
     ws.send(JSON.stringify({ type: "confirm", message: prompt }));
-    (async () => {
+    var full = ""(async () => {
       if (prompt != "") {
         console.log(`[User] ${prompt}`);
         ws.asked.push(prompt);
@@ -71,6 +71,7 @@ wss.on("connection", (ws) => {
       var calls = [];
       var message = "";
       process.stdout.write("[Cow] ");
+      var first = true;
       for await (const item of result.stream) {
         if (!item.candidates) break;
         if (!item.candidates[0].content) break;
@@ -79,10 +80,19 @@ wss.on("connection", (ws) => {
         if (part.functionCall) calls.push(part.functionCall);
         if (!part.text) break;
         process.stdout.write(part.text.trim());
-        streaming
-          ? ws.send(JSON.stringify({ type: "part", message: part.text.trim() }))
-          : null;
         message += part.text.trim();
+        full += part.text.trim();
+        if (first == true) first == false;
+        streaming
+          ? ws.send(
+              JSON.stringify({
+                type: "part",
+                message: part.text.trim(),
+                full,
+                first,
+              })
+            )
+          : null;
       }
       ws.messages.push({
         role: "model",
@@ -133,11 +143,13 @@ wss.on("connection", (ws) => {
             ws.messages[ws.messages.length - 1].parts[0].functionResponse
               .response.content
           }`;
-
+          full += content;
           ws.send(
             JSON.stringify({
               type: "part",
               message: content,
+              full,
+              first,
             })
           );
           ws.send(
@@ -163,11 +175,14 @@ wss.on("connection", (ws) => {
         process.stdout.write("[Cow] ");
         for await (const item of result.stream) {
           process.stdout.write(item.candidates[0].content.parts[0].text.trim());
+          full += part.text.trim();
           streaming
             ? ws.send(
                 JSON.stringify({
                   type: "part",
                   message: item.candidates[0].content.parts[0].text.trim(),
+                  full,
+                  first,
                 })
               )
             : null;
