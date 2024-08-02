@@ -77,18 +77,14 @@ client.on("messageCreate", async (message) => {
       }, 60000);
     }
     if (parsed.type == "part") {
-      if (parsed.length == 1) {
+      response += parsed.message;
+      if (parsed.first) {
         sentReply = true;
         replyMessage = await message.reply(parsed.message);
         return;
       }
       if (sentReply && replyMessage) {
-        replyMessage = await replyMessage.edit(
-          `${replyMessage.content}${parsed.message}`
-        );
-      } else {
-        sentReply = true;
-        replyMessage = await message.reply(parsed.message);
+        replyMessage = await replyMessage.edit(parsed.full);
       }
     }
     if (parsed.type == "error") {
@@ -98,10 +94,9 @@ client.on("messageCreate", async (message) => {
       ws.close();
     }
     if (parsed.type == "response") {
-      response = `${response}${parsed.message}`;
       if (!sentReply) {
         sentReply = true;
-        replyMessage = await message.reply(parsed.message);
+        replyMessage = await message.reply(parsed.full);
       }
     }
     if (parsed.type == "end") {
