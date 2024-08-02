@@ -78,7 +78,7 @@ client.on("messageCreate", async (message) => {
     }
     if (parsed.type == "part") {
       response += parsed.message;
-      if (parsed.first) {
+      if (parsed.first && !sentReply) {
         sentReply = true;
         replyMessage = await message.reply(parsed.message);
         return;
