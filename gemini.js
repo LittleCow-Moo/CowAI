@@ -175,7 +175,7 @@ wss.on("connection", (ws) => {
         process.stdout.write("[Cow] ");
         for await (const item of result.stream) {
           process.stdout.write(item.candidates[0].content.parts[0].text.trim());
-          full += part.text.trim();
+          full += item.candidates[0].content.parts[0].text.trim();
           streaming
             ? ws.send(
                 JSON.stringify({
