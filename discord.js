@@ -100,10 +100,14 @@ client.on("messageCreate", async (message) => {
       }
     }
     if (parsed.type == "end") {
-      replyMessage = await replyMessage.edit(response);
       try {
-        await savedMsg.delete(`/discord:${message.id}`);
-      } catch (e) {}
+        replyMessage = await replyMessage.edit(response);
+      } catch (e) {
+      } finally {
+        try {
+          await savedMsg.delete(`/discord:${message.id}`);
+        } catch (e) {}
+      }
     }
   });
 });
