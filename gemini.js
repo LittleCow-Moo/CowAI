@@ -79,15 +79,15 @@ wss.on("connection", (ws) => {
         if (!part) break;
         if (part.functionCall) calls.push(part.functionCall);
         if (!part.text) break;
-        process.stdout.write(part.text.trim());
-        message += part.text.trim();
-        full += part.text.trim();
+        process.stdout.write(part.text);
+        message += part.text;
+        full += part.text;
         if (first == true) first == false;
         streaming
           ? ws.send(
               JSON.stringify({
                 type: "part",
-                message: part.text.trim(),
+                message: part.text,
                 full,
                 first,
               })
@@ -174,13 +174,13 @@ wss.on("connection", (ws) => {
         });
         process.stdout.write("[Cow] ");
         for await (const item of result.stream) {
-          process.stdout.write(item.candidates[0].content.parts[0].text.trim());
-          full += item.candidates[0].content.parts[0].text.trim();
+          process.stdout.write(item.candidates[0].content.parts[0].text);
+          full += item.candidates[0].content.parts[0].text;
           streaming
             ? ws.send(
                 JSON.stringify({
                   type: "part",
-                  message: item.candidates[0].content.parts[0].text.trim(),
+                  message: item.candidates[0].content.parts[0].text,
                   full,
                   first,
                 })
@@ -192,12 +192,12 @@ wss.on("connection", (ws) => {
           role: "model",
           parts: [
             {
-              text: response.text().trim(),
+              text: response.text(),
             },
           ],
         });
         ws.send(
-          JSON.stringify({ type: "response", message: response.text().trim() })
+          JSON.stringify({ type: "response", message: response.text() })
         );
       }
       console.log();
