@@ -38,17 +38,23 @@ client.on("messageCreate", async (message) => {
     .replaceAll("@牛牛AI ", "")
     .replaceAll("@牛牛AI", "");
   console.log("[Discord] Message", message.content);
+  var pulledMessages = Object.values(
+    (await message.channel.messages.fetch({ limit: 5 })).toJSON()
+  );
   await savedMsg.push(
     `/discord:${message.id}`,
-    Object.values((await message.channel.messages.fetch({ limit: 5 })).toJSON())
-      .map((a) => {
+    pulledMessages
+      .map((a, i) => {
+        if (a.content == "COW_CLEAR_CONTEXT" && a.author.id == client.user.id) {
+          pulledMessages.slice(i, -1);
+        }
         a.content = Discord.cleanContent(
           a.content,
           client.channels.cache.get("1246648286144630837")
         )
           .replaceAll("@牛牛AI ", "")
           .replaceAll("@牛牛AI", "");
-        return a.author.id != "875675839432368128"
+        return a.author.id != client.user.id
           ? {
               role: "user",
               parts: [{ text: `@${a.author.username}說: ${a.content}` }],
@@ -110,6 +116,14 @@ client.on("messageCreate", async (message) => {
       }
     }
   });
+});
+client.on("interactionCreated", (slash) => {
+  if (slash.type != Discord.InteractionType.ApplicationCommand) return;
+  switch (slash.commandName) {
+    case "clear":
+      slash.reply("COW_CLEAR_CONTEXT");
+      break;
+  }
 });
 
 client.login(process.env.DISCORD);
