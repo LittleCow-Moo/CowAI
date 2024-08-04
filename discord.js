@@ -117,7 +117,7 @@ client.on("messageCreate", async (message) => {
     }
   });
 });
-client.on("interactionCreated", (slash) => {
+client.on("interactionCreate", (slash) => {
   if (slash.type != Discord.InteractionType.ApplicationCommand) return;
   switch (slash.commandName) {
     case "clear":
