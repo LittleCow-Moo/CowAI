@@ -40,7 +40,8 @@ client.on("messageCreate", async (message) => {
   console.log("[Discord] Message", message.content);
   var pulledMessages = Object.values(
     (await message.channel.messages.fetch({ limit: 5 })).toJSON()
-  )
+  );
+  pulledMessages
     .map((a, i) => {
       if (a.content == "COW_CLEAR_CONTEXT" && a.author.id == client.user.id) {
         pulledMessages = pulledMessages.slice(i, -1);
