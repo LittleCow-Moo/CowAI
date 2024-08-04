@@ -46,6 +46,8 @@ client.on("messageCreate", async (message) => {
       if (a.content == "COW_CLEAR_CONTEXT" && a.author.id == client.user.id) {
         pulledMessages = pulledMessages.slice(i, -1);
       }
+    })
+    .map((a, i) => {
       a.content = Discord.cleanContent(
         a.content,
         client.channels.cache.get("1246648286144630837")
