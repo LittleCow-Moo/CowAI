@@ -43,7 +43,7 @@ client.on("messageCreate", async (message) => {
   ).reverse();
   for (const [i, a] of pulledMessages.entries()) {
     if (a.content == "COW_CLEAR_CONTEXT") {
-      pulledMessages = pulledMessages.slice(i);
+      pulledMessages = pulledMessages.slice(i+1);
     }
   }
   pulledMessages = pulledMessages.map((a) => {
