@@ -41,14 +41,13 @@ client.on("messageCreate", async (message) => {
   var pulledMessages = Object.values(
     (await message.channel.messages.fetch({ limit: 5 })).toJSON()
   );
+  for (const [i, a] of pulledMessages.entries()) {
+    if (a.content == "COW_CLEAR_CONTEXT") {
+      pulledMessages = pulledMessages.slice(i, -1);
+    }
+  }
   pulledMessages = pulledMessages
-    .map((a, i) => {
-      if (a.content == "COW_CLEAR_CONTEXT" && a.author.id == client.user.id) {
-        pulledMessages = pulledMessages.slice(i, -1);
-      }
-      return message;
-    })
-    .map((a, i) => {
+    .map((a) => {
       a.content = Discord.cleanContent(
         a.content,
         client.channels.cache.get("1246648286144630837")
