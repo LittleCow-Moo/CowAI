@@ -40,29 +40,26 @@ client.on("messageCreate", async (message) => {
   console.log("[Discord] Message", message.content);
   var pulledMessages = Object.values(
     (await message.channel.messages.fetch({ limit: 5 })).toJSON()
-  );
-  await savedMsg.push(
-    `/discord:${message.id}`,
-    pulledMessages
-      .map((a, i) => {
-        if (a.content == "COW_CLEAR_CONTEXT" && a.author.id == client.user.id) {
-          pulledMessages.slice(i, -1);
-        }
-        a.content = Discord.cleanContent(
-          a.content,
-          client.channels.cache.get("1246648286144630837")
-        )
-          .replaceAll("@牛牛AI ", "")
-          .replaceAll("@牛牛AI", "");
-        return a.author.id != client.user.id
-          ? {
-              role: "user",
-              parts: [{ text: `@${a.author.username}說: ${a.content}` }],
-            }
-          : { role: "model", parts: [{ text: a.content }] };
-      })
-      .reverse()
-  );
+  )
+    .map((a, i) => {
+      if (a.content == "COW_CLEAR_CONTEXT" && a.author.id == client.user.id) {
+        pulledMessages = pulledMessages.slice(i, -1);
+      }
+      a.content = Discord.cleanContent(
+        a.content,
+        client.channels.cache.get("1246648286144630837")
+      )
+        .replaceAll("@牛牛AI ", "")
+        .replaceAll("@牛牛AI", "");
+      return a.author.id != client.user.id
+        ? {
+            role: "user",
+            parts: [{ text: `@${a.author.username}說: ${a.content}` }],
+          }
+        : { role: "model", parts: [{ text: a.content }] };
+    })
+    .reverse();
+  await savedMsg.push(`/discord:${message.id}`, pulledMessages);
   const ws = new WebSocket(
     `ws://localhost:38943/api/generate?key=${process.env.ADMIN_KEY}&streamingResponse&_readSavedMessages=discord:${message.id}`
   );
