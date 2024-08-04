@@ -41,7 +41,7 @@ client.on("messageCreate", async (message) => {
   var pulledMessages = Object.values(
     (await message.channel.messages.fetch({ limit: 5 })).toJSON()
   );
-  pulledMessages
+  pulledMessages = pulledMessages
     .map((a, i) => {
       if (a.content == "COW_CLEAR_CONTEXT" && a.author.id == client.user.id) {
         pulledMessages = pulledMessages.slice(i, -1);
