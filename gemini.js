@@ -105,6 +105,7 @@ wss.on("connection", (ws) => {
       ws.send(JSON.stringify({ type: "response", message }));
       if (calls[0]) {
         for (const call of calls) {
+          if (!call.name) continue;
           console.log();
           debug ? console.log(`[System] Function call received:`, call) : null;
           ws.send(
