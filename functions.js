@@ -105,7 +105,7 @@ const GenerateImage = async (args) => {
       });
     const Client = (await import("@gradio/client")).Client;
     const client = await Client.connect(
-      "https://stabilityai-stable-diffusion-3-medium.hf.space",
+      "https://black-forest-labs-flux-1-schnell.hf.space",
       {
         hf_token: process.env.HF_ACCESS_TOKEN,
       }
@@ -113,7 +113,6 @@ const GenerateImage = async (args) => {
     const result = (
       await client.predict("/infer", {
         prompt,
-        negative_prompt: args.negative_prompt || "",
         seed: args.seed || 0,
         randomize_seed: !args.seed ? true : false,
         width: args.width || 1024,

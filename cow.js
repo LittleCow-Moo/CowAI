@@ -172,11 +172,6 @@ module.exports = {
                 description: "Prompts for generating the image.",
                 nullable: false,
               },
-              negative_prompt: {
-                type: "STRING",
-                description: "Negative prompts for generating the image.",
-                nullable: true,
-              },
               seed: {
                 type: "INTEGER",
                 description:
