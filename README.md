@@ -4,7 +4,8 @@
 <img src="https://cowgl.xyz/cow.png" width="200" height="200" /><br>
 牛牛AI是一隻聰明的AI牛。<br>
 
-![Version](https://img.shields.io/github/package-json/v/LittleCow-moo/CowAI?logo=github&style=for-the-badge&label=版本) ![License](https://img.shields.io/github/license/LittleCow-moo/CowAI?style=for-the-badge&logo=github&label=許可證) [![Prettier](https://img.shields.io/badge/程式碼樣式-Prettier-ff69b4.svg?style=for-the-badge)](https://github.com/prettier/prettier)<br>
+![Version](https://img.shields.io/github/package-json/v/LittleCow-moo/CowAI?logo=github&style=for-the-badge&label=版本) ![License](https://img.shields.io/github/license/LittleCow-moo/CowAI?style=for-the-badge&logo=github&label=許可證) [![Prettier](https://img.shields.io/badge/程式碼樣式-Prettier-ff69b4.svg?style=for-the-badge)](https://github.com/prettier/prettier)[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2FLittleCow-Moo%2FCowAI.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2FLittleCow-Moo%2FCowAI?ref=badge_shield)
+<br>
 這個專案目前是個未完成品，可能有很多 bug 及無法調整的內建設定，請見諒。
 
 </div>
@@ -43,3 +44,7 @@ HF_ACCESS_TOKEN= # HuggingFace Access Token (作畫功能使用，要有read權�
 # 使用
 
 如果一切都正常運作，那 AI 機器人應該就會在 Discord, Telegram, 和 LINE 上線了。除了這三個平台的機器人外，它還會開一個 HTTP 端口`38943`用以通訊。
+
+
+## License
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2FLittleCow-Moo%2FCowAI.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2FLittleCow-Moo%2FCowAI?ref=badge_large)
