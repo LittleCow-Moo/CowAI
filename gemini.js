@@ -20,6 +20,18 @@ const model = genAI.getGenerativeModel({
   systemInstruction: cow.prompt,
   generationConfig: cow.config,
   tools: cow.tools,
+  safetySettings: [
+    { category: "HARM_CATEGORY_HATE_SPEECH", threshold: "BLOCK_ONLY_HIGH" },
+    {
+      category: "HARM_CATEGORY_SEXUALLY_EXPLICIT",
+      threshold: "BLOCK_ONLY_HIGH",
+    },
+    {
+      category: "HARM_CATEGORY_DANGEROUS_CONTENT",
+      threshold: "BLOCK_ONLY_HIGH",
+    },
+    { category: "HARM_CATEGORY_HARASSMENT", threshold: "BLOCK_ONLY_HIGH" },
+  ],
 });
 
 const debug = true;
@@ -197,9 +209,7 @@ wss.on("connection", (ws) => {
             },
           ],
         });
-        ws.send(
-          JSON.stringify({ type: "response", message: response.text() })
-        );
+        ws.send(JSON.stringify({ type: "response", message: response.text() }));
       }
       console.log();
       console.log("[System] This is the end of the chat.");
