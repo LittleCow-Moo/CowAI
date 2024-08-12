@@ -31,6 +31,7 @@ client.on("ready", () => {
 client.on("messageCreate", async (message) => {
   if (!(message.mentions.has(client.user) || !message.guild)) return;
   if (message.author.id == client.user.id) return;
+  if (message.author.bot) return;
   message.content = Discord.cleanContent(
     message.content,
     client.channels.cache.get("1246648286144630837")
