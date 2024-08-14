@@ -39,7 +39,7 @@ client.on("messageCreate", async (message) => {
   )
     .replaceAll("@牛牛AI ", "")
     .replaceAll("@牛牛AI", "");
-  console.log("[Discord] Message", message.content);
+  console.log("[Discord] Message:", message.content);
   var pulledMessages = Object.values(
     (await message.channel.messages.fetch({ limit: 5 })).toJSON()
   ).reverse();
@@ -67,7 +67,7 @@ client.on("messageCreate", async (message) => {
         }
       : { role: "model", parts: [{ text: a.content }] };
   });
-  console.log("[Discord] Pulled messages: ", pulledMessages);
+  console.log("[Discord] Pulled messages:", pulledMessages);
   await savedMsg.push(`/discord:${message.id}`, pulledMessages);
   const ws = new WebSocket(
     `ws://localhost:38943/api/generate?key=${process.env.ADMIN_KEY}&streamingResponse&_readSavedMessages=discord:${message.id}`
