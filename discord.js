@@ -47,6 +47,7 @@ client.on("messageCreate", async (message) => {
     for (const [i, a] of pulledMessages.entries()) {
       if (a.content == "COW_CLEAR_CONTEXT") {
         pulledMessages = pulledMessages.slice(i + 1);
+        parsePulledMessages();
         break;
       }
     }
@@ -66,6 +67,7 @@ client.on("messageCreate", async (message) => {
         }
       : { role: "model", parts: [{ text: a.content }] };
   });
+  console.log("[Discord] Pulled messages: ", pulledMessages);
   await savedMsg.push(`/discord:${message.id}`, pulledMessages);
   const ws = new WebSocket(
     `ws://localhost:38943/api/generate?key=${process.env.ADMIN_KEY}&streamingResponse&_readSavedMessages=discord:${message.id}`
