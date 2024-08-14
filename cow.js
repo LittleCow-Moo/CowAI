@@ -169,7 +169,7 @@ module.exports = {
             properties: {
               prompt: {
                 type: "STRING",
-                description: "Prompts for generating the image.",
+                description: "Prompts for generating the image. Use English for better results.",
                 nullable: false,
               },
               seed: {
