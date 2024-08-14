@@ -43,11 +43,15 @@ client.on("messageCreate", async (message) => {
   var pulledMessages = Object.values(
     (await message.channel.messages.fetch({ limit: 5 })).toJSON()
   ).reverse();
-  for (const [i, a] of pulledMessages.entries()) {
-    if (a.content == "COW_CLEAR_CONTEXT") {
-      pulledMessages = pulledMessages.slice(i + 1);
+  var parsePulledMessages = () => {
+    for (const [i, a] of pulledMessages.entries()) {
+      if (a.content == "COW_CLEAR_CONTEXT") {
+        pulledMessages = pulledMessages.slice(i + 1);
+        break;
+      }
     }
-  }
+  };
+  parsePulledMessages();
   pulledMessages = pulledMessages.map((a) => {
     a.content = Discord.cleanContent(
       a.content,
@@ -70,6 +74,7 @@ client.on("messageCreate", async (message) => {
   var sentReply = false;
   var wsTimeout;
   var response = "";
+  globalThis.WebSocket = WebSocket;
   for await (const data of websocketData(ws)) {
     const parsed = JSON.parse(data.toString());
     if (parsed.type == "welcome") {
@@ -87,7 +92,7 @@ client.on("messageCreate", async (message) => {
       if (parsed.first && !sentReply) {
         sentReply = true;
         replyMessage = await message.reply(parsed.message);
-        return;
+        continue;
       }
       if (sentReply && replyMessage) {
         replyMessage = await replyMessage.edit(parsed.full);
