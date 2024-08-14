@@ -215,7 +215,7 @@ wss.on("connection", (ws) => {
       }
       console.log();
       console.log("[System] This is the end of the chat.");
-      ws.send(JSON.stringify({ type: "end", message: "All done!" }));
+      ws.send(JSON.stringify({ type: "end", message: "All done!", full }));
     })().catch(async (e) => {
       console.error("[System] Error occurred:", e);
       await db.push(`/used/${ws.key}`, used);

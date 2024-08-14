@@ -106,7 +106,7 @@ client.on("messageCreate", async (message) => {
     }
     if (parsed.type == "end") {
       try {
-        replyMessage = await replyMessage.edit(response);
+        replyMessage = await replyMessage.edit(parsed.full);
       } catch (e) {
       } finally {
         try {
