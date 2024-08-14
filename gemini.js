@@ -187,6 +187,8 @@ wss.on("connection", (ws) => {
         });
         process.stdout.write("[Cow] ");
         for await (const item of result.stream) {
+          if (!item.candidates) continue;
+          if (!item.candidates[0].content.parts) continue;
           process.stdout.write(item.candidates[0].content.parts[0].text);
           full += item.candidates[0].content.parts[0].text;
           streaming
