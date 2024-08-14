@@ -14,6 +14,7 @@ const client = new Discord.Client({
 const { JsonDB, Config } = require("node-json-db");
 var savedMsg = new JsonDB(new Config("savedMessages", true, true));
 const { WebSocket } = require("ws");
+const { websocketData } = require("websocket-iterator");
 
 client.on("ready", () => {
   console.log("[Discord] Bot ready", client.user.tag);
@@ -69,7 +70,7 @@ client.on("messageCreate", async (message) => {
   var sentReply = false;
   var wsTimeout;
   var response = "";
-  ws.on("message", async (data) => {
+  for await (const data of websocketData(ws)) {
     const parsed = JSON.parse(data.toString());
     if (parsed.type == "welcome") {
       await message.channel.sendTyping();
@@ -119,7 +120,7 @@ client.on("messageCreate", async (message) => {
         } catch (e) {}
       }
     }
-  });
+  }
 });
 client.on("interactionCreate", (slash) => {
   if (slash.type != Discord.InteractionType.ApplicationCommand) return;
