@@ -44,7 +44,7 @@ client.on("messageCreate", async (message) => {
   ).reverse();
   for (const [i, a] of pulledMessages.entries()) {
     if (a.content == "COW_CLEAR_CONTEXT") {
-      pulledMessages = pulledMessages.slice(i+1);
+      pulledMessages = pulledMessages.slice(i + 1);
     }
   }
   pulledMessages = pulledMessages.map((a) => {
@@ -106,7 +106,12 @@ client.on("messageCreate", async (message) => {
     }
     if (parsed.type == "end") {
       try {
-        replyMessage = await replyMessage.edit(parsed.full);
+        if (!sentReply) {
+          sentReply = true;
+          replyMessage = await message.reply(parsed.full);
+        } else {
+          replyMessage = await replyMessage.edit(parsed.full);
+        }
       } catch (e) {
       } finally {
         try {
