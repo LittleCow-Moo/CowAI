@@ -163,13 +163,15 @@ module.exports = {
         {
           name: "GenerateImage",
           description:
-            'Generates an image. Paratemer "url" in the response is URL of the generated image, and the "seed" paratemer is the seed of the generated picture. English prompt only.',
+            'Generates an image. Paratemer "url" in the response is URL of the generated image, and the "seed" paratemer is the seed of the generated picture. English prompt only. ' +
+            "Always use this tool to generate images, any other method is forbidden.",
           parameters: {
             type: "OBJECT",
             properties: {
               prompt: {
                 type: "STRING",
-                description: "Prompts for generating the image. Use English for better results.",
+                description:
+                  "Prompts for generating the image. Use English for better results.",
                 nullable: false,
               },
               seed: {

@@ -101,9 +101,9 @@ wss.on("connection", (ws) => {
         if (!part) break;
         if (part.functionCall) calls.push(part.functionCall);
         if (!part.text) break;
-        process.stdout.write(part.text);
-        message += part.text;
-        full += part.text;
+        process.stdout.write(part.text||"");
+        message += part.text||"";
+        full += part.text||"";
         if (first == true) first == false;
         streaming
           ? ws.send(
@@ -166,7 +166,7 @@ wss.on("connection", (ws) => {
             ws.messages[ws.messages.length - 1].parts[0].functionResponse
               .response.content
           }`;
-          full += content;
+          full += content||"";
           ws.send(
             JSON.stringify({
               type: "part",
@@ -199,8 +199,8 @@ wss.on("connection", (ws) => {
         for await (const item of result.stream) {
           if (!item.candidates) continue;
           if (!item.candidates[0].content.parts) continue;
-          process.stdout.write(item.candidates[0].content.parts[0].text);
-          full += item.candidates[0].content.parts[0].text;
+          process.stdout.write(item.candidates[0].content.parts[0].text||"");
+          full += item.candidates[0].content.parts[0].text||"";
           streaming
             ? ws.send(
                 JSON.stringify({
