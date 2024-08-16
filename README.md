@@ -19,27 +19,27 @@
 5. 把`.env`填成這樣子：
 
 ```env
-KEY="" # Google Gemini API Key
-ADMIN_KEY="" # 設定一個管理員專用的Cow AI API Key。這個API Key將會繞過速率限制，並且會被使用在其他平台中。
+KEY= # Google Gemini API Key
+ADMIN_KEY= # 設定一個管理員專用的Cow AI API Key。這個API Key將會繞過速率限制，並且會被使用在其他平台中。
 ENABLE_AI_GATEWAY=[true/false] # 是否要啟用Cloudflare AI Gateway
-AI_GATEWAY="" # 如果ENABLE_AI_GATEWAY為true，請填寫此項。
+AI_GATEWAY= # 如果ENABLE_AI_GATEWAY為true，請填寫此項。
 # AI Gateway網址看起來應該會像這樣: https://gateway.ai.cloudflare.com/v1/[帳號ID]/[Gateway ID]/google-ai-studio
 # 只需填寫 "[帳號ID]/[Gateway ID]" 部分即可。
 
 ENABLE_DISCORD=[true/false] # 是否要啟用Discord機器人
-DISCORD="" # Discord Bot Token
+DISCORD= # Discord Bot Token
 
 ENABLE_TELEGRAM=[true/false] # 是否要啟用Telegram機器人
-TELEGRAM="" # Telegram Bot Secret
+TELEGRAM= # Telegram Bot Secret
 
 ENABLE_LINE=[true/false] # 是否要啟用LINE Bot
-LINE_ID="" # LINE Messaging API Channel ID
-LINE_SECRET="" # LINE Messaging API Channel Secret
-LINE_ACCESS_TOKEN="" # LINE Messaging API Channel Access Token
-LINE_SSL_FULLCHAIN="" # 你簽給LINE Bot的SSL的fullchain.pem的檔案路徑
-LINE_SSL_PRIVKEY="" # 你簽給LINE Bot的SSL的privkey.pem的路徑
+LINE_ID= # LINE Messaging API Channel ID
+LINE_SECRET= # LINE Messaging API Channel Secret
+LINE_ACCESS_TOKEN= # LINE Messaging API Channel Access Token
+LINE_SSL_FULLCHAIN= # 你簽給LINE Bot的SSL的fullchain.pem的檔案路徑
+LINE_SSL_PRIVKEY= # 你簽給LINE Bot的SSL的privkey.pem的路徑
 
-HF_ACCESS_TOKEN="" # HuggingFace Access Token (作畫功能使用，要有read權限)
+HF_ACCESS_TOKEN= # HuggingFace Access Token (作畫功能使用，要有read權限)
 ```
 
 6. `node .`
