@@ -151,8 +151,9 @@ client.on("interactionCreate", (slash) => {
         ])}`
       );
       ws.on("message", (data) => {
-        const parsed = JSON.stringify(data);
+        const parsed = JSON.parse(data);
         if (parsed.type == "welcome") {
+
           ws.send("");
         }
         if (parsed.type == "end") {
