@@ -143,7 +143,7 @@ client.on("interactionCreate", (slash) => {
       const ws = new WebSocket(
         `ws://localhost:38943/api/generate?key=${
           process.env.ADMIN_KEY
-        }&messages=${JSON.parse([
+        }&messages=${JSON.stringify([
           {
             role: "user",
             parts: [{ text: `@${slash.user.username}說: ${question}` }],
