@@ -14,25 +14,35 @@ var savedMsg = new JsonDB(new Config("savedMessages", true, true));
 if (!fs.existsSync("images/")) fs.mkdirSync("images");
 db.push(`/max/${process.env.ADMIN_KEY}`, "infinity");
 
+const requestOptions =
+  process.env.ENABLE_AI_GATEWAY == "true"
+    ? {
+        baseUrl: `https://gateway.ai.cloudflare.com/v1/${process.env.AI_GATEWAY}/google-ai-studio`,
+      }
+    : {};
+
 const genAI = new GoogleGenerativeAI(process.env.KEY);
-const model = genAI.getGenerativeModel({
-  model: "gemini-1.5-flash",
-  systemInstruction: cow.prompt,
-  generationConfig: cow.config,
-  tools: cow.tools,
-  safetySettings: [
-    { category: "HARM_CATEGORY_HATE_SPEECH", threshold: "BLOCK_ONLY_HIGH" },
-    {
-      category: "HARM_CATEGORY_SEXUALLY_EXPLICIT",
-      threshold: "BLOCK_ONLY_HIGH",
-    },
-    {
-      category: "HARM_CATEGORY_DANGEROUS_CONTENT",
-      threshold: "BLOCK_ONLY_HIGH",
-    },
-    { category: "HARM_CATEGORY_HARASSMENT", threshold: "BLOCK_ONLY_HIGH" },
-  ],
-});
+const model = genAI.getGenerativeModel(
+  {
+    model: "gemini-1.5-flash",
+    systemInstruction: cow.prompt,
+    generationConfig: cow.config,
+    tools: cow.tools,
+    safetySettings: [
+      { category: "HARM_CATEGORY_HATE_SPEECH", threshold: "BLOCK_ONLY_HIGH" },
+      {
+        category: "HARM_CATEGORY_SEXUALLY_EXPLICIT",
+        threshold: "BLOCK_ONLY_HIGH",
+      },
+      {
+        category: "HARM_CATEGORY_DANGEROUS_CONTENT",
+        threshold: "BLOCK_ONLY_HIGH",
+      },
+      { category: "HARM_CATEGORY_HARASSMENT", threshold: "BLOCK_ONLY_HIGH" },
+    ],
+  },
+  requestOptions
+);
 
 const debug = true;
 const memory = 5;
