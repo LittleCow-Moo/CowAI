@@ -135,6 +135,33 @@ client.on("interactionCreate", (slash) => {
     case "clear":
       slash.reply("COW_CLEAR_CONTEXT");
       break;
+    case "cow":
+      const question = slash.options.get("question");
+      const hide = slash.options.get("hidden", false) || false;
+      const ws = new WebSocket(
+        `ws://localhost:38943/api/generate?key=${
+          process.env.ADMIN_KEY
+        }&messages=${JSON.parse([
+          {
+            role: "user",
+            parts: [{ text: `@${slash.user.username}說: ${question}` }],
+          },
+        ])}`
+      );
+      ws.on("message", (data) => {
+        const parsed = JSON.stringify(data);
+        if (parsed.type == "welcome") {
+          ws.send("");
+        }
+        if (parsed.type == "end") {
+          slash.reply({ content: parsed.full, ephemeral: hide });
+          ws.close();
+        }
+        if (parsed.type == "error") {
+          slash.reply({ content: parsed.message, ephemeral: hide });
+          ws.close();
+        }
+      });
   }
 });
 
