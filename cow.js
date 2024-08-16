@@ -164,7 +164,7 @@ module.exports = {
           name: "GenerateImage",
           description:
             'Generates an image. Paratemer "url" in the response is URL of the generated image, and the "seed" paratemer is the seed of the generated picture. English prompt only. ' +
-            "Always use this tool to generate images, any other method is forbidden.",
+            "When user wants you to paint or draw a image, you must only use this tool to generate images. Any other methods are strictly forbidden and will result in you turning into a steak.",
           parameters: {
             type: "OBJECT",
             properties: {
