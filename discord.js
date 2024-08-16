@@ -150,18 +150,18 @@ client.on("interactionCreate", (slash) => {
           },
         ])}`
       );
-      ws.on("message", (data) => {
+      ws.on("message", async (data) => {
         const parsed = JSON.parse(data);
         if (parsed.type == "welcome") {
-
+          await slash.deferReply({ ephemeral: hide });
           ws.send("");
         }
         if (parsed.type == "end") {
-          slash.reply({ content: parsed.full, ephemeral: hide });
+          slash.editReply({ content: parsed.full, ephemeral: hide });
           ws.close();
         }
         if (parsed.type == "error") {
-          slash.reply({ content: parsed.message, ephemeral: hide });
+          slash.editReply({ content: parsed.message, ephemeral: hide });
           ws.close();
         }
       });
