@@ -136,6 +136,15 @@ const GetWeather = async (args) => {
       if (result.location.imagerelativeurl)
         delete result.location.imagerelativeurl;
       if (result.current.imageUrl) delete result.current.imageUrl;
+      if (result.current.date && result.current.observationtime) {
+        const converted = moment.tz(
+          `${result.current.date}T${result.current.observationtime}+00:00`,
+          "Asia/Taipei"
+        );
+        result.current.date = converted.format("yyyy-MM-DD");
+        result.current.observationtime = converted.format("HH:mm:ss");
+        result.location.timezone = "+8";
+      }
       resolve({
         name: "GetWeather",
         response: result,
