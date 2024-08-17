@@ -138,8 +138,8 @@ client.on("interactionCreate", (slash) => {
       slash.reply("COW_CLEAR_CONTEXT");
       break;
     case "cow":
-      const question = slash.options.get("question");
-      const hide = slash.options.get("hidden", false) || false;
+      const question = slash.options.getString("question") || "";
+      const hide = slash.options.getBoolean("hidden", false) || false;
       const ws = new WebSocket(
         `ws://localhost:38943/api/generate?key=${
           process.env.ADMIN_KEY
