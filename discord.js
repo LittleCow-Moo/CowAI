@@ -146,7 +146,7 @@ client.on("interactionCreate", (slash) => {
         }&messages=${JSON.stringify([
           {
             role: "user",
-            parts: [{ text: `@${slash.user.username}說: ${question}` }],
+            parts: [{ text: question }],
           },
         ])}`
       );
