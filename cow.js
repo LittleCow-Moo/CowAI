@@ -6,6 +6,13 @@ module.exports = {
   config: {
     temperature: 1.2, //1.1,
     topP: 1,
+    stopSequences: [
+      // Use stop sequence to block unwanted fake image generating methods
+      "[https://storage.googleapis.com",
+      "https://storage.googleapis.com",
+      "[https://i.imgur.com",
+      "https://i.imgur.com",
+    ],
     //responseMimeType: "text/plain"
     //frequencyPenalty: 0.5,
     //presencePenalty: 0.1,
@@ -251,4 +258,27 @@ module.exports = {
     },
   ],
   functions: require("./functions"),
+  utils: {
+    toolCallFix: (input) => {
+      var returns = [];
+      var returningInput = input;
+      const regex = /print\(default_api\.(\w+)\((.*?)\)\)/g;
+      const matches = [...input.matchAll(regex)];
+      const result = matches.map((match) => {
+        returningInput = returningInput.replaceAll(match[0], "");
+        const methodName = match[1];
+        const argsString = match[2];
+        const args = {};
+        argsString.split(",").forEach((arg) => {
+          const [key, value] = arg.split("=").map((s) => s.trim());
+          args[key] = value.replace(/(^"|"$)/g, "");
+        });
+        returns.push({
+          name: methodName,
+          args: args,
+        });
+      });
+      return { calls: returns, replaced: returningInput };
+    },
+  },
 };
