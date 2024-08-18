@@ -16,7 +16,7 @@ module.exports = {
       functionDeclarations: [
         {
           name: "Time",
-          description: "取得UTC+8時間。讀取回傳資料時請直接讀取content字段。",
+          description: "取得現在時間（台北時間，`UTC+8`），結果位於 `content` 項。",
         },
       ],
     },
@@ -25,13 +25,13 @@ module.exports = {
         {
           name: "MCJavaServer",
           description:
-            "取得一個Minecraft Java版伺服器的狀態。注意調用時請將伺服器IP放在ip字段，不是server字段。",
+            "取得一個 Minecraft Java版線上多人伺服器的狀態。",
           parameters: {
             type: "OBJECT",
             properties: {
               server: {
                 type: "STRING",
-                description: "伺服器IP",
+                description: "伺服器IP，例如 `cowgl.xyz`。",
                 nullable: false,
               },
             },
@@ -44,13 +44,13 @@ module.exports = {
       functionDeclarations: [
         {
           name: "MCBedrockServer",
-          description: "取得一個Minecraft 基岩版伺服器的狀態。",
+          description: "取得一個 Minecraft 基岩版線上多人伺服器的狀態。",
           parameters: {
             type: "OBJECT",
             properties: {
               server: {
                 type: "STRING",
-                description: "伺服器IP",
+                description: "伺服器IP，例如 `cowgl.xyz`。",
                 nullable: false,
               },
             },
@@ -63,7 +63,7 @@ module.exports = {
       functionDeclarations: [
         {
           name: "Joke",
-          description: "取得一個笑話。讀取回傳資料時請直接讀取content字段。",
+          description: "從笑話特輯隨機取得一個笑話，結果位於 `content` 項。",
         },
       ],
     },
@@ -72,16 +72,17 @@ module.exports = {
         {
           name: "Google",
           description:
-            "在Google上搜尋東西。讀取時請讀取results字段，裡面的object的title是搜尋結果的標題、link是搜尋結果的連結、snippet是搜尋結果的部分內容。",
+            "使用 Google 搜尋內容。結果位於 `result` 項，其中的 `title` 表示該結果的網頁標題、`link` 表示該結果的連結、`snippet` 提供該結果的部分預覽（預覽可能不是即時的，如果需要請另外直接瀏覽該網頁）。",
           parameters: {
             type: "OBJECT",
             properties: {
               query: {
                 type: "STRING",
-                description: "搜尋內容",
+                description: "Google 搜尋關鍵字（例如：`Minecraft`），也支援如 `site:` 等過濾選項。",
                 nullable: false,
               },
             },
+            required: [ "query" ],
           },
         },
       ],
@@ -91,16 +92,17 @@ module.exports = {
         {
           name: "Browser",
           description:
-            "瀏覽某個網頁。也可以理解為執行fetch指令。讀取回傳資料時請直接讀取content字段。",
+            "瀏覽指定網頁。結果位於 `content` 項。",
           parameters: {
             type: "OBJECT",
             properties: {
               url: {
                 type: "STRING",
-                description: "要瀏覽的網址",
+                description: "目標網頁的網址，例如： `https://example.com`。",
                 nullable: false,
               },
             },
+            required: [ "url" ]
           },
         },
       ],
@@ -109,7 +111,7 @@ module.exports = {
       functionDeclarations: [
         {
           name: "Invoice",
-          description: "取得最新的發票中獎號碼。",
+          description: "取得台灣最新的統一發票中獎號碼，回傳結果包含中獎號碼及月份資訊。",
         },
       ],
     },
@@ -118,7 +120,7 @@ module.exports = {
         {
           name: "LatestEarthquake",
           description:
-            "[TaiwanEarthquake] Get the most recent earthquake information from CWA (formerly CWB).",
+            "從中央氣象署取得台灣最近的地震報告。",
         },
       ],
     },
@@ -127,7 +129,7 @@ module.exports = {
         {
           name: "LatestLocalEarthquake",
           description:
-            "[TaiwanEarthquake] Get the latest local (small area) earthquake.",
+            "從中央氣象署取得台灣最近的顯著有感地震報告。",
         },
       ],
     },
@@ -136,7 +138,7 @@ module.exports = {
         {
           name: "LatestMajorEarthquake",
           description:
-            "[TaiwanEarthquake] Gets the latest major (big area) earthquake.",
+            "從中央氣象署取得台灣最近的小區域有感地震報告。",
         },
       ],
     },
@@ -144,16 +146,17 @@ module.exports = {
       functionDeclarations: [
         {
           name: "GetEarthquakeByID",
-          description: "[TaiwanEarthquake] Gets an earthquake by their ID.",
+          description: "從中央氣象署取得台灣指定地震編號的地震報告。",
           parameters: {
             type: "OBJECT",
             properties: {
               id: {
                 type: "STRING",
-                description: "The earthquake's ID",
+                description: "地震編號，由民國年份與序號構成，例如 `113447` 是指在民國 113 年，序號 `447` 的地震。",
                 nullable: false,
               },
             },
+            required: [ "id" ]
           },
         },
       ],
@@ -163,34 +166,34 @@ module.exports = {
         {
           name: "GenerateImage",
           description:
-            'Generates an image. Paratemer "url" in the response is URL of the generated image, and the "seed" paratemer is the seed of the generated picture. English prompt only. ' +
-            "When user wants you to paint or draw a image, you must only use this tool to generate images. Any other methods are strictly forbidden and will result in you turning into a steak.",
+            '生成（繪製）一張圖片。結果中 `url` 項表示生成結果的圖片連結，`seed` 項為採用的種子碼。',
           parameters: {
             type: "OBJECT",
             properties: {
               prompt: {
                 type: "STRING",
                 description:
-                  "Prompts for generating the image. Use English for better results.",
+                  "想產生的圖片的提示詞（描述），像是圖片主題、風格、背景設計等等，僅支援英文，詳細明確的描述能提供較符合的結果，例如：`A Minecraft cow in a lush green meadow under a vibrant blue sky, with soft white clouds drifting across the horizon. The cow should have a gentle, friendly expression, its brown and white patterned fur meticulously rendered. The meadow should be filled with tall, swaying grass, with wildflowers blooming in bright colors. The sun should be shining brightly, casting long shadows from the cow and the surrounding trees. The overall scene should evoke a feeling of tranquility and peace.`。",
                 nullable: false,
               },
               seed: {
                 type: "INTEGER",
                 description:
-                  "The seed for generating the image. If left empty, then it will use random seed.",
+                  "圖片的種子碼，相同的種子碼可能有助於提供同種樣式的圖片，一般會使用隨機產生的種子碼，不需設定。將本欄位留空即表示使用隨機種子。",
                 nullable: true,
               },
               width: {
                 type: "INTEGER",
-                description: "Width of the image. Default value is 1024.",
+                description: "圖片寬度，單位：像素。預設情況採用 `1024`。",
                 nullable: true,
               },
               height: {
                 type: "INTEGER",
-                description: "Height of the image. Default value is 1024.",
+                description: "圖片高度，單位：像素。預設情況採用 `1024`。",
                 nullable: true,
               },
             },
+            required: [ "prompt" ]
           },
         },
       ],
@@ -199,13 +202,13 @@ module.exports = {
       functionDeclarations: [
         {
           name: "GetWeather",
-          description: "Get the current weather and forecast of a place.",
+          description: "取得指定地區的目前天氣狀況及天氣預報。",
           parameters: {
             type: "OBJECT",
             properties: {
               query: {
                 type: "STRING",
-                description: "The location to get the weather from.",
+                description: "目標查詢地區，例如：`臺中市`。",
                 nullable: false,
               },
             },
@@ -217,16 +220,17 @@ module.exports = {
       functionDeclarations: [
         {
           name: "SearchRepository",
-          description: "Search for repositories on GitHub.",
+          description: "搜尋 GitHub 儲存庫。",
           parameters: {
             type: "OBJECT",
             properties: {
               query: {
                 type: "STRING",
-                description: "The query of the search.",
+                description: "用於搜尋 GitHub 儲存庫的關鍵字，例如：`CowAI`。",
                 nullable: false,
               },
             },
+            required: [ "query" ]
           },
         },
       ],
@@ -235,13 +239,13 @@ module.exports = {
       functionDeclarations: [
         {
           name: "SearchVideo",
-          description: "Search for videos on YouTube.",
+          description: "搜尋 YouTube 上的影片。",
           parameters: {
             type: "OBJECT",
             properties: {
               query: {
                 type: "STRING",
-                description: "The query of the search.",
+                description: "用於搜尋 YouTube 影片的關鍵字，例如：`Never Gonna Give You Up`。",
                 nullable: false,
               },
             },
