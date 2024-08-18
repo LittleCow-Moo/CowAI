@@ -208,6 +208,7 @@ wss.on("connection", (ws) => {
           await run();
         }
       };
+      await run();
       console.log();
       console.log("[System] This is the end of the chat.");
       ws.send(JSON.stringify({ type: "end", message: "All done!", full }));
