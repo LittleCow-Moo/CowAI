@@ -17,7 +17,8 @@ const Time = () => {
   };
 };
 const MCJavaServer = async (args) => {
-  const response = await fetch(`https://api.mcsrvstat.us/3/${args.server}`);
+  const ip = args.ip || args.server || args.server_address;
+  const response = await fetch(`https://api.mcsrvstat.us/3/${ip}`);
   var body = await response.json();
   if (body.icon) delete body.icon;
   return {
@@ -26,8 +27,9 @@ const MCJavaServer = async (args) => {
   };
 };
 const MCBedrockServer = async (args) => {
+  const ip = args.ip || args.server || args.server_address;
   const response = await fetch(
-    `https://api.mcstatus.io/v2/status/bedrock/${args.server}`
+    `https://api.mcstatus.io/v2/status/bedrock/${ip}`
   );
   const body = await response.json();
   return {
@@ -79,7 +81,7 @@ const Invoice = async () => {
 };
 
 const GenerateImage = async (args) => {
-  const prompt = args.prompt || args.image;
+  const prompt = args.prompt || args.image || args.description;
   if (!prompt)
     return {
       name: "GenerateImage",
@@ -95,10 +97,15 @@ const GenerateImage = async (args) => {
       hf_token: process.env.HF_ACCESS_TOKEN,
     }
   );
+  const seed = args.seed
+    ? typeof args.seed == "number"
+      ? args.seed
+      : parseInt(args.seed)
+    : 0;
   const result = (
     await client.predict("/infer", {
       prompt,
-      seed: args.seed || 0,
+      seed,
       randomize_seed: !args.seed ? true : false,
       width: args.width || 1024,
       height: args.height || 1024,
