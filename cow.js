@@ -52,7 +52,7 @@ module.exports = {
           description: "從笑話特輯隨機取得一個笑話，結果位於 `content` 項。",
         },
         {
-          name: "Google",
+          name: "GoogleSearch",
           description:
           "使用 Google 搜尋內容。結果位於 `result` 項，其中的 `title` 表示該結果的網頁標題、`link` 表示該結果的連結、`snippet` 提供該結果的部分預覽（預覽可能不是即時的，如果需要請另外直接瀏覽該網頁）。",
           parameters: {

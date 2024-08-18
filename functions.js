@@ -43,9 +43,9 @@ const Joke = () => {
     response: { content: jokes[Math.floor(Math.random() * jokes.length)] },
   };
 };
-const Google = async (args) => {
+const GoogleSearch = async (args) => {
   return {
-    name: "Google",
+    name: "GoogleSearch",
     response: {
       results: await google({ query: args.query, disableConsole: true }),
     },
@@ -203,7 +203,7 @@ const available_functions = {
   MCJavaServer,
   MCBedrockServer,
   Joke,
-  Google,
+  GoogleSearch,
   Browser,
   Invoice,
   LatestEarthquake: TaiwanEarthquake.latest,
