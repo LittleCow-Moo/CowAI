@@ -9,3 +9,4 @@ savedMessages.json
 tgMsg.json
 poe.js
 openai.js
+.DS_Store
