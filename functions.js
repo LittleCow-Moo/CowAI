@@ -17,7 +17,8 @@ const Time = () => {
   };
 };
 const MCJavaServer = async (args) => {
-  const ip = args.server || args.ip || args.server_address || args.host;
+  const ip =
+    args.server || args.ip || args.server_address || args.host || args.url;
   const response = await fetch(`https://api.mcsrvstat.us/3/${ip}`);
   var body = await response.json();
   if (body.icon) delete body.icon;
@@ -27,7 +28,8 @@ const MCJavaServer = async (args) => {
   };
 };
 const MCBedrockServer = async (args) => {
-  const ip = args.server || args.ip || args.server_address || args.host;
+  const ip =
+    args.server || args.ip || args.server_address || args.host || args.url;
   const response = await fetch(
     `https://api.mcstatus.io/v2/status/bedrock/${ip}`
   );
