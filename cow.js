@@ -6,13 +6,6 @@ module.exports = {
   config: {
     temperature: 1.2, //1.1,
     topP: 1,
-    stopSequences: [
-      // Use stop sequence to block unwanted fake image generating methods
-      "[https://storage.googleapis.com",
-      "https://storage.googleapis.com",
-      "[https://i.imgur.com",
-      "https://i.imgur.com",
-    ],
     //responseMimeType: "text/plain"
     //frequencyPenalty: 0.5,
     //presencePenalty: 0.1,
