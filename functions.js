@@ -79,7 +79,7 @@ const Invoice = async () => {
 };
 
 const GenerateImage = async (args) => {
-  const prompt = args.prompt || args.image;
+  const prompt = args.prompt || args.image || args.description;
   if (!prompt)
     return {
       name: "GenerateImage",
@@ -95,10 +95,15 @@ const GenerateImage = async (args) => {
       hf_token: process.env.HF_ACCESS_TOKEN,
     }
   );
+  const seed = args.seed
+    ? typeof args.seed == "number"
+      ? args.seed
+      : parseInt(args.seed)
+    : 0;
   const result = (
     await client.predict("/infer", {
       prompt,
-      seed: args.seed || 0,
+      seed,
       randomize_seed: !args.seed ? true : false,
       width: args.width || 1024,
       height: args.height || 1024,
