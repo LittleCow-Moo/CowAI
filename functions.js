@@ -198,7 +198,7 @@ const SearchVideo = async (args) => {
   };
 };
 const SearchMinecraftWiki = async (args) => {
-  var returns = await GoogleSearch(args.query);
+  var returns = await GoogleSearch(args);
   returns.name = "SearchMinecraftWiki";
   return returns;
 };
