@@ -87,149 +87,127 @@ wss.on("connection", (ws) => {
       } else {
         console.log("[User] (empty prompt)");
       }
-      const result = await model.generateContentStream({
-        contents: ws.messages.slice(-1 * memory),
-      });
-      var calls = [];
-      var message = "";
-      process.stdout.write("[Cow] ");
       var first = true;
-      for await (const item of result.stream) {
-        if (!item.candidates) break;
-        if (!item.candidates[0].content) break;
-        const part = item.candidates[0].content.parts[0];
-        if (!part) break;
-        if (part.functionCall) calls.push(part.functionCall);
-        if (!part.text) break;
-        if (first == true) first == false;
-        var callsFix = cow.utils.toolCallFix(part.text || "");
-        if (callsFix.calls[0]) {
-          for (const call of callsFix.calls) {
-            calls.push(call);
-            part.text = callsFix.replaced;
-          }
-        }
-        process.stdout.write(part.text || "");
-        message += part.text || "";
-        full += part.text || "";
-        streaming
-          ? ws.send(
-              JSON.stringify({
-                type: "part",
-                message: part.text,
-                full,
-                first,
-              })
-            )
-          : null;
-      }
-      ws.messages.push({
-        role: "model",
-        parts: [
-          {
-            text: message,
-          },
-        ],
-      });
-      ws.send(JSON.stringify({ type: "response", message }));
-      if (calls[0]) {
-        for (const call of calls) {
-          if (!call.name) continue;
-          console.log();
-          debug ? console.log(`[System] Function call received:`, call) : null;
-          ws.send(
-            JSON.stringify({
-              type: "function",
-              call,
-              message: "Function call received.",
-            })
-          );
-          const functionResponse = await cow.functions[call.name](call.args);
-          debug
-            ? console.log(
-                `[System] ${call.name} result:`,
-                functionResponse.response
-              )
-            : null;
-
-          ws.send(
-            JSON.stringify({
-              type: "functionResponse",
-              functionResponse,
-            })
-          );
-          ws.messages.push({
-            role: "function",
-            parts: [{ functionResponse }],
-          });
-        }
-        if (
-          true &&
-          ws.messages[ws.messages.length - 1].role == "function" &&
-          ws.messages[ws.messages.length - 1].parts[0].functionResponse.name ==
-            "Joke"
-        ) {
-          var content = `哞! ${
-            ws.messages[ws.messages.length - 1].parts[0].functionResponse
-              .response.content
-          }`;
-          full += content || "";
-          ws.send(
-            JSON.stringify({
-              type: "part",
-              message: content,
-              full,
-              first,
-            })
-          );
-          ws.send(
-            JSON.stringify({
-              type: "response",
-              message: content,
-            })
-          );
-          ws.messages[ws.messages.length - 1] = {
-            role: "model",
-            parts: [
-              {
-                text: content,
-              },
-            ],
-          };
-          ws.send(JSON.stringify({ type: "end", message: "All done!" }));
-          return console.log(`[Cow] ${content}`);
-        }
+      const run = async () => {
         const result = await model.generateContentStream({
           contents: ws.messages.slice(-1 * memory),
         });
+        var calls = [];
+        var message = "";
         process.stdout.write("[Cow] ");
         for await (const item of result.stream) {
           if (!item.candidates) continue;
-          if (!item.candidates[0].content.parts) continue;
-          process.stdout.write(item.candidates[0].content.parts[0].text || "");
-          full += item.candidates[0].content.parts[0].text || "";
+          if (!item.candidates[0].content) continue;
+          const part = item.candidates[0].content.parts[0];
+          if (!part) continue;
+          if (part.functionCall) calls.push(part.functionCall);
+          if (!part.text) continue;
+          if (first == true) first == false;
+          var callsFix = cow.utils.toolCallFix(part.text || "");
+          if (callsFix.calls[0]) {
+            for (const call of callsFix.calls) {
+              calls.push(call);
+              part.text = callsFix.replaced;
+            }
+          }
+          process.stdout.write(part.text || "");
+          message += part.text || "";
+          full += part.text || "";
           streaming
             ? ws.send(
                 JSON.stringify({
                   type: "part",
-                  message: item.candidates[0].content.parts[0].text,
+                  message: part.text,
                   full,
                   first,
                 })
               )
             : null;
         }
-        const response = await result.response;
         ws.messages.push({
           role: "model",
           parts: [
             {
-              text: response.text(),
+              text: message,
             },
           ],
         });
-        ws.send(JSON.stringify({ type: "response", message: response.text() }));
-      }
+        ws.send(JSON.stringify({ type: "response", message }));
+        if (calls[0]) {
+          for (const call of calls) {
+            if (!call.name) continue;
+            console.log();
+            debug
+              ? console.log(`[System] Function call received:`, call)
+              : null;
+            ws.send(
+              JSON.stringify({
+                type: "function",
+                call,
+                message: "Function call received.",
+              })
+            );
+            const functionResponse = await cow.functions[call.name](call.args);
+            debug
+              ? console.log(
+                  `[System] ${call.name} result:`,
+                  functionResponse.response
+                )
+              : null;
+
+            ws.send(
+              JSON.stringify({
+                type: "functionResponse",
+                functionResponse,
+              })
+            );
+            ws.messages.push({
+              role: "function",
+              parts: [{ functionResponse }],
+            });
+          }
+          if (
+            true &&
+            ws.messages[ws.messages.length - 1].role == "function" &&
+            ws.messages[ws.messages.length - 1].parts[0].functionResponse
+              .name == "Joke"
+          ) {
+            var content = `哞！${
+              ws.messages[ws.messages.length - 1].parts[0].functionResponse
+                .response.content
+            }`;
+            full += content || "";
+            streaming
+              ? ws.send(
+                  JSON.stringify({
+                    type: "part",
+                    message: content,
+                    full,
+                    first,
+                  })
+                )
+              : null;
+            ws.send(
+              JSON.stringify({
+                type: "response",
+                message: content,
+              })
+            );
+            ws.messages[ws.messages.length - 1] = {
+              role: "model",
+              parts: [
+                {
+                  text: content,
+                },
+              ],
+            };
+            ws.send(JSON.stringify({ type: "end", message: "All done!" }));
+            return console.log(`[Cow] ${content}`);
+          }
+          calls = [];
+          await run();
+        }
+      };
       console.log();
       console.log("[System] This is the end of the chat.");
       ws.send(JSON.stringify({ type: "end", message: "All done!", full }));
