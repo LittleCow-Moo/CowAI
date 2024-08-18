@@ -79,7 +79,7 @@ const Invoice = async () => {
 };
 
 const GenerateImage = async (args) => {
-  const prompt = args.prompt || args.image;
+  const prompt = args.prompt || args.image || args.description;
   if (!prompt)
     return {
       name: "GenerateImage",
