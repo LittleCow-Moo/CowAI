@@ -264,25 +264,24 @@ module.exports = {
       var returningInput = input;
       const regex = /print\(default_api\.(\w+)\((.*?)\)\)/g;
       const matches = [...input.matchAll(regex)];
-      matches.forEach((match) => {
+      for (const match of matches) {
         returningInput = returningInput.replaceAll(match[0], "");
         const methodName = match[1];
         const argsString = match[2];
         const args = {};
-        const argPairs = argsString.match(
-          /(\w+)\s*=\s*("[^"]*"|'[^']*'|[^,]+)/g
-        );
-        argPairs.forEach((arg) => {
+        const argPairs =
+          argsString.match(/(\w+)\s*=\s*("[^"]*"|'[^']*'|[^,]+)/g) || [];
+        for (const arg of argPairs) {
           const [key, value] = arg.split("=").map((s) => s.trim());
           if (key && value !== undefined) {
             args[key] = value.replace(/(^["']|["']$)/g, "");
           }
-        });
+        }
         returns.push({
           name: methodName,
           args: args,
         });
-      });
+      }
       return { calls: returns, replaced: returningInput };
     },
   },
