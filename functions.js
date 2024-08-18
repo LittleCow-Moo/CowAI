@@ -197,6 +197,11 @@ const SearchVideo = async (args) => {
     },
   };
 };
+const SearchMinecraftWiki = async (args) => {
+  var returns = await GoogleSearch(args.query);
+  returns.name = "SearchMinecraftWiki";
+  return returns;
+};
 
 const available_functions = {
   Time,
@@ -214,5 +219,6 @@ const available_functions = {
   GetWeather,
   SearchRepository,
   SearchVideo,
+  SearchMinecraftWiki,
 };
 module.exports = available_functions;
