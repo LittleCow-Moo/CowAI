@@ -1,8 +1,5 @@
 module.exports = {
-  prompt: require("fs").readFileSync("prompt.md").toString("utf-8"),
-  /**
-   * @params {require("@google/generative-ai").GenerationConfig} config
-   */
+  /*prompt: require("fs").readFileSync("prompt.md").toString("utf-8"),
   config: {
     temperature: 1.2, //1.1,
     topP: 1,
@@ -10,7 +7,7 @@ module.exports = {
     //frequencyPenalty: 0.5,
     //presencePenalty: 0.1,
     //maxOutputTokens: 3072,
-  },
+  },*/
   tools: [
     {
       functionDeclarations: [
