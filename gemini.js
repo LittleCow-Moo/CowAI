@@ -106,7 +106,6 @@ wss.on("connection", (ws) => {
           if (!part) continue;
           if (part.functionCall) calls.push(part.functionCall);
           if (!part.text) continue;
-          if (first == true) first == false;
           var callsFix = cow.utils.toolCallFix(part.text || "");
           if (callsFix.calls[0]) {
             for (const call of callsFix.calls) {
@@ -127,6 +126,7 @@ wss.on("connection", (ws) => {
                 })
               )
             : null;
+          if (first == true) first = false;
         }
         ws.messages.push({
           role: "model",
