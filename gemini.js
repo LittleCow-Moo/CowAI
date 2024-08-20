@@ -22,27 +22,31 @@ const requestOptions =
     : {};
 
 const genAI = new GoogleGenerativeAI(process.env.KEY);
-const model = genAI.getGenerativeModel(
-  {
-    model: "gemini-1.5-flash",
-    systemInstruction: cow.prompt,
-    generationConfig: cow.config,
-    tools: cow.tools,
-    safetySettings: [
-      { category: "HARM_CATEGORY_HATE_SPEECH", threshold: "BLOCK_NONE" },
-      {
-        category: "HARM_CATEGORY_SEXUALLY_EXPLICIT",
-        threshold: "BLOCK_NONE",
+const models = {
+  cow: genAI.getGenerativeModel(
+    {
+      model: "gemini-1.5-flash",
+      systemInstruction: cow.prompt,
+      generationConfig: cow.config,
+      tools: cow.tools,
+      safetySettings: cow.safetySettings,
+    },
+    requestOptions
+  ),
+  mathcow: genAI.getGenerativeModel(
+    {
+      model: "gemini-1.5-pro-exp-0801",
+      systemInstruction: cow.mathPrompt,
+      generationConfig: {
+        temperature: 0.8,
+        topP: 0.95,
       },
-      {
-        category: "HARM_CATEGORY_DANGEROUS_CONTENT",
-        threshold: "BLOCK_NONE",
-      },
-      { category: "HARM_CATEGORY_HARASSMENT", threshold: "BLOCK_NONE" },
-    ],
-  },
-  requestOptions
-);
+      safetySettings: cow.safetySettings,
+    },
+    requestOptions
+  ),
+};
+const enabledModels = ["cow", "mathcow"];
 
 const debug = true;
 const memory = 5;
@@ -89,7 +93,7 @@ wss.on("connection", (ws) => {
       }
       var first = true;
       const run = async () => {
-        const result = await model.generateContentStream({
+        const result = await models[ws.model].generateContentStream({
           contents: ws.messages.slice(-1 * memory),
         });
         var calls = [];
@@ -289,6 +293,11 @@ server.on("upgrade", (request, socket, head) => {
     socket.destroy();
     return;
   }
+  if (query.model && !enabledModels.includes(query.model)) {
+    socket.write("HTTP/1.1 400 Bad Request\r\n\r\n");
+    socket.destroy();
+    return;
+  }
   wss.handleUpgrade(request, socket, head, async (ws) => {
     ws.streamingResponse = !!query.streamingResponse;
     ws.key = query.key;
@@ -300,6 +309,7 @@ server.on("upgrade", (request, socket, head) => {
       ws.messages = await savedMsg.getObject(`/${query._readSavedMessages}`);
     }
     ws.asked = [];
+    ws.model = query.model || "cow";
     wss.emit("connection", ws);
   });
 });

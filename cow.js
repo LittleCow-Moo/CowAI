@@ -1,5 +1,6 @@
 module.exports = {
   prompt: require("fs").readFileSync("prompt.md").toString("utf-8"),
+  mathPrompt: require("fs").readFileSync("mathPrompt.md").toString("utf-8"),
   /**
    * @params {require("@google/generative-ai").GenerationConfig} config
    */
@@ -232,4 +233,16 @@ module.exports = {
       return { calls: returns, replaced: returningInput };
     },
   },
+  safetySettings: [
+    { category: "HARM_CATEGORY_HATE_SPEECH", threshold: "BLOCK_NONE" },
+    {
+      category: "HARM_CATEGORY_SEXUALLY_EXPLICIT",
+      threshold: "BLOCK_NONE",
+    },
+    {
+      category: "HARM_CATEGORY_DANGEROUS_CONTENT",
+      threshold: "BLOCK_NONE",
+    },
+    { category: "HARM_CATEGORY_HARASSMENT", threshold: "BLOCK_NONE" },
+  ],
 };
