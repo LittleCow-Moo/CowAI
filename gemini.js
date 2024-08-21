@@ -165,10 +165,6 @@ wss.on("connection", (ws) => {
                 functionResponse,
               })
             );
-            ws.messages.push({
-              role: "function",
-              parts: [{ functionResponse }],
-            });
           }
           if (
             true &&
