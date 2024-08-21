@@ -159,13 +159,16 @@ wss.on("connection", (ws) => {
                   functionResponse.response
                 )
               : null;
-
             ws.send(
               JSON.stringify({
                 type: "functionResponse",
                 functionResponse,
               })
             );
+            ws.messages.push({
+              role: "function",
+              parts: [{ functionResponse }],
+            });
           }
           if (
             true &&
