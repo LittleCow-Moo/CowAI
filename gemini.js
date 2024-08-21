@@ -22,29 +22,36 @@ const requestOptions =
     : {};
 
 const genAI = new GoogleGenerativeAI(process.env.KEY);
-const models = {
-  cow: genAI.getGenerativeModel(
-    {
-      model: "gemini-1.5-flash",
-      systemInstruction: cow.prompt,
-      generationConfig: cow.config,
-      tools: cow.tools,
-      safetySettings: cow.safetySettings,
-    },
-    requestOptions
-  ),
-  mathcow: genAI.getGenerativeModel(
-    {
-      model: "gemini-1.5-pro-exp-0801",
-      systemInstruction: cow.mathPrompt,
-      generationConfig: {
-        temperature: 0.8,
-        topP: 0.95,
+var models = {
+  cow: () => {
+    return genAI.getGenerativeModel(
+      {
+        model: "gemini-1.5-flash",
+        systemInstruction: cow.prompt.replaceAll(
+          "{time}",
+          moment().format("yyyy年MM月DD日 HH:mm:ss")
+        ),
+        generationConfig: cow.config,
+        tools: cow.tools,
+        safetySettings: cow.safetySettings,
       },
-      safetySettings: cow.safetySettings,
-    },
-    requestOptions
-  ),
+      requestOptions
+    );
+  },
+  mathcow: () => {
+    return genAI.getGenerativeModel(
+      {
+        model: "gemini-1.5-pro-exp-0801",
+        systemInstruction: cow.mathPrompt,
+        generationConfig: {
+          temperature: 0.8,
+          topP: 0.95,
+        },
+        safetySettings: cow.safetySettings,
+      },
+      requestOptions
+    );
+  },
 };
 const enabledModels = ["cow", "mathcow"];
 
@@ -93,7 +100,7 @@ wss.on("connection", (ws) => {
       }
       var first = true;
       const run = async () => {
-        const result = await models[ws.model].generateContentStream({
+        const result = await models[ws.model]().generateContentStream({
           contents: ws.messages.slice(-1 * memory),
         });
         var calls = [];
