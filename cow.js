@@ -18,7 +18,7 @@ module.exports = {
         {
           name: "Time",
           description:
-            "取得現在時間（台北時間，`UTC+8`），結果位於 `content` 項。",
+            "取得現在時間（台北時間，`UTC+8`）。",
         },
         {
           name: "MCJavaServer",
