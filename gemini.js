@@ -136,7 +136,8 @@ wss.on("connection", (ws) => {
             },
           ],
         });
-        ws.send(JSON.stringify({ type: "response", message }));
+        if (message != "")
+          ws.send(JSON.stringify({ type: "response", message }));
         if (calls[0]) {
           for (const call of calls) {
             if (!call.name) continue;
@@ -187,12 +188,13 @@ wss.on("connection", (ws) => {
                   })
                 )
               : null;
-            ws.send(
-              JSON.stringify({
-                type: "response",
-                message: content,
-              })
-            );
+            if (content != "")
+              ws.send(
+                JSON.stringify({
+                  type: "response",
+                  message: content,
+                })
+              );
             ws.messages[ws.messages.length - 1] = {
               role: "model",
               parts: [
