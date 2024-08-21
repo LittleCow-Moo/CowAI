@@ -95,32 +95,32 @@ client.on("messageCreate", async (message) => {
       response += parsed.message;
       if (parsed.first && !sentReply) {
         sentReply = true;
-        replyMessage = await message.reply(parsed.message);
+        replyMessage = await message.reply(parsed.message.slice(-2000));
         continue;
       }
       if (sentReply && replyMessage) {
-        replyMessage = await replyMessage.edit(parsed.full);
+        replyMessage = await replyMessage.edit(parsed.full.slice(-2000));
       }
     }
     if (parsed.type == "error") {
       sentReply = true;
-      replyMessage = await message.reply(parsed.message);
+      replyMessage = await message.reply(parsed.message.slice(-2000));
       clearTimeout(wsTimeout);
       ws.close();
     }
     if (parsed.type == "response") {
       if (!sentReply) {
         sentReply = true;
-        replyMessage = await message.reply(parsed.full);
+        replyMessage = await message.reply(parsed.full.slice(-2000));
       }
     }
     if (parsed.type == "end") {
       try {
         if (!sentReply) {
           sentReply = true;
-          replyMessage = await message.reply(parsed.full);
+          replyMessage = await message.reply(parsed.full.slice(-2000));
         } else {
-          replyMessage = await replyMessage.edit(parsed.full);
+          replyMessage = await replyMessage.edit(parsed.full.slice(-2000));
         }
       } catch (e) {
       } finally {
@@ -157,11 +157,17 @@ client.on("interactionCreate", (slash) => {
           ws.send("");
         }
         if (parsed.type == "end") {
-          slash.editReply({ content: parsed.full, ephemeral: hide });
+          slash.editReply({
+            content: parsed.full.slice(-2000),
+            ephemeral: hide,
+          });
           ws.close();
         }
         if (parsed.type == "error") {
-          slash.editReply({ content: parsed.message, ephemeral: hide });
+          slash.editReply({
+            content: parsed.message.slice(-2000),
+            ephemeral: hide,
+          });
           ws.close();
         }
       });
