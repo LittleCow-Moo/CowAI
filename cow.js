@@ -11,14 +11,22 @@ module.exports = {
     //frequencyPenalty: 0.5,
     //presencePenalty: 0.1,
     //maxOutputTokens: 3072,
+    stopSequences: [
+      // Use stop sequence to block unwanted fake image generating methods
+      "[https://storage.googleapis.com",
+      "https://storage.googleapis.com",
+      "`https://storage.googleapis.com",
+      "[https://i.imgur.com",
+      "https://i.imgur.com",
+      "`https://i.imgur.com",
+    ],
   },
   tools: [
     {
       functionDeclarations: [
         {
           name: "Time",
-          description:
-            "取得現在時間（台北時間，`UTC+8`）。",
+          description: "取得現在時間（台北時間，`UTC+8`）。",
         },
         {
           name: "MCJavaServer",
