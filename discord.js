@@ -15,6 +15,7 @@ const { JsonDB, Config } = require("node-json-db");
 var savedMsg = new JsonDB(new Config("savedMessages", true, true));
 const { WebSocket } = require("ws");
 const { websocketData } = require("websocket-iterator");
+const fetch = require("node-fetch");
 
 client.on("ready", () => {
   console.log("[Discord] Bot ready", client.user.tag);
@@ -55,20 +56,63 @@ client.on("messageCreate", async (message) => {
     }
   };
   parsePulledMessages();
-  pulledMessages = pulledMessages.map((a) => {
-    a.content = Discord.cleanContent(
-      a.content,
-      client.channels.cache.get("1246648286144630837")
-    )
-      .replaceAll("@牛牛AI ", "")
-      .replaceAll("@牛牛AI", "");
-    return a.author.id != client.user.id
-      ? {
-          role: "user",
-          parts: [{ text: `@${a.author.username}說: ${a.content}` }],
+  pulledMessages = await Promise.all(
+    pulledMessages.map(async (a, index) => {
+      var filedata;
+      a.content = Discord.cleanContent(
+        a.content,
+        client.channels.cache.get("1246648286144630837")
+      )
+        .replaceAll("@牛牛AI ", "")
+        .replaceAll("@牛牛AI", "");
+      const attachment = message.attachments.first();
+      if (attachment && index == pulledMessages.length - 1) {
+        console.log("[Discord] Attachment detected:", attachment.name);
+        if (
+          [
+            "image/png",
+            "image/jpeg",
+            "image/webp",
+            "image/heic",
+            "image/heif",
+            "video/mp4",
+            "video/mpeg",
+            "video/mov",
+            "video/avi",
+            "video/x-flv",
+            "video/mpg",
+            "video/webm",
+            "video/wmv",
+            "video/3gpp",
+            "audio/wav",
+            "audio/mp3",
+            "audio/aiff",
+            "audio/aac",
+            "audio/ogg",
+            "audio/flac",
+          ].indexOf(attachment.contentType) != -1
+        ) {
+          const response = await fetch(attachment.proxyURL);
+          const arrayBuffer = await response.arrayBuffer();
+          const data = Buffer.from(arrayBuffer).toString("base64");
+          filedata = {
+            inlineData: {
+              mimeType: attachment.contentType,
+              data,
+            },
+          };
         }
-      : { role: "model", parts: [{ text: a.content }] };
-  });
+      }
+      return a.author.id != client.user.id
+        ? {
+            role: "user",
+            parts: !filedata
+              ? [{ text: `@${a.author.username}說: ${a.content}` }]
+              : [filedata, { text: `@${a.author.username}說: ${a.content}` }],
+          }
+        : { role: "model", parts: [{ text: a.content }] };
+    })
+  );
   console.log("[Discord] Pulled messages:", pulledMessages);
   await savedMsg.push(`/discord:${message.id}`, pulledMessages);
   const ws = new WebSocket(
