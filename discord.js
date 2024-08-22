@@ -58,13 +58,13 @@ client.on("messageCreate", async (message) => {
   parsePulledMessages();
   pulledMessages = await Promise.all(
     pulledMessages.map(async (a, index) => {
-      var filedata;
       a.content = Discord.cleanContent(
         a.content,
         client.channels.cache.get("1246648286144630837")
       )
         .replaceAll("@牛牛AI ", "")
         .replaceAll("@牛牛AI", "");
+      var returning = [];
       const attachment = message.attachments.first();
       if (attachment && index == pulledMessages.length - 1) {
         console.log("[Discord] Attachment detected:", attachment.name);
@@ -90,29 +90,36 @@ client.on("messageCreate", async (message) => {
             "audio/aac",
             "audio/ogg",
             "audio/flac",
+            "audio/mpeg",
           ].indexOf(attachment.contentType) != -1
         ) {
+          if (attachment.contentType == "audio/mpeg")
+            attachment.contentType = "audio/mp3";
           const response = await fetch(attachment.proxyURL);
           const arrayBuffer = await response.arrayBuffer();
           const data = Buffer.from(arrayBuffer).toString("base64");
-          filedata = {
+          returning.push({
             inlineData: {
               mimeType: attachment.contentType,
               data,
             },
-          };
+          });
         }
       }
+      if (a.content != "") {
+        returning.push({ text: `@${a.author.username}說: ${a.content}` });
+      }
       return a.author.id != client.user.id
-        ? {
-            role: "user",
-            parts: !filedata
-              ? [{ text: `@${a.author.username}說: ${a.content}` }]
-              : [filedata, { text: `@${a.author.username}說: ${a.content}` }],
-          }
+        ? returning[0]
+          ? {
+              role: "user",
+              parts: returning,
+            }
+          : null
         : { role: "model", parts: [{ text: a.content }] };
     })
   );
+  pulledMessages = await Promise.all(pulledMessages.filter((a) => !!a));
   console.log("[Discord] Pulled messages:", pulledMessages);
   await savedMsg.push(`/discord:${message.id}`, pulledMessages);
   const ws = new WebSocket(
