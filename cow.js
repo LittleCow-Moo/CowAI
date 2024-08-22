@@ -13,12 +13,8 @@ module.exports = {
     //maxOutputTokens: 3072,
     stopSequences: [
       // Use stop sequence to block unwanted fake image generating methods
-      "[https://storage.googleapis.com",
       "https://storage.googleapis.com",
-      "`https://storage.googleapis.com",
-      "[https://i.imgur.com",
       "https://i.imgur.com",
-      "`https://i.imgur.com",
     ],
   },
   tools: [
