@@ -102,13 +102,23 @@ const GenerateImage = async (args) => {
       ? args.seed
       : parseInt(args.seed)
     : 0;
+  const width = args.width
+    ? typeof args.width == "number"
+      ? args.width
+      : parseInt(args.width)
+    : 1024;
+  const height = args.height
+    ? typeof args.height == "number"
+      ? args.height
+      : parseInt(args.height)
+    : 1024;
   const result = (
     await client.predict("/infer", {
       prompt,
       seed,
       randomize_seed: !args.seed ? true : false,
-      width: args.width || 1024,
-      height: args.height || 1024,
+      width,
+      height,
     })
   ).data;
   const id = result[0].path.split("/tmp/gradio/")[1].split("/")[0];
