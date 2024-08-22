@@ -15,6 +15,7 @@ module.exports = {
       // Use stop sequence to block unwanted fake image generating methods
       "https://storage.googleapis.com",
       "https://i.imgur.com",
+      "https://i.ibb.co",
     ],
   },
   tools: [
