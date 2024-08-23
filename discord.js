@@ -129,57 +129,101 @@ client.on("messageCreate", async (message) => {
   var sentReply = false;
   var wsTimeout;
   var response = "";
+  let processedLength = 0;
   globalThis.WebSocket = WebSocket;
   for await (const data of websocketData(ws)) {
     const parsed = JSON.parse(data.toString());
-    if (parsed.type == "welcome") {
+    if (parsed.type === "welcome") {
       await message.channel.sendTyping();
       ws.send("");
       wsTimeout = setTimeout(async () => {
-        try {
-          await savedMsg.delete(`/discord:${message.id}`);
-        } catch (e) {}
+        await savedMsg.delete(`/discord:${message.id}`);
         ws.close();
       }, 60000);
     }
-    if (parsed.type == "part") {
+    if (parsed.type === "part") {
       response += parsed.message;
       if (parsed.first && !sentReply) {
         sentReply = true;
-        replyMessage = await message.reply(parsed.message.slice(-2000));
+        if (parsed.message.trim()) {
+          replyMessage = await splitAndSend(parsed.message);
+        }
+        processedLength = response.length;
         continue;
       }
-      if (sentReply && replyMessage) {
-        replyMessage = await replyMessage.edit(parsed.full.slice(-2000));
+      if (sentReply && replyMessage && response.length > processedLength) {
+        const newContent = response.slice(processedLength);
+        if (newContent.trim()) {
+          const accumulatedContent = replyMessage.content + newContent;
+          if (accumulatedContent.length <= 2000) {
+            replyMessage = await replyMessage.edit(accumulatedContent);
+          } else {
+            const parts = accumulatedContent.match(/[\s\S]{1,2000}(?!\S)/g) || [
+              accumulatedContent,
+            ];
+            await replyMessage.edit(parts[0]);
+            for (let i = 1; i < parts.length; i++) {
+              replyMessage = await message.channel.send(parts[i]);
+            }
+          }
+          processedLength = response.length;
+        }
       }
     }
-    if (parsed.type == "error") {
+    if (parsed.type === "error") {
       sentReply = true;
-      replyMessage = await message.reply(parsed.message.slice(-2000));
+      if (parsed.message.trim()) {
+        replyMessage = await splitAndSend(parsed.message);
+      }
       clearTimeout(wsTimeout);
       ws.close();
     }
-    if (parsed.type == "response") {
+    if (parsed.type === "response") {
       if (!sentReply) {
         sentReply = true;
-        replyMessage = await message.reply(parsed.full.slice(-2000));
-      }
-    }
-    if (parsed.type == "end") {
-      try {
-        if (!sentReply) {
-          sentReply = true;
-          replyMessage = await message.reply(parsed.full.slice(-2000));
-        } else {
-          replyMessage = await replyMessage.edit(parsed.full.slice(-2000));
+        if (parsed.full.trim()) {
+          replyMessage = await splitAndSend(parsed.full);
         }
-      } catch (e) {
-      } finally {
-        try {
-          await savedMsg.delete(`/discord:${message.id}`);
-        } catch (e) {}
       }
     }
+    if (parsed.type === "end") {
+      if (!sentReply) {
+        sentReply = true;
+        if (parsed.full.trim()) {
+          replyMessage = await splitAndSend(parsed.full);
+        }
+      } else if (parsed.full.trim()) {
+        const newContent = parsed.full.slice(processedLength);
+        if (newContent.trim()) {
+          replyMessage = await splitAndEdit(replyMessage, newContent);
+        }
+      }
+      await savedMsg.delete(`/discord:${message.id}`);
+    }
+  }
+  async function splitAndSend(text) {
+    if (!text.trim()) return;
+    if (text.length <= 2000) {
+      return await message.reply(text);
+    }
+    const parts = text.match(/[\s\S]{1,2000}(?!\S)/g) || [text];
+    let sentMessage;
+    for (const part of parts) {
+      sentMessage = await message.reply(part);
+    }
+    return sentMessage;
+  }
+  async function splitAndEdit(replyMessage, text) {
+    if (!text.trim()) return replyMessage;
+    if (text.length <= 2000) {
+      return await replyMessage.edit(text);
+    }
+    const parts = text.match(/[\s\S]{1,2000}(?!\S)/g) || [text];
+    await replyMessage.edit(parts[0]);
+    for (let i = 1; i < parts.length; i++) {
+      await message.channel.send(parts[i]);
+    }
+    return replyMessage;
   }
 });
 client.on("interactionCreate", (slash) => {
