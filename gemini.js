@@ -41,7 +41,7 @@ var models = {
   mathcow: () => {
     return genAI.getGenerativeModel(
       {
-        model: "gemini-1.5-pro-exp-0801",
+        model: "gemini-1.5-pro-exp-0827",
         systemInstruction: cow.mathPrompt,
         generationConfig: {
           temperature: 0.8,
