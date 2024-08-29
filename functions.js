@@ -92,7 +92,7 @@ const GenerateImage = async (args) => {
     };
   const Client = (await import("@gradio/client")).Client;
   const client = await Client.connect(
-    "https://black-forest-labs-flux-1-schnell.hf.space",
+    "https://black-forest-labs-flux-1-dev.hf.space",
     {
       hf_token: process.env.HF_ACCESS_TOKEN,
     }
