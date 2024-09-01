@@ -82,10 +82,13 @@ client.on("messageCreate", async (message) => {
             "audio/ogg",
             "audio/flac",
             "audio/mpeg",
+            "audio/x-wav",
           ].indexOf(attachment.contentType) != -1
         ) {
           if (attachment.contentType == "audio/mpeg")
             attachment.contentType = "audio/mp3";
+          if (attachment.contentType == "audio/x-wav")
+            attachment.contentType = "audio/wav";
           const response = await fetch(attachment.proxyURL);
           const arrayBuffer = await response.arrayBuffer();
           const data = Buffer.from(arrayBuffer).toString("base64");
