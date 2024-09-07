@@ -237,6 +237,11 @@ module.exports = {
       }
       return { calls: returns, replaced: returningInput };
     },
+    parseDecimalNCR: (str) => {
+      return str.replace(/&#(\d+);/g, (_match, dec) => {
+        return String.fromCharCode(dec);
+      });
+    },
   },
   safetySettings: [
     { category: "HARM_CATEGORY_HATE_SPEECH", threshold: "BLOCK_NONE" },

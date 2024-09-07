@@ -8,6 +8,7 @@ const fs = require("fs");
 const download = require("download");
 const weather = require("weather-js");
 const yts = require("yt-search");
+const { parseDecimalNCR } = require("./cow").utils;
 const google = async (query) => {
   var fetched = (await (
     await fetch(
@@ -17,7 +18,10 @@ const google = async (query) => {
     )
   ).json()) || { items: [] };
   fetched = fetched.items.map((a) => {
-    return { title: a.title, link: a.link, snippet: a.snippet };
+    const snippet = !a.pagemap.metatags[0]
+      ? a.snippet
+      : parseDecimalNCR(a.pagemap.metatags[0]["og:description"] || "");
+    return { title: a.title, link: a.link, snippet };
   });
   return fetched;
 };
