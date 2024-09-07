@@ -8,7 +8,11 @@ const fs = require("fs");
 const download = require("download");
 const weather = require("weather-js");
 const yts = require("yt-search");
-const { parseDecimalNCR } = require("./cow").utils;
+const parseDecimalNCR = (str) => {
+  return str.replace(/&#(\d+);/g, (_match, dec) => {
+    return String.fromCharCode(dec);
+  });
+};
 const google = async (query) => {
   var fetched = (await (
     await fetch(
