@@ -40,6 +40,8 @@ LINE_SSL_FULLCHAIN= # 你簽給LINE Bot的SSL的fullchain.pem的檔案路徑
 LINE_SSL_PRIVKEY= # 你簽給LINE Bot的SSL的privkey.pem的路徑
 
 HF_ACCESS_TOKEN= # HuggingFace Access Token (作畫功能使用，要有read權限)
+PSE_ID= # Google Programmable Search Engine ID (Google 搜尋功能用)
+PSE_KEY= # Google Programmable Search Engine API Key (Google 搜尋功能用)
 ```
 
 6. `node .`

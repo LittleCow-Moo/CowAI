@@ -1,6 +1,5 @@
 require("dotenv").config();
 const jokes = require("./jokes");
-const google = require("google-it");
 const fetch = require("node-fetch");
 const xml = require("xml-js");
 const TaiwanEarthquake = require("./taiwanearthquake");
@@ -9,6 +8,19 @@ const fs = require("fs");
 const download = require("download");
 const weather = require("weather-js");
 const yts = require("yt-search");
+const google = async (query) => {
+  var fetched = (await (
+    await fetch(
+      `https://customsearch.googleapis.com/customsearch/v1?cx=${
+        process.env.PSE_ID
+      }&q=${encodeURIComponent(query)}&num=10&key=${process.env.PSE_KEY}`
+    )
+  ).json()) || { items: [] };
+  fetched = fetched.items.map((a) => {
+    return { title: a.title, link: a.link, snippet: a.snippet };
+  });
+  return fetched;
+};
 
 const Time = () => {
   return {
@@ -44,10 +56,11 @@ const Joke = () => {
   };
 };
 const GoogleSearch = async (args) => {
+  const results = await google(args.query);
   return {
     name: "GoogleSearch",
     response: {
-      results: await google({ query: args.query, disableConsole: true }),
+      results,
     },
   };
 };
@@ -208,10 +221,13 @@ const SearchVideo = async (args) => {
   };
 };
 const SearchMinecraftWiki = async (args) => {
-  args.query = `${args.query} site:zh.minecraft.wiki`;
-  var returns = await GoogleSearch(args);
-  returns.name = "SearchMinecraftWiki";
-  return returns;
+  const results = await google(`${args.query} site:minecraft.wiki`);
+  return {
+    name: "SearchMinecraftWiki",
+    response: {
+      results,
+    },
+  };
 };
 
 const available_functions = {
