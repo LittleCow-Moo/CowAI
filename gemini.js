@@ -177,45 +177,6 @@ wss.on("connection", (ws) => {
               parts: [{ functionResponse }],
             });
           }
-          if (
-            true &&
-            ws.messages[ws.messages.length - 1].role == "function" &&
-            ws.messages[ws.messages.length - 1].parts[0].functionResponse
-              .name == "Joke"
-          ) {
-            var content = `哞！${
-              ws.messages[ws.messages.length - 1].parts[0].functionResponse
-                .response.content
-            }`;
-            full += content || "";
-            streaming
-              ? ws.send(
-                  JSON.stringify({
-                    type: "part",
-                    message: content,
-                    full,
-                    first,
-                  })
-                )
-              : null;
-            if (content != "")
-              ws.send(
-                JSON.stringify({
-                  type: "response",
-                  message: content,
-                })
-              );
-            ws.messages[ws.messages.length - 1] = {
-              role: "model",
-              parts: [
-                {
-                  text: content,
-                },
-              ],
-            };
-            ws.send(JSON.stringify({ type: "end", message: "All done!" }));
-            return console.log(`[Cow] ${content}`);
-          }
           calls = [];
           await run();
         }
