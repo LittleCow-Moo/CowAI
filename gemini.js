@@ -290,6 +290,10 @@ process.on("uncaughtException", (e) => {
 });
 
 const dbCleanup = async () => {
+  try {
+    savedMsg.reload();
+    await savedMsg.delete("/");
+  } catch (e) {}
   const dbDate = await db.getData("/date");
   const nowDate = moment().format("yyyy-MM-DD");
   if (dbDate != nowDate) {
