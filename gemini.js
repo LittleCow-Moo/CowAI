@@ -26,7 +26,7 @@ var models = {
   cow: () => {
     return genAI.getGenerativeModel(
       {
-        model: "gemini-1.5-flash-exp-0827",
+        model: "gemini-1.5-flash-002",
         systemInstruction: cow.prompt.replaceAll(
           "{time}",
           moment().format("yyyy年MM月DD日 HH:mm:ss")
@@ -41,7 +41,7 @@ var models = {
   mathcow: () => {
     return genAI.getGenerativeModel(
       {
-        model: "gemini-1.5-pro-exp-0827",
+        model: "gemini-1.5-pro-002",
         systemInstruction: cow.mathPrompt,
         generationConfig: {
           temperature: 0.8,
