@@ -253,10 +253,10 @@ const StopWorkSchoolChecker = async (args) => {
     .map((a) => {
       return [
         a.children[0].innerHTML.trim(),
-        (
-          (a.parentElement.children[2] || a.parentElement.children[1])
-            .innerText || ""
-        ).trim(),
+        (a.parentElement.children[2] || a.parentElement.children[1]).innerHTML
+          .replaceAll(/\<[\x00-\x7F]+\>/gm, "")
+          .trim()
+          .replaceAll("  ", "\n"),
       ];
     })
     .reduce((a, b, c) => {
