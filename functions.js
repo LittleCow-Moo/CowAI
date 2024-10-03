@@ -22,9 +22,14 @@ const google = async (query) => {
     )
   ).json()) || { items: [] };
   fetched = fetched.items.map((a) => {
-    const snippet = !a.pagemap.metatags[0]
-      ? a.snippet
-      : parseDecimalNCR(a.pagemap.metatags[0]["og:description"] || "");
+    const defaultValue = parseDecimalNCR(
+      a.pagemap.metatags[0]["og:description"] || ""
+    );
+    const snippet = a.pagemap
+      ? !a.pagemap.metatags[0]
+        ? a.snippet
+        : defaultValue
+      : defaultValue;
     return { title: a.title, link: a.link, snippet };
   });
   return fetched;
