@@ -8,6 +8,7 @@ const fs = require("fs");
 const download = require("download");
 const weather = require("weather-js");
 const yts = require("yt-search");
+const { JSDOM } = require("jsdom");
 const parseDecimalNCR = (str) => {
   return str.replace(/&#(\d+);/g, (_match, dec) => {
     return String.fromCharCode(dec);
@@ -239,6 +240,33 @@ const SearchMinecraftWiki = async (args) => {
     },
   };
 };
+const StopWorkSchoolChecker = async (args) => {
+  const page = await (await fetch("https://www.dgpa.gov.tw/")).text();
+  const dom = new JSDOM(page);
+  const document = dom.window.document;
+  const response = [...document.querySelectorAll("td")]
+    .filter((a) =>
+      a.attributes.headers
+        ? a.attributes.headers.value.includes("city_Name")
+        : false
+    )
+    .map((a) => {
+      return [
+        a.children[0].innerHTML.trim(),
+        (
+          a.parentElement.children[2] || a.parentElement.children[1]
+        ).children[0].innerHTML.trim(),
+      ];
+    })
+    .reduce((a, b, c) => {
+      a[b[0]] = b[1];
+      return a;
+    }, {});
+  return {
+    name: "StopWorkSchoolChecker",
+    response,
+  };
+};
 
 const available_functions = {
   Time,
@@ -257,5 +285,6 @@ const available_functions = {
   SearchRepository,
   SearchVideo,
   SearchMinecraftWiki,
+  StopWorkSchoolChecker,
 };
 module.exports = available_functions;

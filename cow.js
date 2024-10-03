@@ -207,6 +207,10 @@ module.exports = {
             required: ["query"],
           },
         },
+        {
+          name: "StopWorkSchoolChecker",
+          description: "取得各縣市的停班停課狀態。",
+        },
       ],
     },
   ],
