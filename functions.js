@@ -254,8 +254,9 @@ const StopWorkSchoolChecker = async (args) => {
       return [
         a.children[0].innerHTML.trim(),
         (
-          a.parentElement.children[2] || a.parentElement.children[1]
-        ).innerText.trim(),
+          (a.parentElement.children[2] || a.parentElement.children[1])
+            .innerText || ""
+        ).trim(),
       ];
     })
     .reduce((a, b, c) => {
