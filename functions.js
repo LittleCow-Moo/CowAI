@@ -241,7 +241,9 @@ const SearchMinecraftWiki = async (args) => {
   };
 };
 const StopWorkSchoolChecker = async (args) => {
-  const page = await (await fetch("https://www.dgpa.gov.tw/")).text();
+  const page = await (
+    await fetch("https://www.dgpa.gov.tw/typh/daily/nds.html")
+  ).text();
   const dom = new JSDOM(page);
   const document = dom.window.document;
   const response = [...document.querySelectorAll("td")]
