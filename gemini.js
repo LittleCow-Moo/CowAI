@@ -43,10 +43,6 @@ var models = {
       {
         model: "gemini-1.5-pro-002",
         systemInstruction: cow.mathPrompt,
-        generationConfig: {
-          temperature: 0.8,
-          topP: 0.95,
-        },
         safetySettings: cow.safetySettings,
       },
       requestOptions
