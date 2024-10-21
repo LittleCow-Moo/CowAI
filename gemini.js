@@ -105,6 +105,7 @@ wss.on("connection", (ws) => {
         for await (const item of result.stream) {
           if (!item.candidates) continue;
           if (!item.candidates[0].content) continue;
+          if (!item.candidates[0].content.parts) continue;
           const part = item.candidates[0].content.parts[0];
           if (!part) continue;
           if (part.functionCall) calls.push(part.functionCall);
