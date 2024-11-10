@@ -22,7 +22,7 @@ const google = async (query) => {
       }&q=${encodeURIComponent(query)}&num=10&key=${process.env.PSE_KEY}`
     )
   ).json()) || { items: [] };
-  fetched = fetched.items.map((a) => {
+  fetched = (fetched.items || []).map((a) => {
     const snippet = a.pagemap
       ? !a.pagemap.metatags[0]
         ? a.snippet
