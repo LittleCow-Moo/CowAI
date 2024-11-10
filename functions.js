@@ -76,7 +76,7 @@ const GoogleSearch = async (args) => {
   };
 };
 const Browser = async (args) => {
-  const response = await fetch(args.url);
+  const response = await fetch(`https://r.jina.ai/${args.url}`);
   const body = await response.text();
   return {
     name: "Browser",
