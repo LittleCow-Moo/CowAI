@@ -295,6 +295,26 @@ const GenerateQR = async (args) => {
   };
 };
 
+const ScanQR = async (message) => {
+  const filtered = message.parts.filter((a) => {
+    if (!a.inlineData) return false;
+    return a.inlineData.startsWith("image/");
+  });
+  if (!filtered[0])
+    return {
+      name: "ScanQR",
+      response: {
+        error: "No Image found in the message.",
+      },
+    };
+  const response = await (
+    await fetch(
+      `https://api.qrserver.com/v1/read-qr-code/?fileurl=${filtered[0].inlineData.data}`
+    )
+  ).json();
+  return { name: "ScanQR", response };
+};
+
 const available_functions = {
   Time,
   MCJavaServer,
@@ -314,5 +334,7 @@ const available_functions = {
   SearchMinecraftWiki,
   StopWorkSchoolChecker,
   GenerateQR,
+
+  ScanQR
 };
 module.exports = available_functions;

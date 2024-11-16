@@ -156,7 +156,12 @@ wss.on("connection", (ws) => {
                 message: "Function call received.",
               })
             );
-            const functionResponse = await cow.functions[call.name](call.args);
+            var functionResponse
+            if (["ScanQR"].indexOf(call.name)==-1){
+              functionResponse = await cow.functions[call.name](call.args);
+            } else {
+              functionResponse = await cow.functions[call.name](ws.messages.slice(-2)[0]);
+            }
             debug
               ? console.log(
                   `[System] ${call.name} result:`,

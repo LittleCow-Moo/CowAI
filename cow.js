@@ -221,13 +221,14 @@ module.exports = {
             },
           },
         },
-        /*
-        //TODO: Add platform detection
+
         {
           name: "ScanQR",
           description:
-            "掃描最近一則使用者訊息中的QR Code。若訊息中無圖片，則聊天將直接結束。",
+            "掃描最近一則使用者訊息中的QR Code。",
         },
+        /*
+        //TODO: Add platform detection
         {
           name: "SetReminder",
           description: "為最近一則訊息的使用者設定提醒。",
