@@ -319,6 +319,7 @@ const ScanQR = async (message) => {
     filename: "image." + filtered[0].inlineData.mimeType.split("/")[1],
     contentType: filtered[0].inlineData.mimeType,
   });
+  console.log(formData);
   const response = await (
     await fetch(`https://api.qrserver.com/v1/read-qr-code`, {
       method: "POST",
