@@ -11,6 +11,7 @@ const yts = require("yt-search");
 const { JSDOM } = require("jsdom");
 const qr = require("qrcode");
 const crypto = require("crypto");
+const FormData = require("form-data");
 const parseDecimalNCR = (str) => {
   return str.replace(/&#(\d+);/g, (_match, dec) => {
     return String.fromCharCode(dec);
@@ -304,7 +305,7 @@ const ScanQR = async (message) => {
     return {
       name: "ScanQR",
       response: {
-        error: "No Image found in the message.",
+        error: "No images found in the message.",
       },
     };
   const data = filtered[0].inlineData.data.startsWith("http")
@@ -313,13 +314,11 @@ const ScanQR = async (message) => {
     ? Buffer.from(filtered[0].inlineData.data, "base64")
     : Buffer.from(filtered[0].inlineData.data, "base64url");
   const formData = new FormData();
-  const file = new File(
-    data,
-    "image." + filtered[0].inlineData.mimeType.split("/")[1],
-    { type: filtered[0].inlineData.mimeType }
-  );
   formData.set("output", "json");
-  formData.set("file", file);
+  formData.set("file", data, {
+    filename: "image." + filtered[0].inlineData.mimeType.split("/")[1],
+    contentType: filtered[0].inlineData.mimeType,
+  });
   const response = await (
     await fetch(`https://api.qrserver.com/v1/read-qr-code`, {
       method: "POST",

@@ -18,19 +18,20 @@
     "dotenv": "^16.4.5",
     "download": "^8.0.0",
     "express": "^4.19.2",
+    "form-data": "^4.0.1",
     "jsdom": "^25.0.1",
     "linebot": "^1.6.1",
     "moment": "^2.30.1",
     "moment-timezone": "^0.5.45",
-    "node-fetch": "^2.7.0",
+    "node-fetch": "2.x",
     "node-json-db": "^2.3.0",
     "node-telegram-bot-api": "^0.66.0",
     "path": "^0.12.7",
+    "qrcode": "^1.5.4",
     "url": "^0.11.3",
     "weather-js": "^2.0.0",
     "websocket-iterator": "^1.0.1",
     "xml-js": "^1.6.11",
-    "yt-search": "^2.11.1",
-    "qrcode": "^1.5.4"
+    "yt-search": "^2.11.1"
   }
 }
