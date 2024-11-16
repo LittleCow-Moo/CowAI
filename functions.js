@@ -298,7 +298,7 @@ const GenerateQR = async (args) => {
 const ScanQR = async (message) => {
   const filtered = message.parts.filter((a) => {
     if (!a.inlineData) return false;
-    return a.inlineData.startsWith("image/");
+    return a.inlineData.mimeType.startsWith("image/");
   });
   if (!filtered[0])
     return {
