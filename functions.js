@@ -314,32 +314,48 @@ const ScanQR = async (message) => {
     : filtered[0].inlineData.data.startsWith("data")
     ? Buffer.from(filtered[0].inlineData.data, "base64")
     : Buffer.from(filtered[0].inlineData.data, "base64url");
-  const formData = new FormData();
-  formData.append("file", Readable.from(data), {
-    filename: "image." + filtered[0].inlineData.mimeType.split("/")[1],
-    contentType: filtered[0].inlineData.mimeType,
-  });
-  const uploadQR = async (url = "https://api.qrserver.com/v1/read-qr-code") => {
+  const createFormData = () => {
+    const formData = new FormData();
+    formData.append("file", Readable.from(data), {
+      filename: "image." + filtered[0].inlineData.mimeType.split("/")[1],
+      contentType: filtered[0].inlineData.mimeType,
+    });
+    return formData;
+  };
+  const uploadQR = async (
+    url = "https://api.qrserver.com/v1/read-qr-code",
+    redirectCount = 0
+  ) => {
+    if (redirectCount > 5) {
+      throw new Error("Too many redirects");
+    }
+    const formData = createFormData();
     const response = await fetch(url, {
       method: "POST",
       body: formData,
       redirect: "manual",
     });
-    var result = "Nothing happened";
     if (response.status >= 300 && response.status < 400) {
-      console.log("Redircting to " + response.headers.get("location"));
-      result = await uploadQR(response.headers.get("location"));
+      const newLocation = response.headers.get("location");
+      if (!newLocation) {
+        throw new Error("Redirect location is missing");
+      }
+      console.log("Redirecting to " + newLocation);
+      return await uploadQR(newLocation, redirectCount + 1);
     } else if (response.ok) {
       console.log("OK");
-      result = await response.json();
+      return await response.json();
     } else {
-      console.log("Error" + response.status);
-      result = `Error ${response.status}`;
+      console.log("Error " + response.status);
+      throw new Error(`Error ${response.status}`);
     }
-    return result;
   };
-  const result = await uploadQR();
-  return { name: "ScanQR", response: { result } };
+  try {
+    const result = await uploadQR();
+    return { name: "ScanQR", response: { result } };
+  } catch (error) {
+    return { name: "ScanQR", response: { error: error.message } };
+  }
 };
 
 const available_functions = {
