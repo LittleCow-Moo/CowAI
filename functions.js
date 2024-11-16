@@ -314,7 +314,6 @@ const ScanQR = async (message) => {
     ? Buffer.from(filtered[0].inlineData.data, "base64")
     : Buffer.from(filtered[0].inlineData.data, "base64url");
   const formData = new FormData();
-  formData.append("outputformat", "json");
   formData.append("file", data, {
     filename: "image." + filtered[0].inlineData.mimeType.split("/")[1],
     contentType: filtered[0].inlineData.mimeType,
