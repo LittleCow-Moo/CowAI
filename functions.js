@@ -275,8 +275,8 @@ const GenerateQR = async (args) => {
   const content = String(args.content || "") || "";
   const url = await qr.toDataURL(content, {
     color: {
-      dark: qrColorDark || "#000000",
-      light: qrColorLight || "#ffffff",
+      dark: "#000000",
+      light: "#ffffff",
     },
     width: 512,
     options: {
