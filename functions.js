@@ -307,10 +307,24 @@ const ScanQR = async (message) => {
         error: "No Image found in the message.",
       },
     };
+  const data = filtered[0].inlineData.data.startsWith("http")
+    ? await download(filtered[0].inlineData.data)
+    : filtered[0].inlineData.data.startsWith("data")
+    ? Buffer.from(filtered[0].inlineData.data, "base64")
+    : Buffer.from(filtered[0].inlineData.data, "base64url");
+  const formData = new FormData();
+  const file = new File(
+    data,
+    "image." + filtered[0].inlineData.mimeType.split("/")[1],
+    { type: filtered[0].inlineData.mimeType }
+  );
+  formData.set("output", "json");
+  formData.set("file", file);
   const response = await (
-    await fetch(
-      `https://api.qrserver.com/v1/read-qr-code/?fileurl=${filtered[0].inlineData.data}`
-    )
+    await fetch(`https://api.qrserver.com/v1/read-qr-code`, {
+      method: "POST",
+      body: formData,
+    })
   ).json();
   return { name: "ScanQR", response };
 };
@@ -335,6 +349,6 @@ const available_functions = {
   StopWorkSchoolChecker,
   GenerateQR,
 
-  ScanQR
+  ScanQR,
 };
 module.exports = available_functions;
