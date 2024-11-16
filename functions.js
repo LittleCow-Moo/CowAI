@@ -340,13 +340,10 @@ const ScanQR = async (message) => {
       if (!newLocation) {
         throw new Error("Redirect location is missing");
       }
-      console.log("Redirecting to " + newLocation);
       return await uploadQR(newLocation, redirectCount + 1);
     } else if (response.ok) {
-      console.log("OK");
       return await response.json();
     } else {
-      console.log("Error " + response.status);
       throw new Error(`Error ${response.status}`);
     }
   };
