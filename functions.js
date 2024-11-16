@@ -280,11 +280,11 @@ const GenerateQR = async (args) => {
     },
     width: 512,
     options: {
-      type: "image/webp"
-    }
+      type: "image/webp",
+    },
   });
   const buffer = new Buffer.from(url.split(",")[1], "base64");
-  const id = crypto.randomBytes(2).toString("hex")
+  const id = crypto.randomBytes(2).toString("hex");
   fs.writeFileSync(`images/qr/${id}.webp`, buffer);
   return {
     name: "GenerateQR",
@@ -312,5 +312,6 @@ const available_functions = {
   SearchVideo,
   SearchMinecraftWiki,
   StopWorkSchoolChecker,
+  GenerateQR,
 };
 module.exports = available_functions;
