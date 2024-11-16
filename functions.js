@@ -324,6 +324,7 @@ const ScanQR = async (message) => {
     await fetch(`https://api.qrserver.com/v1/read-qr-code`, {
       method: "POST",
       body: formData,
+      redirect: "manual",
     })
   ).json();
   return { name: "ScanQR", response };
