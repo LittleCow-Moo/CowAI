@@ -9,6 +9,7 @@ const download = require("download");
 const weather = require("weather-js");
 const yts = require("yt-search");
 const { JSDOM } = require("jsdom");
+const qr = require("qrcode");
 const parseDecimalNCR = (str) => {
   return str.replace(/&#(\d+);/g, (_match, dec) => {
     return String.fromCharCode(dec);
@@ -268,6 +269,28 @@ const StopWorkSchoolChecker = async (args) => {
   return {
     name: "StopWorkSchoolChecker",
     response,
+  };
+};
+const GenerateQR = async (args) => {
+  const content = String(args.content || "") || "";
+  const url = await qr.toDataURL(content, {
+    color: {
+      dark: qrColorDark || "#000000",
+      light: qrColorLight || "#ffffff",
+    },
+    width: 512,
+    options: {
+      type: "image/webp"
+    }
+  });
+  const buffer = new Buffer.from(url.split(",")[1], "base64");
+  const id = crypto.randomBytes(2).toString("hex")
+  fs.writeFileSync(`images/qr/${id}.webp`, buffer);
+  return {
+    name: "GenerateQR",
+    response: {
+      url: `https://cowai.cowgl.xyz/api/images/qr/${id}.webp`,
+    },
   };
 };
 

@@ -211,6 +211,47 @@ module.exports = {
           name: "StopWorkSchoolChecker",
           description: "取得各縣市的停班停課狀態。",
         },
+        {
+          name: "GenerateQR",
+          description: "產生一個QR Code。",
+          parameters: {
+            type: "OBJECT",
+            properties: {
+              content: { type: "STRING", description: "QR Code內容" },
+            },
+          },
+        },
+        /*
+        //TODO: Add platform detection
+        {
+          name: "ScanQR",
+          description:
+            "掃描最近一則使用者訊息中的QR Code。若訊息中無圖片，則聊天將直接結束。",
+        },
+        {
+          name: "SetReminder",
+          description: "為最近一則訊息的使用者設定提醒。",
+          parameters: {
+            type: "OBJECT",
+            properties: {
+              content: { type: "STRING", description: "提醒的內容" },
+              time: {
+                type: "STRING",
+                description: "提醒的時間 （例如：1h30m）",
+              },
+            },
+          },
+        },
+
+        //TODO: Add Discord detection
+        {
+          name: "ReactEmoji",
+          description: "為最近一則訊息回覆一個表情符號。",
+          parameters: {
+            emoji: { type: "STRING", description: "要回覆的表情符號。" },
+          },
+        },
+        */
       ],
     },
   ],
