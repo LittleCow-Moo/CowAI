@@ -319,15 +319,24 @@ const ScanQR = async (message) => {
     filename: "image." + filtered[0].inlineData.mimeType.split("/")[1],
     contentType: filtered[0].inlineData.mimeType,
   });
-  const response = await (
-    await fetch(`https://api.qrserver.com/v1/read-qr-code`, {
+  const uploadQR = async (url = "https://api.qrserver.com/v1/read-qr-code") => {
+    const response = await fetch(url, {
       method: "POST",
       body: formData,
       redirect: "manual",
-    })
-  ).text();
-  console.log(response)
-  return { name: "ScanQR", response };
+    });
+    var result;
+    if (response.status >= 300 && response.status < 400) {
+      await uploadQR(response.headers.get("location"));
+    } else if (response.ok) {
+      result = await response.json();
+    } else {
+      result = `Error ${response.status}`;
+    }
+    return result
+  };
+  const result = await uploadQR();
+  return { name: "ScanQR", response: { result } };
 };
 
 const available_functions = {
