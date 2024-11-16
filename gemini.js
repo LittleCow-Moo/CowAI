@@ -238,6 +238,13 @@ app.get("/api/images/:id.webp", (req, res) => {
   res.sendFile(`${process.cwd()}/${imagePath}`);
 });
 
+app.get("/api/images/qr/:id.webp", (req, res) => {
+  const imagePath = `images/qr/${req.params.id}.webp`;
+  if (!fs.existsSync(imagePath))
+    return res.status(404).json({ type: "error", message: "QR Code not found." });
+  res.sendFile(`${process.cwd()}/${imagePath}`);
+});
+
 const server = createServer(app);
 
 server.on("upgrade", (request, socket, head) => {
