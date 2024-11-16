@@ -12,6 +12,7 @@ const { JSDOM } = require("jsdom");
 const qr = require("qrcode");
 const crypto = require("crypto");
 const FormData = require("form-data");
+const { Readable } = require("stream");
 const parseDecimalNCR = (str) => {
   return str.replace(/&#(\d+);/g, (_match, dec) => {
     return String.fromCharCode(dec);
@@ -314,7 +315,7 @@ const ScanQR = async (message) => {
     ? Buffer.from(filtered[0].inlineData.data, "base64")
     : Buffer.from(filtered[0].inlineData.data, "base64url");
   const formData = new FormData();
-  formData.append("file", data.toString("utf8"), {
+  formData.append("file", Readable.from(data), {
     filename: "image." + filtered[0].inlineData.mimeType.split("/")[1],
     contentType: filtered[0].inlineData.mimeType,
   });
