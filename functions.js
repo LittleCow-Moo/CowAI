@@ -327,10 +327,13 @@ const ScanQR = async (message) => {
     });
     var result = "Nothing happened";
     if (response.status >= 300 && response.status < 400) {
+      console.log("Redircting to " + response.headers.get("location"));
       result = await uploadQR(response.headers.get("location"));
     } else if (response.ok) {
+      console.log("OK");
       result = await response.json();
     } else {
+      console.log("Error" + response.status);
       result = `Error ${response.status}`;
     }
     return result;
