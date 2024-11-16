@@ -10,6 +10,7 @@ const weather = require("weather-js");
 const yts = require("yt-search");
 const { JSDOM } = require("jsdom");
 const qr = require("qrcode");
+const crypto = require("crypto");
 const parseDecimalNCR = (str) => {
   return str.replace(/&#(\d+);/g, (_match, dec) => {
     return String.fromCharCode(dec);
@@ -284,7 +285,7 @@ const GenerateQR = async (args) => {
     },
   });
   const buffer = new Buffer.from(url.split(",")[1], "base64");
-  const id = crypto.randomBytes(2).toString("hex");
+  const id = crypto.randomBytes(20).toString("hex");
   fs.writeFileSync(`images/qr/${id}.webp`, buffer);
   return {
     name: "GenerateQR",
