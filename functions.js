@@ -325,15 +325,15 @@ const ScanQR = async (message) => {
       body: formData,
       redirect: "manual",
     });
-    var result;
+    var result = "Nothing happened";
     if (response.status >= 300 && response.status < 400) {
-      await uploadQR(response.headers.get("location"));
+      result = await uploadQR(response.headers.get("location"));
     } else if (response.ok) {
       result = await response.json();
     } else {
       result = `Error ${response.status}`;
     }
-    return result
+    return result;
   };
   const result = await uploadQR();
   return { name: "ScanQR", response: { result } };
