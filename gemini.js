@@ -41,7 +41,7 @@ var models = {
   mathcow: () => {
     return genAI.getGenerativeModel(
       {
-        model: "gemini-1.5-pro-002",
+        model: "gemini-exp-1121",
         systemInstruction: cow.mathPrompt,
         safetySettings: cow.safetySettings,
       },
