@@ -24,8 +24,8 @@ client.on("ready", () => {
       {
         type: 4,
         name: "custom",
-        state: `牛牛 v${require("./package.json").version} | @${
-          client.user.tag
+        state: `🐮 @${client.user.tag} | 牛牛 v${
+          require("./package.json").version
         }`,
       },
     ],
