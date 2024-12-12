@@ -26,7 +26,7 @@ var models = {
   cow: () => {
     return genAI.getGenerativeModel(
       {
-        model: "gemini-1.5-flash-exp-0827",
+        model: "gemini-2.0-flash-exp",
         systemInstruction: cow.prompt.replaceAll(
           "{time}",
           moment().format("yyyy年MM月DD日 HH:mm:ss")
@@ -41,7 +41,7 @@ var models = {
   mathcow: () => {
     return genAI.getGenerativeModel(
       {
-        model: "gemini-exp-1121",
+        model: "gemini-exp-1206",
         systemInstruction: cow.mathPrompt,
         safetySettings: cow.safetySettings,
       },
@@ -108,12 +108,13 @@ wss.on("connection", (ws) => {
           if (!item.candidates[0].content.parts) continue;
           const part = item.candidates[0].content.parts[0];
           if (!part) continue;
-          if (part.functionCall) calls.push(part.functionCall);
+          if (part.functionCall)
+            calls.push({ functionCall: part.functionCall });
           if (!part.text) continue;
           var callsFix = cow.utils.toolCallFix(part.text || "");
           if (callsFix.calls[0]) {
             for (const call of callsFix.calls) {
-              calls.push(call);
+              calls.push({ functionCall: call });
               part.text = callsFix.replaced;
             }
           }
@@ -138,13 +139,14 @@ wss.on("connection", (ws) => {
             {
               text: message,
             },
+            ...calls,
           ],
         });
         if (message != "")
           ws.send(JSON.stringify({ type: "response", message }));
         if (calls[0]) {
           for (const call of calls) {
-            if (!call.name) continue;
+            if (!call.functionCall.name) continue;
             console.log();
             debug
               ? console.log(`[System] Function call received:`, call)
@@ -156,15 +158,19 @@ wss.on("connection", (ws) => {
                 message: "Function call received.",
               })
             );
-            var functionResponse
-            if (["ScanQR"].indexOf(call.name)==-1){
-              functionResponse = await cow.functions[call.name](call.args);
+            var functionResponse;
+            if (["ScanQR"].indexOf(call.functionCall.name) == -1) {
+              functionResponse = await cow.functions[call.functionCall.name](
+                call.functionCall.args
+              );
             } else {
-              functionResponse = await cow.functions[call.name](ws.messages.slice(-2)[0]);
+              functionResponse = await cow.functions[call.functionCall.name](
+                ws.messages.slice(-2)[0]
+              );
             }
             debug
               ? console.log(
-                  `[System] ${call.name} result:`,
+                  `[System] ${call.functionCall.name} result:`,
                   functionResponse.response
                 )
               : null;
@@ -246,7 +252,9 @@ app.get("/api/images/:id.webp", (req, res) => {
 app.get("/api/images/qr/:id.webp", (req, res) => {
   const imagePath = `images/qr/${req.params.id}.webp`;
   if (!fs.existsSync(imagePath))
-    return res.status(404).json({ type: "error", message: "QR Code not found." });
+    return res
+      .status(404)
+      .json({ type: "error", message: "QR Code not found." });
   res.sendFile(`${process.cwd()}/${imagePath}`);
 });
 
