@@ -71,10 +71,7 @@ client.on("messageCreate", async (message) => {
         /(https?:\/\/[a-zA-Z0-9%/.]*\.(?:png|jpeg|jpg|webp|heic|heif|wav|mp3|aiff|aac|ogg|flac|mpeg|x-wav))/im.exec(
           a.content
         );
-      fetchAttachment: if (
-        (attachment && index == pulledMessages.length - 1) ||
-        (!attachment && attachmentUrl)
-      ) {
+      fetchAttachment: if (attachment || (!attachment && attachmentUrl)) {
         const att = attachment ? attachment.proxyURL : attachmentUrl[0];
         const response = await fetch(att);
         const arrayBuffer = await response.arrayBuffer();
