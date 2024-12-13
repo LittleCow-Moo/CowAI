@@ -224,8 +224,7 @@ module.exports = {
 
         {
           name: "ScanQR",
-          description:
-            "掃描最近一則使用者訊息中的QR Code。",
+          description: "掃描最近一則使用者訊息中的QR Code。",
         },
         /*
         //TODO: Add platform detection
@@ -295,5 +294,20 @@ module.exports = {
       threshold: "BLOCK_NONE",
     },
     { category: "HARM_CATEGORY_HARASSMENT", threshold: "BLOCK_NONE" },
+  ],
+  supportedMime: [
+    "image/png",
+    "image/jpeg",
+    "image/webp",
+    "image/heic",
+    "image/heif",
+    "audio/wav",
+    "audio/mp3",
+    "audio/aiff",
+    "audio/aac",
+    "audio/ogg",
+    "audio/flac",
+    "audio/mpeg",
+    "audio/x-wav",
   ],
 };

@@ -82,6 +82,28 @@ wss.on("connection", (ws) => {
     (async () => {
       if (prompt != "") {
         console.log(`[User] ${prompt}`);
+        var inlineData = [];
+        const attachment =
+          /(https?:\/\/[a-zA-Z0-9%/.]*\.(?:png|jpeg|jpg|webp|heic|heif|wav|mp3|aiff|aac|ogg|flac|mpeg|x-wav))/im.exec(
+            prompt
+          );
+        fetchAttachment: if (attachment && attachment[0]) {
+          const response = await fetch(attachment[0]);
+          const arrayBuffer = await response.arrayBuffer();
+          const data = Buffer.from(arrayBuffer).toString("base64");
+          var mime = response.headers.get("content-type");
+          if (!mime) break fetchAttachment;
+          if (cow.supportedMime.indexOf(mime) == -1) break fetchAttachment;
+          if (mime == "audio/mpeg") mime = "audio/mp3";
+          if (mime == "audio/x-wav") mime = "audio/wav";
+          prompt = prompt.replace(attachment[0], "");
+          inlineData.push({
+            inlineData: {
+              mimeType: mime,
+              data,
+            },
+          });
+        }
         ws.asked.push(prompt);
         ws.messages.push({
           role: "user",
@@ -89,6 +111,7 @@ wss.on("connection", (ws) => {
             {
               text: prompt,
             },
+            ...inlineData,
           ],
         });
       } else {

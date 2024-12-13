@@ -16,6 +16,7 @@ var savedMsg = new JsonDB(new Config("savedMessages", true, true));
 const { WebSocket } = require("ws");
 const { websocketData } = require("websocket-iterator");
 const fetch = require("node-fetch");
+const supportedMime = require("./cow").supportedMime;
 
 client.on("ready", () => {
   console.log("[Discord] Bot ready", client.user.tag);
@@ -68,23 +69,7 @@ client.on("messageCreate", async (message) => {
       const attachment = message.attachments.first();
       if (attachment && index == pulledMessages.length - 1) {
         console.log("[Discord] Attachment detected:", attachment.name);
-        if (
-          [
-            "image/png",
-            "image/jpeg",
-            "image/webp",
-            "image/heic",
-            "image/heif",
-            "audio/wav",
-            "audio/mp3",
-            "audio/aiff",
-            "audio/aac",
-            "audio/ogg",
-            "audio/flac",
-            "audio/mpeg",
-            "audio/x-wav",
-          ].indexOf(attachment.contentType) != -1
-        ) {
+        if (supportedMime.indexOf(attachment.contentType) != -1) {
           if (attachment.contentType == "audio/mpeg")
             attachment.contentType = "audio/mp3";
           if (attachment.contentType == "audio/x-wav")
