@@ -67,23 +67,30 @@ client.on("messageCreate", async (message) => {
         .replaceAll("@牛牛AI", "");
       var returning = [];
       const attachment = message.attachments.first();
-      if (attachment && index == pulledMessages.length - 1) {
-        console.log("[Discord] Attachment detected:", attachment.name);
-        if (supportedMime.indexOf(attachment.contentType) != -1) {
-          if (attachment.contentType == "audio/mpeg")
-            attachment.contentType = "audio/mp3";
-          if (attachment.contentType == "audio/x-wav")
-            attachment.contentType = "audio/wav";
-          const response = await fetch(attachment.proxyURL);
-          const arrayBuffer = await response.arrayBuffer();
-          const data = Buffer.from(arrayBuffer).toString("base64");
-          returning.push({
-            inlineData: {
-              mimeType: attachment.contentType,
-              data,
-            },
-          });
-        }
+      const attachmentUrl =
+        /(https?:\/\/[a-zA-Z0-9%/.]*\.(?:png|jpeg|jpg|webp|heic|heif|wav|mp3|aiff|aac|ogg|flac|mpeg|x-wav))/im.exec(
+          message.content
+        );
+      fetchAttachment: if (
+        (attachment && index == pulledMessages.length - 1) ||
+        (!attachment && attachmentUrl)
+      ) {
+        const att = attachment ? attachment.proxyURL : attachmentUrl[0];
+        const response = await fetch(att);
+        const arrayBuffer = await response.arrayBuffer();
+        const data = Buffer.from(arrayBuffer).toString("base64");
+        var mime = response.headers.get("content-type");
+        if (!mime) break fetchAttachment;
+        if (supportedMime.indexOf(mime) == -1) break fetchAttachment;
+        console.log("[Discord] Attachment detected:", att);
+        if (mime == "audio/mpeg") mime = "audio/mp3";
+        if (mime == "audio/x-wav") mime = "audio/wav";
+        returning.push({
+          inlineData: {
+            mimeType: mime,
+            data,
+          },
+        });
       }
       if (a.content != "") {
         returning.push({ text: `@${a.author.username}說: ${a.content}` });
