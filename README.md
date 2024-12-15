@@ -39,6 +39,13 @@ LINE_ACCESS_TOKEN= # LINE Messaging API Channel Access Token
 LINE_SSL_FULLCHAIN= # 你簽給LINE Bot的SSL的fullchain.pem的檔案路徑
 LINE_SSL_PRIVKEY= # 你簽給LINE Bot的SSL的privkey.pem的路徑
 
+ENABLE_IRC=[true/false] # 是否要啟用IRC機器人
+IRC_HOST= # 要連接的IRC伺服器
+IRC_PORT= # 要連接的IRC伺服器端口
+IRC_NICK= # IRC機器人的Nick & Account
+IRC_PASSWORD= # IRC機器人的密碼
+IRC_CHANNEL= # IRC機器人要自動加入的頻道，例如機器人的支援頻道等
+
 HF_ACCESS_TOKEN= # HuggingFace Access Token (作畫功能使用，要有read權限)
 PSE_ID= # Google Programmable Search Engine ID (Google 搜尋功能用)
 PSE_KEY= # Google Programmable Search Engine API Key (Google 搜尋功能用)
@@ -48,4 +55,4 @@ PSE_KEY= # Google Programmable Search Engine API Key (Google 搜尋功能用)
 
 # 使用
 
-如果一切都正常運作，那 AI 機器人應該就會在 Discord, Telegram, 和 LINE 上線了。除了這三個平台的機器人外，它還會開一個 HTTP 端口`38943`用以通訊。
+如果一切都正常運作，那 AI 機器人應該就會在 Discord, Telegram, LINE, 和 IRC 上線了。除了這三個平台的機器人外，它還會開一個 HTTP 端口`38943`用以通訊。
