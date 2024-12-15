@@ -315,7 +315,9 @@ server.on("upgrade", (request, socket, head) => {
       : [];
     if (query._readSavedMessages) {
       await savedMsg.reload();
-      ws.messages = await savedMsg.getObject(`/${query._readSavedMessages}`);
+      ws.messages = await savedMsg.getObject(
+        `/${decodeURIComponent(query._readSavedMessages)}`
+      );
     }
     ws.asked = [];
     ws.model = query.model || "cow";
