@@ -45,7 +45,7 @@ bot.on("message", async (event) => {
     await ircMsg.push(`/${event.target}`, messages.slice(-5));
     await savedMsg.push(`/irc:${event.target}`, messages.slice(-5));
     const ws = new WebSocket(
-      `ws://localhost:38943/api/generate?key=${process.env.ADMIN_KEY}&_readSavedMessages=irc:${event.target}`
+      `ws://localhost:38943/api/generate?key=${process.env.ADMIN_KEY}&_readSavedMessages=irc:${encodeURIComponent(event.target)}`
     );
     var wsTimeout;
     ws.on("message", async (data) => {
