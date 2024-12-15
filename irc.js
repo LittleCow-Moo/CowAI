@@ -17,6 +17,10 @@ var ircMsg = new JsonDB(new Config("ircMsg", true, true));
 const { WebSocket } = require("ws");
 
 bot.on("registered", () => {
+  bot.say(
+    "NickServ",
+    `IDENTIFY littlecow ${process.env.IRC_NICK} ${process.env.IRC_PASSWORD}`
+  );
   console.log(
     "[IRC] Bot ready,",
     `${process.env.IRC_NICK} on ${process.env.IRC_HOST}:${process.env.IRC_PORT}`
@@ -32,6 +36,8 @@ bot.on("message", async (event) => {
     bot.join(toJoin);
     return;
   }
+  if (event.from_server) return;
+  if (!event.target.startsWith("#")) return;
   var splittedMessage = event.message.split(" ");
   var messages = await ircMsg.getObjectDefault(`/${event.target}`, []);
   messages.push({
@@ -40,8 +46,6 @@ bot.on("message", async (event) => {
   });
   await ircMsg.push(`/${event.target}`, messages.slice(-5));
   if (splittedMessage.includes(process.env.IRC_NICK)) {
-    if (event.from_server) return;
-    if (!event.target.startsWith("#")) return;
     event.message = splittedMessage
       .filter((a) => a != process.env.IRC_NICK)
       .join(" ");
