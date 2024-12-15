@@ -37,7 +37,7 @@ bot.on("message", async (event) => {
     if (event.from_server) return;
     if (!event.target.startsWith("#")) return;
     event.message = splittedMessage
-      .splice(splittedMessage.indexOf(process.env.IRC_NICK), 1)
+      .filter((a) => a != process.env.IRC_NICK)
       .join(" ");
     console.log("[IRC] Message");
     var messages = await ircMsg.getObjectDefault(`/${event.target}`, []);
