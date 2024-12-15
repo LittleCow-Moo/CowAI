@@ -34,6 +34,7 @@ bot.on("message", async (event) => {
     var toJoin = event.message.split(" ")[1];
     event.reply("Joining " + toJoin + "...");
     bot.join(toJoin);
+    await ircMsg.push("/channels[]", toJoin, true);
     return;
   }
   if (event.from_server) return;
