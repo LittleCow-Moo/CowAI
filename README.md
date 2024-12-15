@@ -42,6 +42,7 @@ LINE_SSL_PRIVKEY= # 你簽給LINE Bot的SSL的privkey.pem的路徑
 ENABLE_IRC=[true/false] # 是否要啟用IRC機器人
 IRC_HOST= # 要連接的IRC伺服器
 IRC_PORT= # 要連接的IRC伺服器端口
+# 經過我的測試，只能使用明文傳輸的IRC伺服器
 IRC_NICK= # IRC機器人的Nick & Account
 IRC_PASSWORD= # IRC機器人的密碼
 IRC_CHANNEL= # IRC機器人要自動加入的頻道，例如機器人的支援頻道等

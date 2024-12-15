@@ -32,12 +32,16 @@ bot.on("message", async (event) => {
     bot.join(toJoin);
     return;
   }
-  if (event.message.split(" ").includes(process.env.IRC_NICK)) {
+  var splittedMessage = event.message.split(" ");
+  if (splittedMessage.includes(process.env.IRC_NICK)) {
     if (event.from_server) return;
     if (!event.target.startsWith("#")) return;
+    event.message = splittedMessage
+      .splice(splittedMessage.indexOf(process.env.IRC_NICK), 1)
+      .join(" ");
     console.log("[IRC] Message");
     var messages = await ircMsg.getObjectDefault(`/${event.target}`, []);
-    messages.push({ role: "user", parts: [{ text: msg.text }] });
+    messages.push({ role: "user", parts: [{ text: event.message.text }] });
     await ircMsg.push(`/${event.target}`, messages.slice(-5));
     await savedMsg.push(`/irc:${event.target}`, messages.slice(-5));
     const ws = new WebSocket(
