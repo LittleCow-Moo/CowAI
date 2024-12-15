@@ -16,7 +16,7 @@ var savedMsg = new JsonDB(new Config("savedMessages", true, true));
 var ircMsg = new JsonDB(new Config("ircMsg", true, true));
 const { WebSocket } = require("ws");
 
-bot.on("registered", () => {
+bot.on("registered", async () => {
   bot.say(
     "NickServ",
     `IDENTIFY littlecow ${process.env.IRC_NICK} ${process.env.IRC_PASSWORD}`
@@ -27,6 +27,12 @@ bot.on("registered", () => {
   );
   globalThis.defaultChannel = bot.channel(process.env.IRC_CHANNEL);
   defaultChannel.join();
+  var channels = await ircMsg.getObjectDefault(`/channels`, []);
+  for (const channel of channels) {
+    try {
+      bot.channel(channel).join();
+    } catch (e) {}
+  }
 });
 
 bot.on("message", async (event) => {
