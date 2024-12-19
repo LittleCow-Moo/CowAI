@@ -169,6 +169,8 @@ wss.on("connection", (ws) => {
         if (message != "")
           ws.send(JSON.stringify({ type: "response", message }));
         if (calls[0]) {
+          memoryThisTurn++;
+          var functionResponses = [];
           for (const call of calls) {
             if (!call.functionCall.name) continue;
             console.log();
@@ -204,12 +206,12 @@ wss.on("connection", (ws) => {
                 functionResponse,
               })
             );
-            ws.messages.push({
-              role: "function",
-              parts: [{ functionResponse }],
-            });
-            memoryThisTurn++;
+            functionResponses.push(functionResponse);
           }
+          ws.messages.push({
+            role: "function",
+            parts: functionResponses,
+          });
           calls = [];
           await run();
         }
