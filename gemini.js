@@ -203,7 +203,7 @@ wss.on("connection", (ws) => {
               currentModel = "mathcow";
               ws.messages.pop();
               await run();
-              break;
+              return;
             } else {
               functionResponse = await cow.functions[call.functionCall.name](
                 call.functionCall.args
