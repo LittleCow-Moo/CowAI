@@ -118,9 +118,10 @@ wss.on("connection", (ws) => {
         console.log("[User] (empty prompt)");
       }
       var first = true;
+      var memoryThisTurn = memory;
       const run = async () => {
         const result = await models[ws.model]().generateContentStream({
-          contents: ws.messages.slice(-1 * memory),
+          contents: ws.messages.slice(-1 * memoryThisTurn),
         });
         var calls = [];
         var message = "";
@@ -207,6 +208,7 @@ wss.on("connection", (ws) => {
               role: "function",
               parts: [{ functionResponse }],
             });
+            memoryThisTurn++;
           }
           calls = [];
           await run();
