@@ -25,6 +25,7 @@ ENABLE_AI_GATEWAY=[true/false] # 是否要啟用Cloudflare AI Gateway
 AI_GATEWAY= # 如果ENABLE_AI_GATEWAY為true，請填寫此項。
 # AI Gateway網址看起來應該會像這樣: https://gateway.ai.cloudflare.com/v1/[帳號ID]/[Gateway ID]/google-ai-studio
 # 只需填寫 "[帳號ID]/[Gateway ID]" 部分即可。
+AI_GATEWAY_TOKEN= # AI Gateway權杖，填入空字串則不使用權杖
 
 ENABLE_DISCORD=[true/false] # 是否要啟用Discord機器人
 DISCORD= # Discord Bot Token

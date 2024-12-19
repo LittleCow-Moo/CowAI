@@ -18,6 +18,13 @@ const requestOptions =
   process.env.ENABLE_AI_GATEWAY == "true"
     ? {
         baseUrl: `https://gateway.ai.cloudflare.com/v1/${process.env.AI_GATEWAY}/google-ai-studio`,
+        customHeaders: new Headers(
+          String(process.env.AI_GATEWAY_TOKEN || "") != ""
+            ? {
+                "cf-aig-authorization": `Bearer ${process.env.AI_GATEWAY_TOKEN}`,
+              }
+            : {}
+        ),
       }
     : {};
 
