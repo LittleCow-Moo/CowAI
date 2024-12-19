@@ -198,6 +198,7 @@ wss.on("connection", (ws) => {
                 ws.messages.slice(-2)[0]
               );
             } else if (["CallMathCow"].indexOf(call.functionCall.name) != -1) {
+              console.log("[System] Model decided to use MathCow");
               calls = [];
               currentModel = "mathcow";
               ws.messages.pop();
