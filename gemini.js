@@ -126,8 +126,9 @@ wss.on("connection", (ws) => {
       }
       var first = true;
       var memoryThisTurn = memory;
+      var currentModel = ws.model;
       const run = async () => {
-        const result = await models[ws.model]().generateContentStream({
+        const result = await models[currentModel]().generateContentStream({
           contents: ws.messages.slice(-1 * memoryThisTurn),
         });
         var calls = [];
@@ -192,13 +193,19 @@ wss.on("connection", (ws) => {
               })
             );
             var functionResponse;
-            if (["ScanQR"].indexOf(call.functionCall.name) == -1) {
-              functionResponse = await cow.functions[call.functionCall.name](
-                call.functionCall.args
-              );
-            } else {
+            if (["ScanQR"].indexOf(call.functionCall.name) != -1) {
               functionResponse = await cow.functions[call.functionCall.name](
                 ws.messages.slice(-2)[0]
+              );
+            } else if (["CallMathCow"].indexOf(call.functionCall.name) != -1) {
+              calls = [];
+              currentModel = "mathcow";
+              ws.messages.pop();
+              await run();
+              break;
+            } else {
+              functionResponse = await cow.functions[call.functionCall.name](
+                call.functionCall.args
               );
             }
             debug
