@@ -206,7 +206,7 @@ wss.on("connection", (ws) => {
                 functionResponse,
               })
             );
-            functionResponses.push(functionResponse);
+            functionResponses.push({ functionResponse });
           }
           ws.messages.push({
             role: "function",
