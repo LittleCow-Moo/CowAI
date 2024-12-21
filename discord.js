@@ -57,6 +57,7 @@ client.on("messageCreate", async (message) => {
     }
   };
   parsePulledMessages();
+  if (pulledMessages.length == 0) return;
   pulledMessages = await Promise.all(
     pulledMessages.map(async (a, index) => {
       a.content = Discord.cleanContent(
