@@ -67,6 +67,10 @@ client.on("messageCreate", async (message) => {
         .replaceAll("@牛牛AI ", "")
         .replaceAll("@牛牛AI", "");
       var returning = [];
+      a.content = a.content.replace(
+        /https:\/\/cowai\.cowgl\.xyz\/api\/images\/[1-9a-z]{40}\.webp/gm,
+        ""
+      );
       const attachment = a.attachments.first();
       const attachmentUrl =
         /(https?:\/\/[a-zA-Z0-9%/.]*\.(?:png|jpeg|jpg|webp|heic|heif|wav|mp3|aiff|aac|ogg|flac|mpeg|x-wav))/im.exec(
@@ -94,10 +98,6 @@ client.on("messageCreate", async (message) => {
         });
         a.content = a.content.replace(att, "");
       }
-      a.content = a.content.replace(
-        /https:\/\/cowai\.cowgl\.xyz\/api\/images\/[1-9a-z]{40}\.webp/gm,
-        ""
-      );
       returning.push({
         text:
           a.content != ""
