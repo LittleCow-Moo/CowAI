@@ -94,9 +94,16 @@ client.on("messageCreate", async (message) => {
         });
         a.content = a.content.replace(att, "");
       }
-      if (a.content != "") {
-        returning.push({ text: `@${a.author.username}說: ${a.content}` });
-      }
+      a.content = a.content.replace(
+        /https:\/\/cowai\.cowgl\.xyz\/api\/images\/[1-9a-z]{40}\.webp/gm,
+        ""
+      );
+      returning.push({
+        text:
+          a.content != ""
+            ? `@${a.author.username}說: ${a.content}`
+            : `@${a.author.username}傳送了一個檔案`,
+      });
       return a.author.id != client.user.id
         ? returning[0]
           ? {
