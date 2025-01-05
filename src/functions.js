@@ -1,8 +1,8 @@
 require("dotenv").config();
-const jokes = require("./jokes");
+const jokes = require("./utils/jokes");
 const fetch = require("node-fetch");
 const xml = require("xml-js");
-const TaiwanEarthquake = require("./taiwanearthquake");
+const TaiwanEarthquake = require("./utils/taiwanearthquake");
 const moment = require("moment-timezone");
 const fs = require("fs");
 const download = require("download");

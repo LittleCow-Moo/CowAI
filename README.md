@@ -53,7 +53,7 @@ PSE_ID= # Google Programmable Search Engine ID (Google 搜尋功能用)
 PSE_KEY= # Google Programmable Search Engine API Key (Google 搜尋功能用)
 ```
 
-6. `node .`
+6. `npm start`
 
 # 使用
 

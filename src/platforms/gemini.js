@@ -1,6 +1,6 @@
 require("dotenv").config();
 const { GoogleGenerativeAI } = require("@google/generative-ai");
-const cow = require("./cow");
+const cow = require("./../utils/cow");
 const { WebSocketServer } = require("ws");
 const { createServer } = require("http");
 const u = require("url");

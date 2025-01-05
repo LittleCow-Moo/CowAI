@@ -257,7 +257,7 @@ module.exports = {
       ],
     },
   ],
-  functions: require("./functions"),
+  functions: require("../functions"),
   utils: {
     toolCallFix: (input) => {
       var returns = [];

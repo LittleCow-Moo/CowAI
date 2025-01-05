@@ -16,7 +16,7 @@ var savedMsg = new JsonDB(new Config("savedMessages", true, true));
 const { WebSocket } = require("ws");
 const { websocketData } = require("websocket-iterator");
 const fetch = require("node-fetch");
-const supportedMime = require("./cow").supportedMime;
+const supportedMime = require("./../utils/cow").supportedMime;
 
 client.on("ready", () => {
   console.log("[Discord] Bot ready", client.user.tag);
@@ -26,7 +26,7 @@ client.on("ready", () => {
         type: 4,
         name: "custom",
         state: `🐮 @${client.user.tag} | 牛牛 v${
-          require("./package.json").version
+          require("../../package.json").version
         }`,
       },
     ],
