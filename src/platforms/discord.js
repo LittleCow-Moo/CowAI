@@ -68,7 +68,7 @@ client.on("messageCreate", async (message) => {
         .replaceAll("@牛牛AI", "");
       var returning = [];
       a.content = a.content.replace(
-        /https:\/\/cowai\.cowgl\.xyz\/api\/images\/[1-9a-z]{40}\.webp/gm,
+        /https:\/\/cowai\.cowgl\.xyz\/api\/images\/[0-9a-f]{40}\.webp/gm,
         ""
       );
       const attachment = a.attachments.first();
