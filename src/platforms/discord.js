@@ -199,7 +199,7 @@ client.on("messageCreate", async (message) => {
       await savedMsg.delete(`/discord:${message.id}`);
     }
   }
-  if (botChatTurn) splitAndSend(response);
+  if (botChatTurn) await splitAndSend(response);
   async function splitAndSend(text) {
     if (!text.trim()) return;
     if (text.length <= 2000) {
