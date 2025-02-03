@@ -121,9 +121,7 @@ client.on("messageCreate", async (message) => {
   console.log("[Discord] Pulled messages:", pulledMessages);
   await savedMsg.push(`/discord:${message.id}`, pulledMessages);
   const ws = new WebSocket(
-    `ws://localhost:38943/api/generate?key=${process.env.ADMIN_KEY}${
-      !botChatTurn ? "&streamingResponse" : ""
-    }&_readSavedMessages=discord:${message.id}`
+    `ws://localhost:38943/api/generate?key=${process.env.ADMIN_KEY}&streamingResponse&_readSavedMessages=discord:${message.id}`
   );
   var replyMessage;
   var sentReply = false;
@@ -145,7 +143,7 @@ client.on("messageCreate", async (message) => {
       response += parsed.message;
       if (parsed.first && !sentReply) {
         sentReply = true;
-        if (parsed.message.trim()) {
+        if (parsed.message.trim() && !botChatTurn) {
           replyMessage = await splitAndSend(parsed.message);
         }
         processedLength = response.length;
@@ -172,7 +170,7 @@ client.on("messageCreate", async (message) => {
     }
     if (parsed.type === "error") {
       sentReply = true;
-      if (parsed.message.trim()) {
+      if (parsed.message.trim() && !botChatTurn) {
         replyMessage = await splitAndSend(parsed.message);
       }
       clearTimeout(wsTimeout);
@@ -181,7 +179,7 @@ client.on("messageCreate", async (message) => {
     if (parsed.type === "response") {
       if (!sentReply) {
         sentReply = true;
-        if (parsed.full.trim()) {
+        if (parsed.full.trim() && !botChatTurn) {
           replyMessage = await splitAndSend(parsed.full);
         }
       }
@@ -189,18 +187,19 @@ client.on("messageCreate", async (message) => {
     if (parsed.type === "end") {
       if (!sentReply) {
         sentReply = true;
-        if (parsed.full.trim()) {
+        if (parsed.full.trim() && !botChatTurn) {
           replyMessage = await splitAndSend(parsed.full);
         }
       } else if (parsed.full.trim()) {
         const newContent = parsed.full.slice(processedLength);
-        if (newContent.trim()) {
+        if (newContent.trim() && !botChatTurn) {
           replyMessage = await splitAndEdit(replyMessage, newContent);
         }
       }
       await savedMsg.delete(`/discord:${message.id}`);
     }
   }
+  if (botChatTurn) splitAndSend(response);
   async function splitAndSend(text) {
     if (!text.trim()) return;
     if (text.length <= 2000) {
