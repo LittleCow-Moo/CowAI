@@ -197,6 +197,7 @@ client.on("messageCreate", async (message) => {
         }
       }
       await savedMsg.delete(`/discord:${message.id}`);
+      ws.close();
     }
   }
   if (botChatTurn) await splitAndSend(response);
