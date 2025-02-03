@@ -17,6 +17,7 @@ const { WebSocket } = require("ws");
 const { websocketData } = require("websocket-iterator");
 const fetch = require("node-fetch");
 const supportedMime = require("./../utils/cow").supportedMime;
+const allowedBotsList = process.env.DISCORD_ALLOWED_BOTS.split(",");
 
 client.on("ready", () => {
   console.log("[Discord] Bot ready", client.user.tag);
@@ -36,7 +37,8 @@ client.on("ready", () => {
 client.on("messageCreate", async (message) => {
   if (!(message.mentions.has(client.user) || !message.guild)) return;
   if (message.author.id == client.user.id) return;
-  if (message.author.bot) return;
+  if (message.author.bot&&allowedBotsList.indexOf(message.author.id)==-1) return;
+  const botChatTurn = message.author.bot
   message.content = Discord.cleanContent(
     message.content,
     client.channels.cache.get("1246648286144630837")
@@ -101,8 +103,8 @@ client.on("messageCreate", async (message) => {
       returning.push({
         text:
           a.content != ""
-            ? `@${a.author.username}說: ${a.content}`
-            : `@${a.author.username}傳送了一個檔案`,
+            ? `@${a.author.username} (Discord ID: ${a.author.id})說: ${a.content}`
+            : `@${a.author.username} (Discord ID: ${a.author.id})傳送了一個檔案`,
       });
       return a.author.id != client.user.id
         ? returning[0]
@@ -118,7 +120,7 @@ client.on("messageCreate", async (message) => {
   console.log("[Discord] Pulled messages:", pulledMessages);
   await savedMsg.push(`/discord:${message.id}`, pulledMessages);
   const ws = new WebSocket(
-    `ws://localhost:38943/api/generate?key=${process.env.ADMIN_KEY}&streamingResponse&_readSavedMessages=discord:${message.id}`
+    `ws://localhost:38943/api/generate?key=${process.env.ADMIN_KEY}${!botChatTurn?"&streamingResponse":""}&_readSavedMessages=discord:${message.id}`
   );
   var replyMessage;
   var sentReply = false;

@@ -29,6 +29,7 @@ AI_GATEWAY_TOKEN= # AI Gateway權杖，填入空字串則不使用權杖
 
 ENABLE_DISCORD=[true/false] # 是否要啟用Discord機器人
 DISCORD= # Discord Bot Token
+DISCORD_ALLOWED_BOTS= # 列出允許使用牛牛的Discord機器人ID，以逗點(`,`)分隔。
 
 ENABLE_TELEGRAM=[true/false] # 是否要啟用Telegram機器人
 TELEGRAM= # Telegram Bot Secret
