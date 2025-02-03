@@ -48,7 +48,7 @@ var models = {
   mathcow: () => {
     return genAI.getGenerativeModel(
       {
-        model: "gemini-exp-1206",
+        model: "gemini-2.0-flash-thinking-exp-01-21",
         systemInstruction: cow.mathPrompt,
         safetySettings: cow.safetySettings,
       },
