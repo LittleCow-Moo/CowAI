@@ -175,7 +175,7 @@ wss.on("connection", (ws) => {
           ],
         });
         if (message != "")
-          ws.send(JSON.stringify({ type: "response", message }));
+          ws.send(JSON.stringify({ type: "response", message, full }));
         if (calls[0]) {
           memoryThisTurn++;
           var functionResponses = [];
