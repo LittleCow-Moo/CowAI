@@ -1,18 +1,12 @@
 module.exports = {
-  prompt: require("fs").readFileSync("prompt.md").toString("utf-8"),
-  mathPrompt: require("fs").readFileSync("mathPrompt.md").toString("utf-8"),
-  /**
-   * @params {require("@google/generative-ai").GenerationConfig} config
-   */
+  prompt: require("fs").readFileSync("src/prompts/cow.md").toString("utf-8"),
+  mathPrompt: require("fs")
+    .readFileSync("src/prompts/mathcow.md")
+    .toString("utf-8"),
   config: {
-    temperature: 1.2, //1.1,
+    temperature: 1.2,
     topP: 1,
-    //responseMimeType: "text/plain"
-    //frequencyPenalty: 0.5,
-    //presencePenalty: 0.1,
-    //maxOutputTokens: 3072,
     stopSequences: [
-      // Use stop sequence to block unwanted fake image generating methods
       "https://storage.googleapis.com",
       "https://i.imgur.com",
       "https://i.ibb.co",
