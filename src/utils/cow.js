@@ -1,5 +1,8 @@
 module.exports = {
-  prompt: require("fs").readFileSync("src/prompts/cow.md").toString("utf-8"),
+  prompt: require("fs")
+    .readFileSync("src/prompts/cow.md")
+    .toString("utf-8")
+    .replace("{API_DOMAIN}", process.env.API_DOMAIN),
   mathPrompt: require("fs")
     .readFileSync("src/prompts/mathcow.md")
     .toString("utf-8"),

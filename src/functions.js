@@ -154,7 +154,7 @@ const GenerateImage = async (args) => {
   return {
     name: "GenerateImage",
     response: {
-      url: `https://cowai.cowgl.xyz/api/images/${id}.webp`,
+      url: `https://${process.env.API_DOMAIN}/api/images/${id}.webp`,
       seed: result[1],
     },
   };
@@ -292,7 +292,7 @@ const GenerateQR = async (args) => {
   return {
     name: "GenerateQR",
     response: {
-      url: `https://cowai.cowgl.xyz/api/images/qr/${id}.webp`,
+      url: `https://${process.env.API_DOMAIN}/api/images/qr/${id}.webp`,
     },
   };
 };

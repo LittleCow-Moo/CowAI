@@ -18,6 +18,13 @@ const { websocketData } = require("websocket-iterator");
 const fetch = require("node-fetch");
 const supportedMime = require("./../utils/cow").supportedMime;
 const allowedBotsList = (process.env.DISCORD_ALLOWED_BOTS || "").split(",");
+const regex = new RegExp(
+  `https:\\/\\/${process.env.API_DOMAIN.replaceAll(
+    ".",
+    "\\."
+  )}\\/api\\/images\\/[0-9a-f]{40}\\.webp`,
+  "gm"
+);
 
 client.on("ready", () => {
   console.log("[Discord] Bot ready", client.user.tag);
@@ -70,10 +77,7 @@ client.on("messageCreate", async (message) => {
         .replaceAll("@牛牛AI ", "")
         .replaceAll("@牛牛AI", "");
       var returning = [];
-      a.content = a.content.replace(
-        /https:\/\/cowai\.cowgl\.xyz\/api\/images\/[0-9a-f]{40}\.webp/gm,
-        ""
-      );
+      a.content = a.content.replace(regex, "");
       const attachment = a.attachments.first();
       const attachmentUrl =
         /(https?:\/\/[a-zA-Z0-9%/.]*\.(?:png|jpeg|jpg|webp|heic|heif|wav|mp3|aiff|aac|ogg|flac|mpeg|x-wav))/im.exec(
