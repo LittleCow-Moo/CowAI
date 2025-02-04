@@ -356,8 +356,9 @@ const dbCleanup = async () => {
     savedMsg.reload();
     await savedMsg.delete("/");
   } catch (e) {}
+  var dbDate
   try {
-    const dbDate = await db.getData("/date");
+    dbDate = await db.getData("/date");
   } catch (e) {
     await db.push("/date", nowDate);
   }
