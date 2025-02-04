@@ -351,12 +351,16 @@ process.on("uncaughtException", (e) => {
 });
 
 const dbCleanup = async () => {
+  const nowDate = moment().format("yyyy-MM-DD");
   try {
     savedMsg.reload();
     await savedMsg.delete("/");
   } catch (e) {}
-  const dbDate = await db.getData("/date");
-  const nowDate = moment().format("yyyy-MM-DD");
+  try {
+    const dbDate = await db.getData("/date");
+  } catch (e) {
+    await db.push("/date", nowDate);
+  }
   if (dbDate != nowDate) {
     try {
       await db.delete("/used");
