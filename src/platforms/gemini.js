@@ -33,7 +33,7 @@ var models = {
   cow: () => {
     return genAI.getGenerativeModel(
       {
-        model: "gemini-2.0-flash-exp",
+        model: "gemini-2.0-flash",
         systemInstruction: cow.prompt.replaceAll(
           "{time}",
           moment().format("yyyy年MM月DD日 HH:mm:ss")
