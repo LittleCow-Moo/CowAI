@@ -165,17 +165,23 @@ wss.on("connection", (ws) => {
             : null;
           if (first == true) first = false;
         }
-        ws.messages.push({
-          role: "model",
-          parts: [
-            {
-              text: message,
-            },
-            ...calls,
-          ],
-        });
-        if (message != "")
+        if (message != "") {
+          ws.messages.push({
+            role: "model",
+            parts: [
+              {
+                text: message,
+              },
+              ...calls,
+            ],
+          });
           ws.send(JSON.stringify({ type: "response", message, full }));
+        } else {
+          ws.messages.push({
+            role: "model",
+            parts: calls,
+          });
+        }
         if (calls[0]) {
           memoryThisTurn++;
           var functionResponses = [];
@@ -356,7 +362,7 @@ const dbCleanup = async () => {
     savedMsg.reload();
     await savedMsg.delete("/");
   } catch (e) {}
-  var dbDate
+  var dbDate;
   try {
     dbDate = await db.getData("/date");
   } catch (e) {
