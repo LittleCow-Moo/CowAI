@@ -52,7 +52,7 @@ bot.on("message", async (event) => {
     parts: [{ text: event.nick + "說: " + event.message }],
   });
   await ircMsg.push(`/${event.target}`, messages.slice(-5));
-  if (splittedMessage.includes(process.env.IRC_NICK)) {
+  if (splittedMessage.includes(process.env.IRC_NICK)||event.message.startsWith(`${process.env.IRC_NICK}: `)) {
     event.message = splittedMessage
       .filter((a) => a != process.env.IRC_NICK)
       .join(" ");
