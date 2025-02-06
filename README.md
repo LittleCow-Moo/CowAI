@@ -1,7 +1,7 @@
 # 牛牛 AI
 
 <div align="center">
-<img src="https://cowgl.xyz/cow.png" width="200" height="200" /><br>
+<img src="https://avatars.githubusercontent.com/u/88564180" width="200" height="200" /><br>
 牛牛AI是一隻聰明的AI牛。<br>
 
 ![Version](https://img.shields.io/github/package-json/v/LittleCow-moo/CowAI?logo=github&style=for-the-badge&label=版本) ![License](https://img.shields.io/github/license/LittleCow-moo/CowAI?style=for-the-badge&logo=github&label=許可證) ![WakaTime](https://wakatime.com/badge/github/LittleCow-Moo/CowAI.svg?style=for-the-badge) [![Prettier](https://img.shields.io/badge/程式碼樣式-Prettier-ff69b4.svg?style=for-the-badge)](https://github.com/prettier/prettier)<br>
