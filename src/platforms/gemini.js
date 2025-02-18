@@ -290,14 +290,14 @@ app.get("/api/waste", async (req, res) => {
   res.json({ type: "response", message: "Successfully wasted a use." });
 });
 
-app.get("/api/images/:id.webp", (req, res) => {
+app.get("/api/images/:id.:ext", (req, res) => {
   const imagePath = `images/${req.params.id}.webp`;
   if (!fs.existsSync(imagePath))
     return res.status(404).json({ type: "error", message: "Image not found." });
   res.sendFile(`${process.cwd()}/${imagePath}`);
 });
 
-app.get("/api/images/qr/:id.webp", (req, res) => {
+app.get("/api/images/qr/:id.:ext", (req, res) => {
   const imagePath = `images/qr/${req.params.id}.webp`;
   if (!fs.existsSync(imagePath))
     return res
