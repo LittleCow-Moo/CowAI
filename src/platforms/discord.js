@@ -83,11 +83,12 @@ client.on("messageCreate", async (message) => {
         /(https?:\/\/[a-zA-Z0-9%/.]*\.(?:png|jpeg|jpg|webp|heic|heif|wav|mp3|aiff|aac|ogg|flac|mpeg|x-wav))/im.exec(
           a.content
         );
+      var att;
       fetchAttachment: if (
         index == pulledMessages.length - 1 &&
         (attachment || (!attachment && attachmentUrl))
       ) {
-        const att = attachment ? attachment.proxyURL : attachmentUrl[0];
+        att = attachment ? attachment.proxyURL : attachmentUrl[0];
         const response = await fetch(att);
         const arrayBuffer = await response.arrayBuffer();
         const data = Buffer.from(arrayBuffer).toString("base64");
@@ -105,11 +106,14 @@ client.on("messageCreate", async (message) => {
         });
         a.content = a.content.replace(att, "");
       }
+      const userInfo = `@${a.author.username} (Discord ID: ${a.author.id})`;
       returning.push({
         text:
           a.content != ""
-            ? `@${a.author.username} (Discord ID: ${a.author.id})說: ${a.content}`
-            : `@${a.author.username} (Discord ID: ${a.author.id})傳送了一個檔案`,
+            ? `${userInfo}說: ${a.content}`
+            : att
+            ? `${userInfo}傳送了一個檔案`
+            : `${userInfo}提及了你`,
       });
       return a.author.id != client.user.id
         ? returning[0]
