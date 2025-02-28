@@ -199,11 +199,7 @@ wss.on("connection", (ws) => {
               })
             );
             var functionResponse;
-            if (["ScanQR"].indexOf(call.functionCall.name) != -1) {
-              functionResponse = await cow.functions[call.functionCall.name](
-                ws.messages.slice(-2)[0]
-              );
-            } else if (["CallMathCow"].indexOf(call.functionCall.name) != -1) {
+            if (["CallMathCow"].indexOf(call.functionCall.name) != -1) {
               console.log("[System] Model decided to use MathCow");
               calls = [];
               currentModel = "mathcow";
