@@ -80,7 +80,7 @@ client.on("messageCreate", async (message) => {
       a.content = a.content.replace(regex, "");
       const attachment = a.attachments.first();
       const attachmentUrl =
-        /(https?:\/\/[a-zA-Z0-9%\/._-]*\.(?:png|jpeg|jpg|webp|heic|heif|wav|mp3|aiff|aac|ogg|flac|mpeg|x-wav)(?:$|[a-zA-Z0-9%?=&]*$))/im.exec(
+        /(https?:\/\/[a-zA-Z0-9%\/._-]*\.(?:png|jpeg|jpg|webp|heic|heif|wav|mp3|aiff|aac|ogg|flac|mpeg|x-wav)(?:\?[a-zA-Z0-9%=&]*|))/im.exec(
           a.content
         );
       var att;

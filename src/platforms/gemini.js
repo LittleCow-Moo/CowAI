@@ -91,7 +91,7 @@ wss.on("connection", (ws) => {
         console.log(`[User] ${prompt}`);
         var inlineData = [];
         const attachment =
-          /(https?:\/\/[a-zA-Z0-9%\/._-]*\.(?:png|jpeg|jpg|webp|heic|heif|wav|mp3|aiff|aac|ogg|flac|mpeg|x-wav)(?:$|[a-zA-Z0-9%?=&]*$))/im.exec(
+          /(https?:\/\/[a-zA-Z0-9%\/._-]*\.(?:png|jpeg|jpg|webp|heic|heif|wav|mp3|aiff|aac|ogg|flac|mpeg|x-wav)(?:\?[a-zA-Z0-9%=&]*|))/im.exec(
             prompt
           );
         fetchAttachment: if (attachment && attachment[0]) {
