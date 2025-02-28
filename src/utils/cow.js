@@ -7,7 +7,6 @@ module.exports = {
     .readFileSync("src/prompts/mathcow.md")
     .toString("utf-8"),
   config: {
-    temperature: 1,
     topP: 1,
     stopSequences: [
       "https://storage.googleapis.com",
