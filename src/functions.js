@@ -297,64 +297,6 @@ const GenerateQR = async (args) => {
   };
 };
 
-const ScanQR = async (message) => {
-  const filtered = message.parts.filter((a) => {
-    if (!a.inlineData) return false;
-    return a.inlineData.mimeType.startsWith("image/");
-  });
-  if (!filtered[0])
-    return {
-      name: "ScanQR",
-      response: {
-        error: "No images found in the message.",
-      },
-    };
-  const data = filtered[0].inlineData.data.startsWith("http")
-    ? await download(filtered[0].inlineData.data)
-    : filtered[0].inlineData.data.startsWith("data")
-    ? Buffer.from(filtered[0].inlineData.data, "base64")
-    : Buffer.from(filtered[0].inlineData.data, "base64url");
-  const createFormData = () => {
-    const formData = new FormData();
-    formData.append("file", Readable.from(data), {
-      filename: "image." + filtered[0].inlineData.mimeType.split("/")[1],
-      contentType: filtered[0].inlineData.mimeType,
-    });
-    return formData;
-  };
-  const uploadQR = async (
-    url = "https://api.qrserver.com/v1/read-qr-code",
-    redirectCount = 0
-  ) => {
-    if (redirectCount > 5) {
-      throw new Error("Too many redirects");
-    }
-    const formData = createFormData();
-    const response = await fetch(url, {
-      method: "POST",
-      body: formData,
-      redirect: "manual",
-    });
-    if (response.status >= 300 && response.status < 400) {
-      const newLocation = response.headers.get("location");
-      if (!newLocation) {
-        throw new Error("Redirect location is missing");
-      }
-      return await uploadQR(newLocation, redirectCount + 1);
-    } else if (response.ok) {
-      return await response.json();
-    } else {
-      throw new Error(`Error ${response.status}`);
-    }
-  };
-  try {
-    const result = await uploadQR();
-    return { name: "ScanQR", response: { result } };
-  } catch (error) {
-    return { name: "ScanQR", response: { error: error.message } };
-  }
-};
-
 const available_functions = {
   Time,
   MCJavaServer,
@@ -374,7 +316,5 @@ const available_functions = {
   SearchMinecraftWiki,
   StopWorkSchoolChecker,
   GenerateQR,
-
-  ScanQR,
 };
 module.exports = available_functions;

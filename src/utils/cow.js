@@ -218,11 +218,6 @@ module.exports = {
           },
         },
 
-        {
-          name: "ScanQR",
-          description: "掃描最近一則使用者訊息中的QR Code。",
-        },
-
         { name: "CallMathCow", description: "呼叫數學牛牛" },
         /*
         //TODO: Add platform detection
