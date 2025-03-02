@@ -63,14 +63,10 @@ module.exports = (app) => {
     );
 
     if (!stream) {
-      let fullResponse = "";
       ws.on("message", (data) => {
         const parsed = JSON.parse(data);
         if (parsed.type === "welcome") {
           ws.send("");
-        }
-        if (parsed.type === "response") {
-          fullResponse += parsed.message;
         }
         if (parsed.type === "end") {
           res.json({
@@ -83,7 +79,7 @@ module.exports = (app) => {
                 index: 0,
                 message: {
                   role: "assistant",
-                  content: fullResponse,
+                  content: parsed.full,
                 },
                 finish_reason: "stop",
               },
