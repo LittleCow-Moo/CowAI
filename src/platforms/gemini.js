@@ -13,6 +13,7 @@ var db = new JsonDB(new Config("rateLimit", true, true));
 var savedMsg = new JsonDB(new Config("savedMessages", true, true));
 if (!fs.existsSync("images/")) fs.mkdirSync("images");
 db.push(`/max/${process.env.ADMIN_KEY}`, "infinity");
+if (process.env.ENABLE_OPENAI == "true") require("./openai")(app);
 
 const requestOptions =
   process.env.ENABLE_AI_GATEWAY == "true"

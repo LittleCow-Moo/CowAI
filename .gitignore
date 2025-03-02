@@ -8,6 +8,5 @@ rateLimit.json
 savedMessages.json
 tgMsg.json
 poe.js
-openai.js
 .DS_Store
 pnpm-lock.yaml
