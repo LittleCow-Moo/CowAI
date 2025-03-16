@@ -14,19 +14,20 @@ var savedMsg = new JsonDB(new Config("savedMessages", true, true));
 if (!fs.existsSync("images/")) fs.mkdirSync("images");
 db.push(`/max/${process.env.ADMIN_KEY}`, "infinity");
 
-const requestOptions =
-  process.env.ENABLE_AI_GATEWAY == "true"
-    ? {
-        baseUrl: `https://gateway.ai.cloudflare.com/v1/${process.env.AI_GATEWAY}/google-ai-studio`,
-        customHeaders: new Headers(
-          String(process.env.AI_GATEWAY_TOKEN || "") != ""
-            ? {
-                "cf-aig-authorization": `Bearer ${process.env.AI_GATEWAY_TOKEN}`,
-              }
-            : {}
-        ),
-      }
-    : {};
+const requestOptions = process.env.CUSTOM_BASE_URL
+  ? { baseUrl: process.env.CUSTOM_BASE_URL }
+  : process.env.ENABLE_AI_GATEWAY == "true"
+  ? {
+      baseUrl: `https://gateway.ai.cloudflare.com/v1/${process.env.AI_GATEWAY}/google-ai-studio`,
+      customHeaders: new Headers(
+        String(process.env.AI_GATEWAY_TOKEN || "") != ""
+          ? {
+              "cf-aig-authorization": `Bearer ${process.env.AI_GATEWAY_TOKEN}`,
+            }
+          : {}
+      ),
+    }
+  : {};
 
 const genAI = new GoogleGenerativeAI(process.env.KEY);
 var models = {

@@ -21,11 +21,12 @@
 ```env
 KEY= # Google Gemini API Key
 ADMIN_KEY= # 設定一個管理員專用的Cow AI API Key。這個API Key將會繞過速率限制，並且會被使用在其他平台中。
-ENABLE_AI_GATEWAY=[true/false] # 是否要啟用Cloudflare AI Gateway
+CUSTOM_BASE_URL= # 自訂Gemini API的Base URL。若填寫這個項目，將會覆蓋ENABLE_AI_GATEWAY。
+ENABLE_AI_GATEWAY=[true/false] # 是否要啟用Cloudflare AI 閘道
 AI_GATEWAY= # 如果ENABLE_AI_GATEWAY為true，請填寫此項。
-# AI Gateway網址看起來應該會像這樣: https://gateway.ai.cloudflare.com/v1/[帳號ID]/[Gateway ID]/google-ai-studio
+# AI 閘道網址看起來應該會像這樣: https://gateway.ai.cloudflare.com/v1/[帳號ID]/[Gateway ID]/google-ai-studio
 # 只需填寫 "[帳號ID]/[Gateway ID]" 部分即可。
-AI_GATEWAY_TOKEN= # AI Gateway權杖，填入空字串則不使用權杖
+AI_GATEWAY_TOKEN= # AI 閘道權杖，填入空字串則不使用權杖
 API_DOMAIN= # CowAI API的網域，產生圖片連結時使用
 ENABLE_OPENAI=[true/false] # 是否啟用API格式支援，啟用則API位於/api/oai/v1
 
