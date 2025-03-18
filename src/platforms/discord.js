@@ -55,7 +55,6 @@ client.on("messageCreate", async (message) => {
     .replaceAll("@牛牛AI", "");
   console.log("[Discord] Message:", message.content);
   var pulledMessages = [];
-  pulledMessages.push(message);
   const refs = message.reference;
   if (refs) {
     pulledMessages = pulledMessages.concat(await message.fetchReference());
@@ -70,6 +69,7 @@ client.on("messageCreate", async (message) => {
       ).toJSON()
     ).reverse()
   );
+  pulledMessages.push(message);
   pulledMessages = pulledMessages.sort((a) => Number(a.id));
   var parsePulledMessages = () => {
     for (const [i, a] of pulledMessages.entries()) {
