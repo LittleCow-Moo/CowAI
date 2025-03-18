@@ -58,12 +58,7 @@ client.on("messageCreate", async (message) => {
   pulledMessages.push(message);
   const refs = message.reference;
   if (refs) {
-    for (const ref of refs) {
-      const fetchedRef = await message.guild.fetchMessage(ref.messageId);
-      if (fetchedRef) {
-        pulledMessages.push(fetchedRef);
-      }
-    }
+    pulledMessages = pulledMessages.concat(await message.fetchReference());
   }
   pulledMessages = pulledMessages.concat(
     Object.values(
