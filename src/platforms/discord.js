@@ -65,17 +65,6 @@ client.on("messageCreate", async (message) => {
     };
     fetchRefs(message);
   }
-  pulledMessages = pulledMessages.concat(
-    Object.values(
-      (
-        await (firstReference || message).channel.messages.fetch({
-          limit: 5,
-          before: (firstReference || message).id,
-          cache: false,
-        })
-      ).toJSON()
-    ).reverse()
-  );
   pulledMessages.push(message);
   pulledMessages = pulledMessages.sort((a) => Number(a.id));
   var parsePulledMessages = () => {
