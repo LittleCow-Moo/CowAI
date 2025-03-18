@@ -54,9 +54,28 @@ client.on("messageCreate", async (message) => {
     .replaceAll("@牛牛AI ", "")
     .replaceAll("@牛牛AI", "");
   console.log("[Discord] Message:", message.content);
-  var pulledMessages = Object.values(
-    (await message.channel.messages.fetch({ limit: 5 })).toJSON()
-  ).reverse();
+  var pulledMessages = [];
+  pulledMessages.push(message);
+  const refs = message.reference;
+  if (refs) {
+    for (const ref of refs) {
+      const fetchedRef = await message.guild.fetchMessage(ref.messageId);
+      if (fetchedRef) {
+        pulledMessages.push(fetchedRef);
+      }
+    }
+  }
+  pulledMessages = pulledMessages.concat(
+    Object.values(
+      (
+        await (pulledMessages[0] || message).channel.messages.fetch({
+          limit: 5,
+          before: (pulledMessages[0] || message).id,
+        })
+      ).toJSON()
+    ).reverse()
+  );
+  pulledMessages = pulledMessages.sort((a) => Number(a.id));
   var parsePulledMessages = () => {
     for (const [i, a] of pulledMessages.entries()) {
       if (a.content == "COW_CLEAR_CONTEXT") {
