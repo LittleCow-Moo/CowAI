@@ -128,8 +128,8 @@ wss.on("connection", (ws) => {
       var first = true;
       var memoryThisTurn = memory;
       var currentModelName = ws.model;
-      var currentModel = models[currentModelName];
       const run = async () => {
+        var currentModel = models[currentModelName];
         const result = await genAI.models.generateContentStream({
           model: currentModel.name,
           config: currentModel.config,
