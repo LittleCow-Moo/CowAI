@@ -1,5 +1,5 @@
 require("dotenv").config();
-const { GoogleGenerativeAI } = require("@google/generative-ai");
+const { GoogleGenAI } = require("@google/genai");
 const cow = require("./../utils/cow");
 const { WebSocketServer } = require("ws");
 const { createServer } = require("http");
@@ -29,32 +29,31 @@ const requestOptions = process.env.CUSTOM_BASE_URL
     }
   : {};
 
-const genAI = new GoogleGenerativeAI(process.env.KEY);
+const genAI = new GoogleGenAI({ apiKey: process.env.KEY });
 var models = {
-  cow: () => {
-    return genAI.getGenerativeModel(
-      {
-        model: "gemini-2.0-flash",
-        systemInstruction: cow.prompt.replaceAll(
-          "{time}",
-          moment().format("yyyy年MM月DD日 HH:mm:ss")
-        ),
-        generationConfig: cow.config,
-        tools: cow.tools,
-        safetySettings: cow.safetySettings,
+  cow: {
+    name: "gemini-2.5-flash-preview-04-17",
+    config: {
+      systemInstruction: cow.prompt.replaceAll(
+        "{time}",
+        moment().format("yyyy年MM月DD日 HH:mm:ss")
+      ),
+      ...cow.config,
+      tools: cow.tools,
+      safetySettings: cow.safetySettings,
+      thinkingConfig: {
+        thinkingBudget: 0,
       },
-      requestOptions
-    );
+      httpOptions: requestOptions,
+    },
   },
-  mathcow: () => {
-    return genAI.getGenerativeModel(
-      {
-        model: "gemini-2.0-flash-thinking-exp-01-21",
-        systemInstruction: cow.mathPrompt,
-        safetySettings: cow.safetySettings,
-      },
-      requestOptions
-    );
+  mathcow: {
+    name: "gemini-2.5-flash-preview-04-17",
+    config: {
+      systemInstruction: cow.mathPrompt,
+      safetySettings: cow.safetySettings,
+      httpOptions: requestOptions,
+    },
   },
 };
 const enabledModels = ["cow", "mathcow"];
@@ -128,9 +127,12 @@ wss.on("connection", (ws) => {
       }
       var first = true;
       var memoryThisTurn = memory;
-      var currentModel = ws.model;
+      var currentModelName = ws.model;
+      var currentModel = models[currentModelName];
       const run = async () => {
-        const result = await models[currentModel]().generateContentStream({
+        const result = await genAI.generateContentStream({
+          model: currentModel.name,
+          config: currentModel.config,
           contents: ws.messages.slice(-1 * memoryThisTurn),
         });
         var calls = [];
