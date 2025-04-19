@@ -129,13 +129,11 @@ module.exports = {
                 type: "INTEGER",
                 description: "圖片寬度，單位：像素。預設情況採用 `1024`。",
                 nullable: true,
-                default: 1024,
               },
               height: {
                 type: "INTEGER",
                 description: "圖片高度，單位：像素。預設情況採用 `1024`。",
                 nullable: true,
-                default: 1024,
               },
             },
             required: ["prompt"],

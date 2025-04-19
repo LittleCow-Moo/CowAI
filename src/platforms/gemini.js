@@ -56,6 +56,9 @@ var models = {
     config: {
       systemInstruction: cow.mathPrompt,
       safetySettings: cow.safetySettings,
+      thinkingConfig: {
+        thinkingBudget: 2048, // To control TTFT
+      },
       httpOptions: requestOptions,
     },
   },
@@ -134,7 +137,7 @@ wss.on("connection", (ws) => {
       var currentModelName = ws.model;
       const run = async () => {
         var currentModel = models[currentModelName];
-        console.log("[System] Current model:", currentModelName); // comment for easier removal
+        console.log("[System] Current model:", currentModelName);
         const result = await genAI.models.generateContentStream({
           model: currentModel.name,
           config: currentModel.config,
@@ -211,7 +214,7 @@ wss.on("connection", (ws) => {
             if (["CallMathCow"].indexOf(call.functionCall.name) != -1) {
               console.log("[System] Model decided to use MathCow");
               calls = [];
-              currentModel = "mathcow";
+              currentModelName = "mathcow";
               ws.messages.pop();
               await run();
               return;
