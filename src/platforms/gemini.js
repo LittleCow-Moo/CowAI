@@ -146,11 +146,6 @@ wss.on("connection", (ws) => {
           if (!part) continue;
           if (part.functionCall)
             calls.push({ functionCall: part.functionCall });
-          if (item.functionCalls()) {
-            for (const call of item.functionCalls()) {
-              calls.push({ functionCall: call });
-            }
-          }
           if (!part.text) continue;
           var callsFix = cow.utils.toolCallFix(part.text || "");
           if (callsFix.calls[0]) {
