@@ -130,6 +130,7 @@ wss.on("connection", (ws) => {
       var currentModelName = ws.model;
       const run = async () => {
         var currentModel = models[currentModelName];
+        console.log("[System] Current model:", currentModel.name); // comment for easier removal
         const result = await genAI.models.generateContentStream({
           model: currentModel.name,
           config: currentModel.config,
