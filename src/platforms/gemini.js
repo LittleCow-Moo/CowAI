@@ -38,7 +38,11 @@ var models = {
         "{time}",
         moment().format("yyyy年MM月DD日 HH:mm:ss")
       ),
-      ...cow.config,
+      stopSequences: [
+        "https://storage.googleapis.com",
+        "https://i.imgur.com",
+        "https://i.ibb.co",
+      ],
       tools: cow.tools,
       safetySettings: cow.safetySettings,
       thinkingConfig: {
@@ -130,7 +134,7 @@ wss.on("connection", (ws) => {
       var currentModelName = ws.model;
       const run = async () => {
         var currentModel = models[currentModelName];
-        console.log("[System] Current model:", currentModel.name); // comment for easier removal
+        console.log("[System] Current model:", currentModelName); // comment for easier removal
         const result = await genAI.models.generateContentStream({
           model: currentModel.name,
           config: currentModel.config,

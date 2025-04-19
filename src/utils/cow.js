@@ -6,14 +6,6 @@ module.exports = {
   mathPrompt: require("fs")
     .readFileSync("src/prompts/mathcow.md")
     .toString("utf-8"),
-  config: {
-    topP: 1,
-    stopSequences: [
-      "https://storage.googleapis.com",
-      "https://i.imgur.com",
-      "https://i.ibb.co",
-    ],
-  },
   tools: [
     {
       functionDeclarations: [
@@ -137,11 +129,13 @@ module.exports = {
                 type: "INTEGER",
                 description: "圖片寬度，單位：像素。預設情況採用 `1024`。",
                 nullable: true,
+                default: 1024,
               },
               height: {
                 type: "INTEGER",
                 description: "圖片高度，單位：像素。預設情況採用 `1024`。",
                 nullable: true,
+                default: 1024,
               },
             },
             required: ["prompt"],
@@ -218,7 +212,7 @@ module.exports = {
           },
         },
 
-        { name: "CallMathCow", description: "呼叫數學牛牛" },
+        { name: "CallMathCow", description: "呼叫數學牛牛。" },
         /*
         //TODO: Add platform detection
         {
