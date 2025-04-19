@@ -138,7 +138,7 @@ wss.on("connection", (ws) => {
         var calls = [];
         var message = "";
         process.stdout.write("[Cow] ");
-        for await (const item of result.stream) {
+        for await (const item of result) {
           if (!item.candidates) continue;
           if (!item.candidates[0].content) continue;
           if (!item.candidates[0].content.parts) continue;
