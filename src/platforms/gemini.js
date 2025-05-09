@@ -2,12 +2,12 @@ require("dotenv").config();
 const { GoogleGenAI } = require("@google/genai");
 const cow = require("./../utils/cow");
 const { WebSocketServer } = require("ws");
-const { createServer } = require("http");
+const { createServer } = require("node:http");
 const u = require("url");
 const express = require("express");
 const { JsonDB, Config } = require("node-json-db");
 const moment = require("moment");
-const fs = require("fs");
+const fs = require("node:fs");
 
 var db = new JsonDB(new Config("rateLimit", true, true));
 var savedMsg = new JsonDB(new Config("savedMessages", true, true));

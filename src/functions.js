@@ -4,15 +4,13 @@ const fetch = require("node-fetch");
 const xml = require("xml-js");
 const TaiwanEarthquake = require("./utils/taiwanearthquake");
 const moment = require("moment-timezone");
-const fs = require("fs");
+const fs = require("node:fs");
 const download = require("download");
 const weather = require("weather-js");
 const yts = require("yt-search");
 const { JSDOM } = require("jsdom");
 const qr = require("qrcode");
-const crypto = require("crypto");
-const FormData = require("form-data");
-const { Readable } = require("stream");
+const crypto = require("node:crypto");
 const parseDecimalNCR = (str) => {
   return str.replace(/&#(\d+);/g, (_match, dec) => {
     return String.fromCharCode(dec);

@@ -2,7 +2,7 @@ require("dotenv").config();
 var linebot = require("linebot");
 const express = require("express");
 const https = require("https");
-const fs = require("fs");
+const fs = require("node:fs");
 const fetch = require("node-fetch");
 const { JsonDB, Config } = require("node-json-db");
 const { WebSocket } = require("ws");

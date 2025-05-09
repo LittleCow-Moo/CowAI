@@ -1,7 +1,7 @@
 require("dotenv").config();
 if (!process.env.ADMIN_KEY || process.env.ADMIN_KEY == "")
   throw new Error(
-    `Please set an admin key in \`.env\`. I have generated one for you: \`${require("crypto").randomUUID()}\``
+    `Please set an admin key in \`.env\`. I have generated one for you: \`${require("node:crypto").randomUUID()}\``
   );
 const checkMissingField = (field) => {
   if (!process.env[field] || process.env[field] == "") {
