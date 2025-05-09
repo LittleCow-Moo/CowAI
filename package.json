@@ -10,6 +10,7 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
+  "type": "commonjs",
   "dependencies": {
     "@discordjs/util": "^1.1.0",
     "@google/genai": "^0.12.0",
