@@ -1,5 +1,5 @@
 const express = require("express");
-const crypto = require("crypto");
+const crypto = require("node:crypto");
 const { JsonDB, Config } = require("node-json-db");
 const { WebSocket } = require("ws");
 var db = new JsonDB(new Config("rateLimit", true, true));
