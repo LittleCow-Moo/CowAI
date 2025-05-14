@@ -10,6 +10,9 @@ bot.connect({
     name: process.env.IRC_NICK,
     password: process.env.IRC_PASSWORD,
   },
+  ...((process.env.IRC_ENABLE_TLS || "") == "true"
+    ? { rejectUnauthorized: false, tls: true }
+    : {}),
 });
 const { JsonDB, Config } = require("node-json-db");
 var savedMsg = new JsonDB(new Config("savedMessages", true, true));
