@@ -17,7 +17,7 @@
     "@gradio/client": "^1.4.0",
     "@octokit/rest": "^22.0.0",
     "discord.js": "^14.15.3",
-    "dotenv": "^16.4.5",
+    "dotenv": "^17.0.0",
     "download": "^8.0.0",
     "express": "^5.1.0",
     "form-data": "^4.0.1",
