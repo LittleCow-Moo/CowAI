@@ -1,4 +1,4 @@
-require("dotenv").config();
+require("dotenv").config({ quiet: true });
 const IRC = require("irc-framework");
 var bot = new IRC.Client();
 bot.connect({

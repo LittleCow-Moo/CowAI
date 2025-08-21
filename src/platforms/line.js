@@ -1,4 +1,4 @@
-require("dotenv").config();
+require("dotenv").config({ quiet: true });
 var linebot = require("linebot");
 const express = require("express");
 const https = require("https");

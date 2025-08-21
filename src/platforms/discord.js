@@ -1,4 +1,4 @@
-require("dotenv").config();
+require("dotenv").config({ quiet: true });
 const Discord = require("discord.js");
 const client = new Discord.Client({
   intents: [
@@ -26,7 +26,7 @@ const regex = new RegExp(
   "gm"
 );
 
-client.on("ready", () => {
+client.on("clientReady", () => {
   console.log("[Discord] Bot ready", client.user.tag);
   client.user.setPresence({
     activities: [

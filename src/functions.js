@@ -1,4 +1,4 @@
-require("dotenv").config();
+require("dotenv").config({ quiet: true });
 const jokes = require("./utils/jokes");
 const fetch = require("node-fetch");
 const xml = require("xml-js");

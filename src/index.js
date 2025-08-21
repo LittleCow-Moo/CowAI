@@ -1,4 +1,4 @@
-require("dotenv").config();
+require("dotenv").config({ quiet: true });
 if (!process.env.ADMIN_KEY || process.env.ADMIN_KEY == "")
   throw new Error(
     `Please set an admin key in \`.env\`. I have generated one for you: \`${require("node:crypto").randomUUID()}\``

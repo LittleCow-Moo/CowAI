@@ -1,4 +1,4 @@
-require("dotenv").config();
+require("dotenv").config({ quiet: true });
 const { GoogleGenAI } = require("@google/genai");
 const cow = require("./../utils/cow");
 const { WebSocketServer } = require("ws");
