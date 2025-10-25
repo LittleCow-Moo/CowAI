@@ -255,6 +255,10 @@ wss.on("connection", (ws) => {
     })().catch(async (e) => {
       console.error("[System] Error occurred:", e);
       await db.push(`/used/${ws.key}`, used);
+      if (e.status == 429) {
+        await run();
+        return;
+      }
       ws.send(JSON.stringify({ type: "error", message: e.toString() }));
     });
   });
