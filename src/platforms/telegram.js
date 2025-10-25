@@ -15,6 +15,7 @@ bot.getMe().then((me) => {
 bot.on("message", async (msg, meta) => {
   if (msg.chat.type != "private") return;
   console.log("[Telegram] Message");
+  bot.sendChatAction(msg.chat.id, "typing");
   var messages = await tgMsg.getObjectDefault(`/${msg.chat.id}`, []);
   messages.push({ role: "user", parts: [{ text: msg.text }] });
   await tgMsg.push(`/${msg.chat.id}`, messages.slice(-5));
@@ -40,16 +41,77 @@ bot.on("message", async (msg, meta) => {
       ws.close();
     }
     if (parsed.type == "response") {
-      var messages = await tgMsg.getObjectDefault(
-        `/${msg.chat.id}`,
-        []
-      );
+      var messages = await tgMsg.getObjectDefault(`/${msg.chat.id}`, []);
       messages.push({ role: "model", parts: [{ text: parsed.message }] });
       await tgMsg.push(`/${msg.chat.id}`, messages.slice(-5));
       bot.sendMessage(msg.chat.id, parsed.message);
       try {
         await savedMsg.delete(`/tg:${msg.chat.id}`);
       } catch (e) {}
+    }
+  });
+});
+
+bot.on("inline_query", (query) => {
+  console.log(cbq);
+  bot.answerInlineQuery(
+    cbq.id,
+    [
+      {
+        id: 8964,
+        type: "article",
+        title: "詢問牛牛問題",
+        description: query.query,
+        thumb_url: "https://cowgl.xyz/cow.png",
+        input_message_content: {
+          message_text: "哞！牛牛正在閱讀你的問題...",
+        },
+        reply_markup: {
+          inline_keyboard: [
+            [
+              {
+                text: "哞！",
+                switch_inline_query_current_chat: "",
+              },
+            ],
+          ],
+        },
+      },
+    ],
+    { cache_time: 10 }
+  );
+});
+
+bot.on("chosen_inline_result", (chosenResult) => {
+  const inlineMessageId = chosenResult.inline_message_id;
+  console.log(chosenResult, inlineMessageId);
+  const ws = new WebSocket(
+    `ws://localhost:38943/api/generate?key=${
+      process.env.ADMIN_KEY
+    }&messages=${JSON.stringify([
+      {
+        role: "user",
+        parts: [{ text: chosenResult.query }],
+      },
+    ])}`
+  );
+  ws.on("message", async (data) => {
+    const parsed = JSON.parse(data);
+    if (parsed.type == "welcome") {
+      await slash.deferReply({ ephemeral: hide });
+      ws.send("");
+    }
+    if (parsed.type == "end") {
+      bot.editMessageText(parsed.full.slice(-4000), {
+        inline_message_id: inlineMessageId,
+      });
+      ws.close();
+    }
+    if (parsed.type == "error") {
+      bot.editMessageText(parsed.message.slice(-4000), {
+        inline_message_id: inlineMessageId,
+      });
+      ws.close();
     }
   });
 });
