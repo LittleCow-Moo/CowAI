@@ -70,8 +70,8 @@ bot.on("inline_query", (query) => {
           inline_keyboard: [
             [
               {
-                text: "哞！",
-                switch_inline_query_current_chat: "",
+                text: "查看問題",
+                switch_inline_query_current_chat: query.query,
               },
             ],
           ],
@@ -103,12 +103,32 @@ bot.on("chosen_inline_result", (chosenResult) => {
     if (parsed.type == "end") {
       bot.editMessageText(parsed.full.slice(-4000), {
         inline_message_id: inlineMessageId,
+        reply_markup: {
+          inline_keyboard: [
+            [
+              {
+                text: "查看問題",
+                switch_inline_query_current_chat: chosenResult.query,
+              },
+            ],
+          ],
+        },
       });
       ws.close();
     }
     if (parsed.type == "error") {
       bot.editMessageText(parsed.message.slice(-4000), {
         inline_message_id: inlineMessageId,
+        reply_markup: {
+          inline_keyboard: [
+            [
+              {
+                text: "查看問題",
+                switch_inline_query_current_chat: chosenResult.query,
+              },
+            ],
+          ],
+        },
       });
       ws.close();
     }
