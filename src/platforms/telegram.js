@@ -106,13 +106,13 @@ bot.on("chosen_inline_result", (chosenResult) => {
     if (parsed.type == "end") {
       bot.editMessageText(parsed.full.slice(-4000), {
         inline_message_id: inlineMessageId,
+        parse_mode: "Markdown",
         reply_markup: {
           inline_keyboard: [
             [
               {
                 text: "查看問題",
                 switch_inline_query_current_chat: chosenResult.query,
-                parse_mode: "Markdown",
               },
             ],
           ],
