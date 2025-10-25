@@ -53,7 +53,10 @@ bot.on("message", async (msg, meta) => {
 });
 
 bot.on("inline_query", (query) => {
-  if (query.query == "") return;
+  if (query.query == "") {
+    bot.answerInlineQuery(query.id, []);
+    return;
+  }
   bot.answerInlineQuery(
     query.id,
     [
