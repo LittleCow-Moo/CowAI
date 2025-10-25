@@ -112,6 +112,7 @@ bot.on("chosen_inline_result", (chosenResult) => {
               {
                 text: "查看問題",
                 switch_inline_query_current_chat: chosenResult.query,
+                parse_mode: "Markdown",
               },
             ],
           ],
