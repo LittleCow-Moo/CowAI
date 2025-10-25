@@ -54,7 +54,10 @@ var models = {
   mathcow: {
     name: "gemini-2.5-pro",
     config: {
-      systemInstruction: cow.mathPrompt,
+      systemInstruction: cow.mathPrompt.replaceAll(
+        "{time}",
+        moment().format("yyyy年MM月DD日 HH:mm:ss")
+      ),
       safetySettings: cow.safetySettings,
       thinkingConfig: {
         thinkingBudget: 2048, // To control TTFT
