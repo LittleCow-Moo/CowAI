@@ -53,9 +53,9 @@ bot.on("message", async (msg, meta) => {
 });
 
 bot.on("inline_query", (query) => {
-  console.log(cbq);
+  if (query.query == "") return;
   bot.answerInlineQuery(
-    cbq.id,
+    query.id,
     [
       {
         id: 8964,
@@ -64,7 +64,7 @@ bot.on("inline_query", (query) => {
         description: query.query,
         thumb_url: "https://cowgl.xyz/cow.png",
         input_message_content: {
-          message_text: "哞！牛牛正在閱讀你的問題...",
+          message_text: "哞！牛牛正在思考你的問題......",
         },
         reply_markup: {
           inline_keyboard: [
