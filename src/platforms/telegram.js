@@ -98,7 +98,6 @@ bot.on("chosen_inline_result", (chosenResult) => {
   ws.on("message", async (data) => {
     const parsed = JSON.parse(data);
     if (parsed.type == "welcome") {
-      await slash.deferReply({ ephemeral: hide });
       ws.send("");
     }
     if (parsed.type == "end") {
