@@ -67,6 +67,13 @@ var models = {
   },
 };
 const enabledModels = ["cow", "mathcow"];
+const apiLinkRegex = new RegExp(
+  `https:\\/\\/${process.env.API_DOMAIN.replaceAll(
+    ".",
+    "\\."
+  )}\\/api\\/images\\/[0-9a-f]{1,}\\.webp`,
+  "gm"
+);
 
 const debug = true;
 const memory = 5;
@@ -135,6 +142,18 @@ wss.on("connection", (ws) => {
       } else {
         console.log("[User] (empty prompt)");
       }
+      ws.messages = await Promise.all(
+        ws.messages.map(async (msg) => {
+          var parts = msg.parts;
+          parts = await Promise.all(
+            parts.map((part) => {
+              if (!part.text) return part;
+              return { text: part.text.replaceAll(apiLinkRegex, "") };
+            })
+          );
+          return { role: msg.role, parts };
+        })
+      );
       var first = true;
       var memoryThisTurn = memory;
       var currentModelName = ws.model;
