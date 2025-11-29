@@ -36,7 +36,7 @@ function isMentioningMe(event) {
       console.error("[Matrix] Matrix client sync error:", res);
     }
   });
-  client.on(RoomEvent.MyMembership, (room, membership, _prevMembership) => {
+  client.on(sdk.RoomEvent.MyMembership, (room, membership, _prevMembership) => {
     if (membership === sdk.KnownMembership.Invite) {
       client.joinRoom(room.roomId).then(function () {
         console.log("[Matrix] Auto-joined %s", room.roomId);
