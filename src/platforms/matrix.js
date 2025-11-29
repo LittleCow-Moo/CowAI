@@ -1,3 +1,4 @@
+global.Olm = require("olm");
 const { JsonDB, Config } = require("node-json-db");
 var savedMsg = new JsonDB(new Config("savedMessages", true, true));
 const { WebSocket } = require("ws");
@@ -10,10 +11,6 @@ function isMentioningMe(event) {
   if (event.getSender() === process.env.MATRIX_USER_ID) {
     return false;
   }
-  const pushAction = event.getPushAction();
-  if (pushAction && pushAction.notify) {
-    return true;
-  }
   const messageBody = event.getContent().body;
   if (messageBody && messageBody.includes(process.env.MATRIX_USER_ID)) {
     return true;
@@ -23,11 +20,15 @@ function isMentioningMe(event) {
 
 (async () => {
   const sdk = await import("matrix-js-sdk");
+  sdk.DebugLogger = () => {};
   const client = sdk.createClient({
     baseUrl: process.env.MATRIX_BASE_URL,
     accessToken: process.env.MATRIX_ACCESS_TOKEN,
     userId: process.env.MATRIX_USER_ID,
+    sessionStore: new sdk.WebStorageSessionStore(localStorage),
+    cryptoStore: new LocalStorageCryptoStore(localStorage),
   });
+  await client.initCrypto();
   client.startClient();
   client.on("sync", async function (state, prevState, res) {
     if (state === "PREPARED") {
@@ -45,6 +46,8 @@ function isMentioningMe(event) {
   });
 
   client.on(sdk.RoomEvent.Timeline, async (event, room, toStartOfTimeline) => {
+    await client.sendReadReceipt(event, "m.read", true);
+    console.log(event.getContent());
     if (toStartOfTimeline) return;
     if (event.getType() !== "m.room.message") return;
     if (event.getSender() === process.env.MATRIX_USER_ID) return;
@@ -60,8 +63,8 @@ function isMentioningMe(event) {
       console.log("Previous messages:", messages);
     } catch (e) {}
 
-    messages
-      .map(async (a) => {
+    messages = await Promise.all(
+      messages.map(async (a) => {
         const sender = a.getSender();
         const role = sender == process.env.MATRIX_USER_ID ? "model" : "user";
         var parts = [];
@@ -74,7 +77,7 @@ function isMentioningMe(event) {
             senderDisplayName = member.name;
           }
         } catch (e) {}
-        switchType: switch (a.type) {
+        switchType: switch (content.msgtype) {
           case "m.text":
             parts.push({ text: `${senderDisplayName}說: ${content.body}` });
             break;
@@ -119,16 +122,21 @@ function isMentioningMe(event) {
             unknown = true;
             break;
         }
+        console.log(role, parts, unknown, content, "awq");
         if (!unknown) {
           return { role, parts };
         } else {
           return null;
         }
       })
-      .filter((a) => !a);
-    await savedMsg.push(`/matrix:${room}`, messages.slice(-5));
+    );
+    console.log(
+      messages.filter((a) => !!a),
+      "qwq"
+    );
+    await savedMsg.push(`/matrix:${event.event.room_id}`, messages.slice(-5));
     const ws = new WebSocket(
-      `ws://localhost:38943/api/generate?key=${process.env.ADMIN_KEY}&_readSavedMessages=matrix:${room}`
+      `ws://localhost:38943/api/generate?key=${process.env.ADMIN_KEY}&_readSavedMessages=matrix:${event.event.room_id}`
     );
     var wsTimeout;
     ws.on("message", async (data) => {
@@ -137,13 +145,13 @@ function isMentioningMe(event) {
         ws.send("");
         wsTimeout = setTimeout(async () => {
           try {
-            await savedMsg.delete(`/matrix:${room}`);
+            await savedMsg.delete(`/matrix:${event.event.room_id}`);
           } catch (e) {}
           ws.close();
         }, 60000);
       }
       if (parsed.type == "error") {
-        await client.sendEvent(room, "m.room.message", {
+        await client.sendEvent(event.event.room_id, "m.room.message", {
           msgtype: "m.text",
           body: parsed.message,
           "m.relates_to": {
@@ -156,7 +164,7 @@ function isMentioningMe(event) {
         ws.close();
       }
       if (parsed.type == "response") {
-        await client.sendEvent(room, "m.room.message", {
+        await client.sendEvent(event.event.room_id, "m.room.message", {
           msgtype: "m.text",
           body: parsed.message,
           "m.relates_to": {
@@ -166,7 +174,7 @@ function isMentioningMe(event) {
           },
         });
         try {
-          await savedMsg.delete(`/matrix:${room}`);
+          await savedMsg.delete(`/matrix:${event.event.room_id}`);
         } catch (e) {}
       }
     });
