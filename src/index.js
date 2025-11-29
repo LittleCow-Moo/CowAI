@@ -44,4 +44,4 @@ if (
   checkMissingField("MATRIX_ACCESS_TOKEN") &&
   checkMissingField("MATRIX_USER_ID")
 )
-  require("./platforms/irc");
+  require("./platforms/matrix");
