@@ -37,3 +37,11 @@ if (
   checkMissingField("IRC_CHANNEL")
 )
   require("./platforms/irc");
+
+  if (
+  process.env.ENABLE_MATRIX == "true" &&
+  checkMissingField("MATRIX_BASE_URL") &&
+  checkMissingField("MATRIX_ACCESS_TOKEN") &&
+  checkMissingField("MATRIX_USER_ID")
+)
+  require("./platforms/irc");

@@ -52,6 +52,11 @@ IRC_NICK= # IRC機器人的Nick & Account
 IRC_PASSWORD= # IRC機器人的密碼
 IRC_CHANNEL= # IRC機器人要自動加入的頻道，例如機器人的支援頻道等
 
+ENABLE_MATRIX=[true/false] # 是否要啟用Matrix機器人
+MATRIX_BASE_URL= # Home server的網址，例如 https://matrix.org
+MATRIX_ACCESS_TOKEN= # 帳號的Acess token，可透過Element取得
+MATRIX_USER_ID= # 帳號的ID，例如 @littlecow:matrix.org
+
 HF_ACCESS_TOKEN= # HuggingFace Access Token (作畫功能使用，要有read權限)
 PSE_ID= # Google Programmable Search Engine ID (Google 搜尋功能用)
 PSE_KEY= # Google Programmable Search Engine API Key (Google 搜尋功能用)

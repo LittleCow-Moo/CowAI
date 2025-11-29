@@ -24,6 +24,7 @@
     "irc-framework": "^4.14.0",
     "jsdom": "^27.0.0",
     "linebot": "^1.6.1",
+    "matrix-js-sdk": "^39.3.0-rc.0",
     "moment": "^2.30.1",
     "moment-timezone": "^0.6.0",
     "node-fetch": "2.x",
