@@ -29,7 +29,7 @@ function isMentioningMe(event) {
     userId: process.env.MATRIX_USER_ID,
   });
   client.startClient();
-  matrixClient.on("sync", async function (state, prevState, res) {
+  client.on("sync", async function (state, prevState, res) {
     if (state === "PREPARED") {
       console.log("[Matrix] Bot ready", client.getUserId());
     } else if (state === "ERROR") {
@@ -38,7 +38,7 @@ function isMentioningMe(event) {
   });
   client.on(RoomEvent.MyMembership, (room, membership, _prevMembership) => {
     if (membership === sdk.KnownMembership.Invite) {
-      matrixClient.joinRoom(room.roomId).then(function () {
+      client.joinRoom(room.roomId).then(function () {
         console.log("[Matrix] Auto-joined %s", room.roomId);
       });
     }
