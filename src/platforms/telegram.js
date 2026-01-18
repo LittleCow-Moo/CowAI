@@ -45,7 +45,7 @@ bot.on("message", async (msg, meta) => {
       messages.push({ role: "model", parts: [{ text: parsed.message }] });
       await tgMsg.push(`/${msg.chat.id}`, messages.slice(-5));
       try {
-        bot.sendMessage(msg.chat.id, parsed.message, {
+        await bot.sendMessage(msg.chat.id, parsed.message, {
           parse_mode: "Markdown",
         });
       } catch (e) {
@@ -124,7 +124,7 @@ bot.on("chosen_inline_result", (chosenResult) => {
     }
     if (parsed.type == "end") {
       try {
-        bot.editMessageText(parsed.full.slice(-4000), {
+        await bot.editMessageText(parsed.full.slice(-4000), {
           parse_mode: "Markdown",
           ...editOptions,
         });
@@ -135,7 +135,7 @@ bot.on("chosen_inline_result", (chosenResult) => {
     }
     if (parsed.type == "error") {
       try {
-        bot.editMessageText(parsed.message.slice(-4000), {
+        await bot.editMessageText(parsed.message.slice(-4000), {
           parse_mode: "Markdown",
           ...editOptions,
         });
