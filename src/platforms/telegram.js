@@ -44,9 +44,13 @@ bot.on("message", async (msg, meta) => {
       var messages = await tgMsg.getObjectDefault(`/${msg.chat.id}`, []);
       messages.push({ role: "model", parts: [{ text: parsed.message }] });
       await tgMsg.push(`/${msg.chat.id}`, messages.slice(-5));
-      bot.sendMessage(msg.chat.id, parsed.message, {
-        parse_mode: "Markdown",
-      });
+      try {
+        bot.sendMessage(msg.chat.id, parsed.message, {
+          parse_mode: "Markdown",
+        });
+      } catch (e) {
+        bot.sendMessage(msg.chat.id, parsed.message);
+      }
       try {
         await savedMsg.delete(`/tg:${msg.chat.id}`);
       } catch (e) {}
@@ -100,43 +104,44 @@ bot.on("chosen_inline_result", (chosenResult) => {
       },
     ])}`,
   );
+  var editOptions = {
+    inline_message_id: inlineMessageId,
+    reply_markup: {
+      inline_keyboard: [
+        [
+          {
+            text: "查看問題",
+            switch_inline_query_current_chat: chosenResult.query,
+          },
+        ],
+      ],
+    },
+  };
   ws.on("message", async (data) => {
     const parsed = JSON.parse(data);
     if (parsed.type == "welcome") {
       ws.send("");
     }
     if (parsed.type == "end") {
-      bot.editMessageText(parsed.full.slice(-4000), {
-        inline_message_id: inlineMessageId,
-        parse_mode: "Markdown",
-        reply_markup: {
-          inline_keyboard: [
-            [
-              {
-                text: "查看問題",
-                switch_inline_query_current_chat: chosenResult.query,
-              },
-            ],
-          ],
-        },
-      });
+      try {
+        bot.editMessageText(parsed.full.slice(-4000), {
+          parse_mode: "Markdown",
+          ...editOptions,
+        });
+      } catch (e) {
+        bot.editMessageText(parsed.full.slice(-4000), editOptions);
+      }
       ws.close();
     }
     if (parsed.type == "error") {
-      bot.editMessageText(parsed.message.slice(-4000), {
-        inline_message_id: inlineMessageId,
-        parse_mode: "Markdown",
-        reply_markup: {
-          inline_keyboard: [
-            [
-              {
-                text: "查看問題",
-                switch_inline_query_current_chat: chosenResult.query,
-              },
-            ],
-          ],
-        },
-      });
+      try {
+        bot.editMessageText(parsed.message.slice(-4000), {
+          parse_mode: "Markdown",
+          ...editOptions,
+        });
+      } catch (e) {
+        bot.editMessageText(parsed.message.slice(-4000), editOptions);
+      }
       ws.close();
     }
   });
