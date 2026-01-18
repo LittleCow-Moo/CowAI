@@ -21,7 +21,7 @@ bot.on("message", async (msg, meta) => {
   await tgMsg.push(`/${msg.chat.id}`, messages.slice(-5));
   await savedMsg.push(`/tg:${msg.chat.id}`, messages.slice(-5));
   const ws = new WebSocket(
-    `ws://localhost:38943/api/generate?key=${process.env.ADMIN_KEY}&_readSavedMessages=tg:${msg.chat.id}`
+    `ws://localhost:38943/api/generate?key=${process.env.ADMIN_KEY}&_readSavedMessages=tg:${msg.chat.id}`,
   );
   var wsTimeout;
   ws.on("message", async (data) => {
@@ -44,7 +44,9 @@ bot.on("message", async (msg, meta) => {
       var messages = await tgMsg.getObjectDefault(`/${msg.chat.id}`, []);
       messages.push({ role: "model", parts: [{ text: parsed.message }] });
       await tgMsg.push(`/${msg.chat.id}`, messages.slice(-5));
-      bot.sendMessage(msg.chat.id, parsed.message);
+      bot.sendMessage(msg.chat.id, parsed.message, {
+        parse_mode: "Markdown",
+      });
       try {
         await savedMsg.delete(`/tg:${msg.chat.id}`);
       } catch (e) {}
@@ -81,7 +83,7 @@ bot.on("inline_query", (query) => {
         },
       },
     ],
-    { cache_time: 10 }
+    { cache_time: 10 },
   );
 });
 
@@ -96,7 +98,7 @@ bot.on("chosen_inline_result", (chosenResult) => {
         role: "user",
         parts: [{ text: chosenResult.query }],
       },
-    ])}`
+    ])}`,
   );
   ws.on("message", async (data) => {
     const parsed = JSON.parse(data);
@@ -106,6 +108,7 @@ bot.on("chosen_inline_result", (chosenResult) => {
     if (parsed.type == "end") {
       bot.editMessageText(parsed.full.slice(-4000), {
         inline_message_id: inlineMessageId,
+        parse_mode: "Markdown",
         reply_markup: {
           inline_keyboard: [
             [
@@ -122,6 +125,7 @@ bot.on("chosen_inline_result", (chosenResult) => {
     if (parsed.type == "error") {
       bot.editMessageText(parsed.message.slice(-4000), {
         inline_message_id: inlineMessageId,
+        parse_mode: "Markdown",
         reply_markup: {
           inline_keyboard: [
             [
