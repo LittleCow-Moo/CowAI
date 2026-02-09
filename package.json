@@ -22,7 +22,7 @@
     "express": "^5.1.0",
     "form-data": "^4.0.1",
     "irc-framework": "^4.14.0",
-    "jsdom": "^27.0.0",
+    "jsdom": "^28.0.0",
     "linebot": "^1.6.1",
     "moment": "^2.30.1",
     "moment-timezone": "^0.6.0",
