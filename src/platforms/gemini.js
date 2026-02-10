@@ -174,8 +174,13 @@ wss.on("connection", (ws) => {
           if (!item.candidates[0].content.parts) continue;
           const part = item.candidates[0].content.parts[0];
           if (!part) continue;
-          if (part.functionCall)
-            calls.push({ functionCall: part.functionCall });
+          if (part.functionCall) {
+            const callPart = { functionCall: part.functionCall };
+            if (part.thoughtSignature) {
+              callPart.thoughtSignature = part.thoughtSignature;
+            }
+            calls.push(callPart);
+          }
           if (!part.text) continue;
           var callsFix = cow.utils.toolCallFix(part.text || "");
           if (callsFix.calls[0]) {
