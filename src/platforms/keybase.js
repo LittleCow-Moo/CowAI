@@ -22,7 +22,6 @@ async function main() {
     console.log(`[Keybase] Bot ready ${info.username}`);
 
     const onError = (e) => console.error(e);
-    console.log(`Listening for messages...`);
     await bot.chat.watchAllChannelsForNewMessages(async (message) => {
       if (message.content.type !== "text") {
         // I copied this from the example and do not want to implement multimodal for now :P
@@ -35,22 +34,26 @@ async function main() {
       const pulledMessages = await Promise.all(
         (
           await bot.chat.read(message.conversationId, {
-            peek: true,
+            peek: false,
             pagination: { num: 10 },
           })
         ).messages
           .filter((a) => a.content.type == "text")
-          .slice(-5)
           .map((a) => {
-            const isModel = a.sender.username || "" == info.username;
+            const isModel = (a.sender.username || "") === info.username;
             return {
               role: isModel ? "model" : "user",
               parts: [
-                { text: `${!isModel ? `${userInfo}說: ` : ""}${a.content}` },
+                {
+                  text: `${!isModel ? `${a.sender.username || a.sender.uid}說: ` : ""}${a.content.text.body}`,
+                },
               ],
             };
-          }),
+          })
+          .reverse()
+          .slice(-5),
       );
+      console.log(JSON.stringify(pulledMessages));
       await savedMsg.push(`/keybase:${message.id}`, pulledMessages);
       const ws = new WebSocket(
         `ws://localhost:38943/api/generate?key=${process.env.ADMIN_KEY}&_readSavedMessages=keybase:${message.id}`,
