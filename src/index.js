@@ -40,7 +40,8 @@ if (
 
 if (
   process.env.ENABLE_KEYBASE == "true" &&
-  checkMissingField("KEYBASE_USERNAME") &&
-  checkMissingField("KEYBASE_PAPERKEY")
+  (process.env.KEYBASE_USE_SERVICE == "true" ||
+    (checkMissingField("KEYBASE_USERNAME") &&
+      checkMissingField("KEYBASE_PAPERKEY")))
 )
   require("./platforms/keybase");

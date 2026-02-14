@@ -3,14 +3,19 @@ const Bot = require("keybase-bot");
 const { JsonDB, Config } = require("node-json-db");
 var savedMsg = new JsonDB(new Config("savedMessages", true, true));
 const { WebSocket } = require("ws");
+const os = require("os");
 
 const bot = new Bot();
 
 async function main() {
   try {
-    const username = process.env.KEYBASE_USERNAME;
-    const paperkey = process.env.KEYBASE_PAPERKEY;
-    await bot.init(username, paperkey);
+    if (process.env.KEYBASE_USE_SERVICE == "true") {
+      await bot.initFromRunningService(os.homedir());
+    } else {
+      const username = process.env.KEYBASE_USERNAME;
+      const paperkey = process.env.KEYBASE_PAPERKEY;
+      await bot.init(username, paperkey);
+    }
     const info = bot.myInfo();
     console.log(`[Keybase] Bot ready ${info.username}`);
 
@@ -27,7 +32,7 @@ async function main() {
 
       const pulledMessages = await Promise.all(
         (
-          await bot.chat.read(channel, {
+          await bot.chat.read(message.conversationId, {
             peek: true,
             pagination: { num: 10 },
           })
