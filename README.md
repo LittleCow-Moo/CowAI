@@ -53,9 +53,10 @@ IRC_PASSWORD= # IRC機器人的密碼
 IRC_CHANNEL= # IRC機器人要自動加入的頻道，例如機器人的支援頻道等
 
 ENABLE_KEYBASE=[true/false] # 是否要啟用Keybase機器人
-KEYBASE_USERNA= # 機器人帳號的使用者名稱
+KEYBASE_USERNAME= # 機器人帳號的使用者名稱
 KEYBASE_PAPERKEY # 機器人帳號的 Paper Key，用來登入
 KEYBASE_USE_SERVICE=[true/false] # 是否要改用電腦上已經在執行的Keybase服務，如果為true則上面兩項不用填
+KEYBASE_HOMEDIR= # 有Keybase登入資料的Home directory在哪裡，我加這個選項是因為我這個面板會亂改home directory :skull:
 
 HF_ACCESS_TOKEN= # HuggingFace Access Token (作畫功能使用，要有read權限)
 PSE_ID= # Google Programmable Search Engine ID (Google 搜尋功能用)

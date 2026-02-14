@@ -10,7 +10,9 @@ const bot = new Bot();
 async function main() {
   try {
     if (process.env.KEYBASE_USE_SERVICE == "true") {
-      await bot.initFromRunningService(os.homedir());
+      await bot.initFromRunningService(
+        process.env.KEYBASE_HOMEDIR || os.homedir(),
+      );
     } else {
       const username = process.env.KEYBASE_USERNAME;
       const paperkey = process.env.KEYBASE_PAPERKEY;
