@@ -52,10 +52,9 @@ IRC_NICK= # IRC機器人的Nick & Account
 IRC_PASSWORD= # IRC機器人的密碼
 IRC_CHANNEL= # IRC機器人要自動加入的頻道，例如機器人的支援頻道等
 
-ENABLE_MATRIX=[true/false] # 是否要啟用Matrix機器人
-MATRIX_BASE_URL= # Home server的網址，例如 https://matrix.org
-MATRIX_ACCESS_TOKEN= # 帳號的Acess token，可透過Element取得
-MATRIX_USER_ID= # 帳號的ID，例如 @littlecow:matrix.org
+ENABLE_KEYBASE=[true/false] # 是否要啟用Keybase機器人
+KEYBASE_USERNA= # 機器人帳號的使用者名稱
+KEYBASE_PAPERKEY # 機器人帳號的 Paper Key，用來登入
 
 HF_ACCESS_TOKEN= # HuggingFace Access Token (作畫功能使用，要有read權限)
 PSE_ID= # Google Programmable Search Engine ID (Google 搜尋功能用)
@@ -66,4 +65,4 @@ PSE_KEY= # Google Programmable Search Engine API Key (Google 搜尋功能用)
 
 # 使用
 
-如果一切都正常運作，那 AI 機器人應該就會在 Discord, Telegram, LINE, 和 IRC 上線了。除了這三個平台的機器人外，它還會開一個 HTTP 端口`38943`用以通訊。
+如果一切都正常運作，那 AI 機器人應該就會在 Discord, Telegram, LINE, IRC, 和 Keybase 上線了。除了這三個平台的機器人外，它還會開一個 HTTP 端口`38943`用以通訊。

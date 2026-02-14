@@ -1,7 +1,7 @@
 require("dotenv").config({ quiet: true });
 if (!process.env.ADMIN_KEY || process.env.ADMIN_KEY == "")
   throw new Error(
-    `Please set an admin key in \`.env\`. I have generated one for you: \`${require("node:crypto").randomUUID()}\``
+    `Please set an admin key in \`.env\`. I have generated one for you: \`${require("node:crypto").randomUUID()}\``,
   );
 const checkMissingField = (field) => {
   if (!process.env[field] || process.env[field] == "") {
@@ -38,10 +38,9 @@ if (
 )
   require("./platforms/irc");
 
-  if (
-  process.env.ENABLE_MATRIX == "true" &&
-  checkMissingField("MATRIX_BASE_URL") &&
-  checkMissingField("MATRIX_ACCESS_TOKEN") &&
-  checkMissingField("MATRIX_USER_ID")
+if (
+  process.env.ENABLE_KEYBASE == "true" &&
+  checkMissingField("KEYBASE_USERNAME") &&
+  checkMissingField("KEYBASE_PAPERKEY")
 )
-  require("./platforms/matrix");
+  require("./platforms/keybase");
