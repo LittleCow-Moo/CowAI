@@ -20,122 +20,6 @@ const models = [
   },
 ];
 
-const MESSAGE_HISTORY_LIMIT = 5;
-
-const parseJsonObject = (text, fallback = {}) => {
-  if (typeof text !== "string" || text.trim() === "") return fallback;
-  try {
-    const parsed = JSON.parse(text);
-    return parsed && typeof parsed === "object" ? parsed : fallback;
-  } catch (e) {
-    return fallback;
-  }
-};
-
-const extractTextContent = (content) => {
-  if (typeof content === "string") return content;
-  if (!Array.isArray(content)) return "";
-  return content
-    .map((part) => {
-      if (typeof part === "string") return part;
-      if (!part || typeof part !== "object") return "";
-      if (typeof part.text === "string") return part.text;
-      if (part.type === "text" && typeof part.text === "string") return part.text;
-      return "";
-    })
-    .join("");
-};
-
-const isFunctionCallTurn = (message) =>
-  message?.role === "model" &&
-  Array.isArray(message.parts) &&
-  message.parts.some((part) => part?.functionCall);
-
-const isFunctionResponseTurn = (message) =>
-  message?.role === "user" &&
-  Array.isArray(message.parts) &&
-  message.parts.some((part) => part?.functionResponse);
-
-const trimMessagesSafely = (messages, limit = MESSAGE_HISTORY_LIMIT) => {
-  if (!Array.isArray(messages) || messages.length <= limit) return messages || [];
-  let start = messages.length - limit;
-  while (
-    start > 0 &&
-    ((isFunctionResponseTurn(messages[start]) &&
-      isFunctionCallTurn(messages[start - 1])) ||
-      (isFunctionCallTurn(messages[start]) &&
-        isFunctionResponseTurn(messages[start - 1])))
-  ) {
-    start--;
-  }
-  return messages.slice(start);
-};
-
-const convertOpenAIToGeminiMessages = (messages = []) => {
-  const callIdToFunctionName = {};
-  for (const message of messages) {
-    if (message?.role !== "assistant" || !Array.isArray(message.tool_calls)) continue;
-    for (const call of message.tool_calls) {
-      if (!call?.id || call.type !== "function" || !call.function?.name) continue;
-      callIdToFunctionName[call.id] = call.function.name;
-    }
-  }
-
-  return messages
-    .map((message) => {
-      if (!message || typeof message !== "object") return null;
-
-      if (message.role === "assistant") {
-        const parts = [];
-        const text = extractTextContent(message.content);
-        if (text !== "") parts.push({ text });
-        if (Array.isArray(message.tool_calls)) {
-          for (const call of message.tool_calls) {
-            if (call?.type !== "function" || !call.function?.name) continue;
-            parts.push({
-              functionCall: {
-                name: call.function.name,
-                args: parseJsonObject(call.function.arguments, {}),
-              },
-            });
-          }
-        }
-        if (parts.length === 0) return null;
-        return { role: "model", parts };
-      }
-
-      if (message.role === "tool") {
-        const functionName =
-          message.name ||
-          callIdToFunctionName[message.tool_call_id] ||
-          "unresolved_function_name";
-        const output = extractTextContent(message.content);
-        return {
-          role: "user",
-          parts: [
-            {
-              functionResponse: {
-                name: functionName,
-                response: { output },
-              },
-            },
-          ],
-        };
-      }
-
-      const text = extractTextContent(message.content);
-      if (text === "") return null;
-      return {
-        role: "user",
-        parts: [{ text }],
-      };
-    })
-    .filter(
-      (message) =>
-        message && Array.isArray(message.parts) && message.parts.length > 0
-    );
-};
-
 module.exports = (app) => {
   var allowedKeys = [];
   (async () => {
@@ -158,13 +42,16 @@ module.exports = (app) => {
     const pushId = crypto.randomUUID();
     const id = `chatcmpl-${crypto.randomBytes(4).toString("hex")}`;
     const created = Math.floor(Date.now() / 1000);
-    const convertedMessages = trimMessagesSafely(
-      convertOpenAIToGeminiMessages(messages),
-      MESSAGE_HISTORY_LIMIT
-    );
     await savedMsg.push(
       `/openai:${pushId}`,
-      convertedMessages
+      messages
+        .map((a) => {
+          return {
+            role: a.role == "user" ? "user" : "model",
+            parts: [{ text: a.content }],
+          };
+        })
+        .slice(-5)
     );
     const ws = new WebSocket(
       `ws://192.168.0.5:38943/api/generate?key=${req.headers[

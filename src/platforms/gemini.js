@@ -77,6 +77,38 @@ const apiLinkRegex = new RegExp(
 
 const debug = true;
 const memory = 5;
+const hasFunctionCall = (message) =>
+  message?.role === "model" &&
+  Array.isArray(message.parts) &&
+  message.parts.some((part) => part?.functionCall);
+const hasFunctionResponse = (message) =>
+  message?.role === "user" &&
+  Array.isArray(message.parts) &&
+  message.parts.some((part) => part?.functionResponse);
+const buildSafeContentsWindow = (messages, limit) => {
+  if (!Array.isArray(messages) || messages.length === 0) return [];
+  let start = Math.max(0, messages.length - limit);
+  while (
+    start > 0 &&
+    hasFunctionResponse(messages[start]) &&
+    hasFunctionCall(messages[start - 1])
+  ) {
+    start--;
+  }
+  let contents = messages.slice(start);
+  while (contents[0] && hasFunctionResponse(contents[0])) {
+    contents = contents.slice(1);
+  }
+  const normalized = [];
+  for (const turn of contents) {
+    if (hasFunctionResponse(turn)) {
+      const prev = normalized[normalized.length - 1];
+      if (!hasFunctionCall(prev)) continue;
+    }
+    normalized.push(turn);
+  }
+  return normalized;
+};
 const wss = new WebSocketServer({ noServer: true });
 const app = express();
 var allowedKeys = [];
@@ -159,28 +191,35 @@ wss.on("connection", (ws) => {
       var currentModelName = ws.model;
       const run = async () => {
         var currentModel = models[currentModelName];
-        var contents = ws.messages.slice(-1 * memoryThisTurn);
-        const firstNonModelIndex = contents.findIndex(
-          (msg) => msg.role !== "model"
-        );
-        if (firstNonModelIndex > 0) {
-          contents = contents.slice(firstNonModelIndex);
-        } else if (firstNonModelIndex === -1) {
-          contents = [];
-        }
+        var contents = buildSafeContentsWindow(ws.messages, memoryThisTurn);
         if (contents.length === 0) {
           let latestUserMessage = null;
           const wsMessagesLength = ws.messages.length;
           for (let i = wsMessagesLength - 1; i >= 0; i--) {
-            if (ws.messages[i].role === "user") {
+            if (
+              ws.messages[i].role === "user" &&
+              !hasFunctionResponse(ws.messages[i])
+            ) {
               latestUserMessage = ws.messages[i];
               break;
             }
           }
-          if (!latestUserMessage) {
+          if (latestUserMessage) {
+            contents = [latestUserMessage];
+          } else {
+            for (let i = wsMessagesLength - 1; i > 0; i--) {
+              if (
+                hasFunctionResponse(ws.messages[i]) &&
+                hasFunctionCall(ws.messages[i - 1])
+              ) {
+                contents = [ws.messages[i - 1], ws.messages[i]];
+                break;
+              }
+            }
+          }
+          if (contents.length === 0) {
             throw new Error("No valid user turn found for Gemini request.");
           }
-          contents = [latestUserMessage];
         }
         console.log("[System] Current model:", currentModelName);
         const result = await genAI.models.generateContentStream({
