@@ -61,8 +61,10 @@ const trimMessagesSafely = (messages, limit = MESSAGE_HISTORY_LIMIT) => {
   let start = messages.length - limit;
   while (
     start > 0 &&
-    isFunctionResponseTurn(messages[start]) &&
-    isFunctionCallTurn(messages[start - 1])
+    ((isFunctionResponseTurn(messages[start]) &&
+      isFunctionCallTurn(messages[start - 1])) ||
+      (isFunctionCallTurn(messages[start]) &&
+        isFunctionResponseTurn(messages[start - 1])))
   ) {
     start--;
   }
@@ -106,7 +108,7 @@ const convertOpenAIToGeminiMessages = (messages = []) => {
         const functionName =
           message.name ||
           callIdToFunctionName[message.tool_call_id] ||
-          "unknown_tool";
+          "unresolved_function_name";
         const output = extractTextContent(message.content);
         return {
           role: "user",
@@ -128,7 +130,10 @@ const convertOpenAIToGeminiMessages = (messages = []) => {
         parts: [{ text }],
       };
     })
-    .filter((message) => message && Array.isArray(message.parts) && message.parts[0]);
+    .filter(
+      (message) =>
+        message && Array.isArray(message.parts) && message.parts.length > 0
+    );
 };
 
 module.exports = (app) => {
