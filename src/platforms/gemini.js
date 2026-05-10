@@ -121,12 +121,11 @@ const buildSafeContentsWindow = (messages, limit) => {
       normalized.push(turn);
       continue;
     }
-    if (!prev || prev.role === turn.role) continue;
-    if (turn?.role === "model" && prev.role !== "user") continue;
+    if (prev.role === turn.role) continue;
     if (hasFunctionResponse(turn)) {
       if (!hasFunctionCall(prev)) continue;
     }
-    if (hasFunctionCall(turn) && prev?.role !== "user") continue;
+    if (hasFunctionCall(turn) && prev.role !== "user") continue;
     normalized.push(turn);
   }
   return normalized;
