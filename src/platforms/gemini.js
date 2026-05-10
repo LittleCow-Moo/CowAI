@@ -163,20 +163,22 @@ wss.on("connection", (ws) => {
         const firstNonModelIndex = contents.findIndex(
           (msg) => msg.role !== "model"
         );
-        contents =
-          firstNonModelIndex === -1 ? [] : contents.slice(firstNonModelIndex);
-        if (!contents[0]) {
+        if (firstNonModelIndex > 0) {
+          contents = contents.slice(firstNonModelIndex);
+        } else if (firstNonModelIndex === -1) {
+          contents = [];
+        }
+        if (contents.length === 0) {
           let latestUserMessage = null;
-          for (let i = ws.messages.length - 1; i >= 0; i--) {
+          const wsMessagesLength = ws.messages.length;
+          for (let i = wsMessagesLength - 1; i >= 0; i--) {
             if (ws.messages[i].role === "user") {
               latestUserMessage = ws.messages[i];
               break;
             }
           }
           if (!latestUserMessage) {
-            throw new Error(
-              "No valid user/function-response turn found for Gemini request."
-            );
+            throw new Error("No valid user turn found for Gemini request.");
           }
           contents = [latestUserMessage];
         }
