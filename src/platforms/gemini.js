@@ -160,16 +160,25 @@ wss.on("connection", (ws) => {
       const run = async () => {
         var currentModel = models[currentModelName];
         var contents = ws.messages.slice(-1 * memoryThisTurn);
-        while (contents[0] && contents[0].role === "model") {
-          contents.shift();
-        }
+        const firstNonModelIndex = contents.findIndex(
+          (msg) => msg.role !== "model"
+        );
+        contents =
+          firstNonModelIndex === -1 ? [] : contents.slice(firstNonModelIndex);
         if (!contents[0]) {
-          const latestUserMessage = [...ws.messages]
-            .reverse()
-            .find((msg) => msg.role === "user");
-          contents = latestUserMessage
-            ? [latestUserMessage]
-            : [{ role: "user", parts: [{ text: "" }] }];
+          let latestUserMessage = null;
+          for (let i = ws.messages.length - 1; i >= 0; i--) {
+            if (ws.messages[i].role === "user") {
+              latestUserMessage = ws.messages[i];
+              break;
+            }
+          }
+          if (!latestUserMessage) {
+            throw new Error(
+              "No valid user/function-response turn found for Gemini request."
+            );
+          }
+          contents = [latestUserMessage];
         }
         console.log("[System] Current model:", currentModelName);
         const result = await genAI.models.generateContentStream({
