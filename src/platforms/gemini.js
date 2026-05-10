@@ -88,24 +88,45 @@ const hasFunctionResponse = (message) =>
 // Builds a Gemini-safe history window that keeps functionCall/functionResponse order valid.
 const buildSafeContentsWindow = (messages, limit) => {
   if (!Array.isArray(messages) || messages.length === 0) return [];
-  let start = Math.max(0, messages.length - limit);
-  while (
-    start > 0 &&
-    hasFunctionResponse(messages[start]) &&
-    hasFunctionCall(messages[start - 1])
-  ) {
-    start--;
+  let start = messages.length;
+  let nonFunctionTurns = 0;
+  while (start > 0) {
+    const prevIndex = start - 1;
+    const turn = messages[prevIndex];
+    const isFunctionTurn = hasFunctionCall(turn) || hasFunctionResponse(turn);
+    if (!isFunctionTurn) {
+      if (nonFunctionTurns >= limit) break;
+      nonFunctionTurns++;
+    }
+    start = prevIndex;
+    while (
+      start > 0 &&
+      hasFunctionResponse(messages[start]) &&
+      hasFunctionCall(messages[start - 1])
+    ) {
+      start--;
+    }
+    while (start > 0 && hasFunctionCall(messages[start])) {
+      const beforeCall = messages[start - 1];
+      if (beforeCall?.role !== "user") break;
+      start--;
+    }
   }
-  let contents = messages.slice(start);
-  while (contents[0] && hasFunctionResponse(contents[0])) {
-    contents = contents.slice(1);
-  }
+  const contents = messages.slice(start);
   const normalized = [];
   for (const turn of contents) {
+    const prev = normalized[normalized.length - 1];
+    if (normalized.length === 0) {
+      if (turn?.role !== "user" || hasFunctionResponse(turn)) continue;
+      normalized.push(turn);
+      continue;
+    }
+    if (!prev || prev.role === turn.role) continue;
+    if (turn?.role === "model" && prev.role !== "user") continue;
     if (hasFunctionResponse(turn)) {
-      const prev = normalized[normalized.length - 1];
       if (!hasFunctionCall(prev)) continue;
     }
+    if (hasFunctionCall(turn) && prev?.role !== "user") continue;
     normalized.push(turn);
   }
   return normalized;
