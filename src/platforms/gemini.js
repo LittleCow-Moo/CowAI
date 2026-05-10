@@ -85,18 +85,24 @@ const hasFunctionResponse = (message) =>
   message?.role === "user" &&
   Array.isArray(message.parts) &&
   message.parts.some((part) => part?.functionResponse);
+const isFunctionTurn = (message) =>
+  hasFunctionCall(message) || hasFunctionResponse(message);
 // Builds a Gemini-safe history window that keeps functionCall/functionResponse order valid.
 const buildSafeContentsWindow = (messages, limit) => {
   if (!Array.isArray(messages) || messages.length === 0) return [];
-  let start = Math.max(0, messages.length - limit);
-  while (
-    start > 0 &&
-    hasFunctionResponse(messages[start]) &&
-    hasFunctionCall(messages[start - 1])
-  ) {
-    start--;
+  const nonFunctionLimit = Math.max(
+    1,
+    Number.isFinite(limit) ? Math.floor(limit) : 1
+  );
+  let remaining = nonFunctionLimit;
+  const window = [];
+  for (let i = messages.length - 1; i >= 0; i--) {
+    const turn = messages[i];
+    window.push(turn);
+    if (!isFunctionTurn(turn)) remaining--;
+    if (remaining <= 0) break;
   }
-  let contents = messages.slice(start);
+  let contents = window.reverse();
   while (contents[0] && hasFunctionResponse(contents[0])) {
     contents = contents.slice(1);
   }
@@ -285,7 +291,6 @@ wss.on("connection", (ws) => {
           });
         }
         if (calls[0]) {
-          memoryThisTurn++;
           var functionResponses = [];
           for (const call of calls) {
             if (!call.functionCall.name) continue;
