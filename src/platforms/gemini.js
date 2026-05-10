@@ -85,6 +85,7 @@ const hasFunctionResponse = (message) =>
   message?.role === "user" &&
   Array.isArray(message.parts) &&
   message.parts.some((part) => part?.functionResponse);
+// Builds a Gemini-safe history window that keeps functionCall/functionResponse order valid.
 const buildSafeContentsWindow = (messages, limit) => {
   if (!Array.isArray(messages) || messages.length === 0) return [];
   let start = Math.max(0, messages.length - limit);
@@ -207,7 +208,7 @@ wss.on("connection", (ws) => {
           if (latestUserMessage) {
             contents = [latestUserMessage];
           } else {
-            for (let i = wsMessagesLength - 1; i > 0; i--) {
+            for (let i = wsMessagesLength - 1; i >= 1; i--) {
               if (
                 hasFunctionResponse(ws.messages[i]) &&
                 hasFunctionCall(ws.messages[i - 1])
