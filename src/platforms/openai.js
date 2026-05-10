@@ -20,7 +20,7 @@ const models = [
   },
 ];
 
-const MESSAGE_MEMORY = 5;
+const MESSAGE_HISTORY_LIMIT = 5;
 
 const parseJsonObject = (text, fallback = {}) => {
   if (typeof text !== "string" || text.trim() === "") return fallback;
@@ -56,7 +56,7 @@ const isFunctionResponseTurn = (message) =>
   Array.isArray(message.parts) &&
   message.parts.some((part) => part?.functionResponse);
 
-const trimMessagesSafely = (messages, limit = MESSAGE_MEMORY) => {
+const trimMessagesSafely = (messages, limit = MESSAGE_HISTORY_LIMIT) => {
   if (!Array.isArray(messages) || messages.length <= limit) return messages || [];
   let start = messages.length - limit;
   while (
@@ -98,13 +98,15 @@ const convertOpenAIToGeminiMessages = (messages = []) => {
             });
           }
         }
-        if (!parts[0]) return null;
+        if (parts.length === 0) return null;
         return { role: "model", parts };
       }
 
       if (message.role === "tool") {
         const functionName =
-          message.name || callIdToFunctionName[message.tool_call_id] || "tool";
+          message.name ||
+          callIdToFunctionName[message.tool_call_id] ||
+          "unknown_tool";
         const output = extractTextContent(message.content);
         return {
           role: "user",
@@ -153,7 +155,7 @@ module.exports = (app) => {
     const created = Math.floor(Date.now() / 1000);
     const convertedMessages = trimMessagesSafely(
       convertOpenAIToGeminiMessages(messages),
-      MESSAGE_MEMORY
+      MESSAGE_HISTORY_LIMIT
     );
     await savedMsg.push(
       `/openai:${pushId}`,
