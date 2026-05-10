@@ -159,11 +159,18 @@ wss.on("connection", (ws) => {
       var currentModelName = ws.model;
       const run = async () => {
         var currentModel = models[currentModelName];
+        var contents = ws.messages.slice(-1 * memoryThisTurn);
+        while (contents[0] && contents[0].role == "model") {
+          contents.shift();
+        }
+        if (!contents[0] && ws.messages[0]) {
+          contents = [ws.messages[ws.messages.length - 1]];
+        }
         console.log("[System] Current model:", currentModelName);
         const result = await genAI.models.generateContentStream({
           model: currentModel.name,
           config: currentModel.config,
-          contents: ws.messages.slice(-1 * memoryThisTurn),
+          contents,
         });
         var calls = [];
         var message = "";
