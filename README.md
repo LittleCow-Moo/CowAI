@@ -58,6 +58,11 @@ KEYBASE_PAPERKEY # 機器人帳號的 Paper Key，用來登入
 KEYBASE_USE_SERVICE=[true/false] # 是否要改用電腦上已經在執行的Keybase服務，如果為true則上面兩項不用填
 KEYBASE_HOMEDIR= # 有Keybase登入資料的Home directory在哪裡，我加這個選項是因為我這個面板會亂改home directory :skull:
 
+ENABLE_BRIAR=[true/false] # 是否要啟用Briar機器人
+BRIAR_API_HOST= # briar-headless的API網址*的Host部分* (例如: http://localhost:7000, 輸入localhost:7000)
+BRIAR_AUTH_TOKEN # 存取briar-heasless API使用的Auth Token
+BRIAR_USE_TLS=[true/false] # (可選) 存取briar-heasless API時是否要使用https / wss
+
 HF_ACCESS_TOKEN= # HuggingFace Access Token (作畫功能使用，要有read權限)
 PSE_ID= # Google Programmable Search Engine ID (Google 搜尋功能用)
 PSE_KEY= # Google Programmable Search Engine API Key (Google 搜尋功能用)
@@ -67,4 +72,15 @@ PSE_KEY= # Google Programmable Search Engine API Key (Google 搜尋功能用)
 
 # 使用
 
-如果一切都正常運作，那 AI 機器人應該就會在 Discord, Telegram, LINE, IRC, 和 Keybase 上線了。除了這三個平台的機器人外，它還會開一個 HTTP 端口`38943`用以通訊。
+如果一切都正常運作，那 AI 機器人應該就會在所設定的平台上線了。除了平台的機器人外，它還會開一個 HTTP 端口`38943`用以通訊。
+
+## Briar 說明
+
+為了能夠不離開 Briar 就能把機器人加為聯絡人，我想出了一個神奇的方法(?)
+
+0. 機器人擁有者(A)請先參考 `briar-headless` 的說明和它加聯絡人
+1. 機器人擁有者(A)和其他人(B)加為聯絡人，並且在加對方(B)的聯絡人時，順便詢問是否要機器人的聯絡人
+2. 如果是，機器人擁有者(A)將對方(B)的 Briar 連結透過 Briar 發送給機器人
+3. 此時機器人會回覆它的 Briar 連結，機器人擁有者(A)再透過 Briar 將機器人連結發給對方(B)
+4. 對方(B)把機器人加為聯絡人，開始和機器人聊天
+5. 之後如果B認識了其他人，也可以重複以上的步驟幫助對方取得機器人的聯絡人

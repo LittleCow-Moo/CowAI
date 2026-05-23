@@ -45,3 +45,10 @@ if (
       checkMissingField("KEYBASE_PAPERKEY")))
 )
   require("./platforms/keybase");
+
+if (
+  process.env.ENABLE_BRIAR == "true" &&
+  checkMissingField("BRIAR_API_HOST") &&
+  checkMissingField("BRIAR_AUTH_TOKEN")
+)
+  require("./platforms/briar");
