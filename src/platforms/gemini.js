@@ -17,17 +17,17 @@ db.push(`/max/${process.env.ADMIN_KEY}`, "infinity");
 const requestOptions = process.env.CUSTOM_BASE_URL
   ? { baseUrl: process.env.CUSTOM_BASE_URL }
   : process.env.ENABLE_AI_GATEWAY == "true"
-  ? {
-      baseUrl: `https://gateway.ai.cloudflare.com/v1/${process.env.AI_GATEWAY}/google-ai-studio`,
-      customHeaders: new Headers(
-        String(process.env.AI_GATEWAY_TOKEN || "") != ""
-          ? {
-              "cf-aig-authorization": `Bearer ${process.env.AI_GATEWAY_TOKEN}`,
-            }
-          : {}
-      ),
-    }
-  : {};
+    ? {
+        baseUrl: `https://gateway.ai.cloudflare.com/v1/${process.env.AI_GATEWAY}/google-ai-studio`,
+        customHeaders: new Headers(
+          String(process.env.AI_GATEWAY_TOKEN || "") != ""
+            ? {
+                "cf-aig-authorization": `Bearer ${process.env.AI_GATEWAY_TOKEN}`,
+              }
+            : {},
+        ),
+      }
+    : {};
 
 const genAI = new GoogleGenAI({ apiKey: process.env.KEY });
 var models = {
@@ -36,7 +36,7 @@ var models = {
     config: {
       systemInstruction: cow.prompt.replaceAll(
         "{time}",
-        moment().format("yyyy年MM月DD日 HH:mm:ss")
+        moment().format("yyyy年MM月DD日 HH:mm:ss"),
       ),
       stopSequences: [
         "https://storage.googleapis.com",
@@ -56,7 +56,7 @@ var models = {
     config: {
       systemInstruction: cow.mathPrompt.replaceAll(
         "{time}",
-        moment().format("yyyy年MM月DD日 HH:mm:ss")
+        moment().format("yyyy年MM月DD日 HH:mm:ss"),
       ),
       safetySettings: cow.safetySettings,
       thinkingConfig: {
@@ -70,9 +70,9 @@ const enabledModels = ["cow", "mathcow"];
 const apiLinkRegex = new RegExp(
   `https:\\/\\/${process.env.API_DOMAIN.replaceAll(
     ".",
-    "\\."
+    "\\.",
   )}\\/api\\/images\\/[0-9a-f]{1,}\\.webp`,
-  "gm"
+  "gm",
 );
 
 const debug = true;
@@ -150,7 +150,7 @@ wss.on("connection", (ws) => {
         JSON.stringify({
           type: "limited",
           message: "Daily message limit exceeded.",
-        })
+        }),
       );
     }
     await db.push(`/used/${ws.key}`, used + 1);
@@ -163,7 +163,7 @@ wss.on("connection", (ws) => {
         var inlineData = [];
         const attachment =
           /(https?:\/\/[a-zA-Z0-9%\/._-]*\.(?:png|jpeg|jpg|webp|heic|heif|wav|mp3|aiff|aac|ogg|flac|mpeg|x-wav)(?:\?[a-zA-Z0-9%=&]*|))/im.exec(
-            prompt
+            prompt,
           );
         fetchAttachment: if (attachment && attachment[0]) {
           const response = await fetch(attachment[0]);
@@ -202,10 +202,10 @@ wss.on("connection", (ws) => {
             parts.map((part) => {
               if (!part.text) return part;
               return { text: part.text.replaceAll(apiLinkRegex, "") };
-            })
+            }),
           );
           return { role: msg.role, parts };
-        })
+        }),
       );
       var first = true;
       var memoryThisTurn = memory;
@@ -246,7 +246,7 @@ wss.on("connection", (ws) => {
         const result = await genAI.models.generateContentStream({
           model: currentModel.name,
           config: currentModel.config,
-          contents,
+          contents: contents.reverse(),
         });
         var calls = [];
         var message = "";
@@ -282,7 +282,7 @@ wss.on("connection", (ws) => {
                   message: part.text,
                   full,
                   first,
-                })
+                }),
               )
             : null;
           if (first == true) first = false;
@@ -318,7 +318,7 @@ wss.on("connection", (ws) => {
                 type: "function",
                 call,
                 message: "Function call received.",
-              })
+              }),
             );
             var functionResponse;
             if (["CallMathCow"].indexOf(call.functionCall.name) != -1) {
@@ -330,20 +330,20 @@ wss.on("connection", (ws) => {
               return;
             } else {
               functionResponse = await cow.functions[call.functionCall.name](
-                call.functionCall.args
+                call.functionCall.args,
               );
             }
             debug
               ? console.log(
                   `[System] ${call.functionCall.name} result:`,
-                  functionResponse.response
+                  functionResponse.response,
                 )
               : null;
             ws.send(
               JSON.stringify({
                 type: "functionResponse",
                 functionResponse,
-              })
+              }),
             );
             functionResponses.push({ functionResponse });
           }
@@ -405,7 +405,7 @@ app.get("/api/waste", async (req, res) => {
       JSON.stringify({
         type: "limited",
         message: "Daily message limit exceeded.",
-      })
+      }),
     );
   }
   await db.push(`/used/${req.query.key}`, used + 1);
@@ -463,7 +463,7 @@ server.on("upgrade", (request, socket, head) => {
     if (query._readSavedMessages) {
       await savedMsg.reload();
       ws.messages = await savedMsg.getObject(
-        `/${decodeURIComponent(query._readSavedMessages)}`
+        `/${decodeURIComponent(query._readSavedMessages)}`,
       );
     }
     ws.asked = [];
