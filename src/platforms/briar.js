@@ -182,7 +182,7 @@ function createWs() {
               ],
             };
           })
-          .slice(-5),
+          .slice(-5).reverse(),
       );
       await savedMsg.push(`/briar:${data.data.contactId}`, pulledMessages);
       const cowws = new WebSocket(
