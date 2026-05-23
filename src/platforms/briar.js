@@ -144,7 +144,7 @@ function createWs() {
       if (data.name != "ConversationMessageReceivedEvent") return;
       await httpRequestJson(
         "POST",
-        `/v1/contacts/${data.data.contactId}/read`,
+        `/v1/messages/${data.data.contactId}/read`,
         { messageId: data.data.id },
       );
       if (/^briar:\/\/(?:[a-z2-7]{53})$/gm.exec(data.data.text)) {
