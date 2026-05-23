@@ -163,7 +163,7 @@ function createWs() {
       var username =
         (contacts.filter((a) => a.contactId == data.data.contactId) || [])[0]
           ?.author?.name || "";
-      var messages = await Promise.all(
+      var pulledMessages = await Promise.all(
         (await httpRequestJson("GET", `/v1/messages/${data.data.contactId}`))
           .filter(
             (a) =>
