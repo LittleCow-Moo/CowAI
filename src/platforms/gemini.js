@@ -246,7 +246,7 @@ wss.on("connection", (ws) => {
         const result = await genAI.models.generateContentStream({
           model: currentModel.name,
           config: currentModel.config,
-          contents: contents,
+          contents: contents.reverse(),
         });
         var calls = [];
         var message = "";
