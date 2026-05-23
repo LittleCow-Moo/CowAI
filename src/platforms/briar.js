@@ -177,16 +177,16 @@ function createWs() {
               role: isModel ? "model" : "user",
               parts: [
                 {
-                  text: `${!isModel && username ? `${username}說: ` : ""}${a.content.text.body}`,
+                  text: `${!isModel && username ? `${username}說: ` : ""}${a.text}`,
                 },
               ],
             };
           })
           .slice(-5),
       );
-      await savedMsg.push(`/briar:${message.id}`, pulledMessages);
+      await savedMsg.push(`/briar:${data.data.contactId}`, pulledMessages);
       const cowws = new WebSocket(
-        `ws://localhost:38943/api/generate?key=${process.env.ADMIN_KEY}&_readSavedMessages=briar:${message.id}`,
+        `ws://localhost:38943/api/generate?key=${process.env.ADMIN_KEY}&_readSavedMessages=briar:${data.data.contactId}`,
       );
       cowws.on("message", async (cowdata) => {
         const parsed = JSON.parse(cowdata);
