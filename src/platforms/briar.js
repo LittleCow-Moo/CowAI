@@ -112,6 +112,7 @@ function createWs() {
             if (json && json.link) {
               console.log(`[Briar] Bot ready ${json.link}`);
               globalThis.briarLink = json.link;
+              briarLink = json.link;
             } else {
               console.warn(
                 "[Briar] /v1/contacts/add/link returned invalid JSON or failed",
@@ -151,7 +152,7 @@ function createWs() {
         try {
           await httpRequestJson("POST", "/v1/contacts/add/pending", {
             link: data.data.text,
-            alias: data.data.text.substr(-53),
+            alias: data.data.text.substr(-15),
           });
           await httpRequestJson("POST", `/v1/messages/${data.data.contactId}`, {
             text: `哞！我的 Briar 連結是: ${briarLink}`,
