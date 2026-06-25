@@ -72,7 +72,7 @@
           type: "article",
           title: "詢問牛牛問題",
           description: query.query,
-          thumb_url: "https://cowgl.xyz/cow.png",
+          thumb_url: "https://github.com/LittleCow-Moo.png",
           input_message_content: {
             message_text: "哞！牛牛正在思考你的問題......",
           },
