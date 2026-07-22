@@ -85,6 +85,49 @@ const hasFunctionResponse = (message) =>
   message?.role === "user" &&
   Array.isArray(message.parts) &&
   message.parts.some((part) => part?.functionResponse);
+
+// Final guard before sending to Gemini API.
+// Gemini is strict about role ordering and function call/response pairing.
+const sanitizeGeminiContents = (messages) => {
+  if (!Array.isArray(messages) || messages.length === 0) return [];
+  const normalized = [];
+  for (const turn of messages) {
+    if (!turn || (turn.role !== "user" && turn.role !== "model")) continue;
+    if (!Array.isArray(turn.parts) || turn.parts.length === 0) continue;
+
+    const filteredParts = turn.parts.filter(
+      (p) =>
+        p &&
+        (typeof p.text === "string" ||
+          p.inlineData ||
+          p.functionCall ||
+          p.functionResponse),
+    );
+    if (filteredParts.length === 0) continue;
+    const cleaned = { role: turn.role, parts: filteredParts };
+
+    const prev = normalized[normalized.length - 1];
+    if (!prev) {
+      // Conversation cannot start with model/functionResponse.
+      if (cleaned.role !== "user" || hasFunctionResponse(cleaned)) continue;
+      normalized.push(cleaned);
+      continue;
+    }
+
+    // Must alternate roles.
+    if (prev.role === cleaned.role) continue;
+
+    // user functionResponse must immediately follow model functionCall.
+    if (hasFunctionResponse(cleaned) && !hasFunctionCall(prev)) continue;
+
+    // model functionCall must follow a user turn.
+    if (hasFunctionCall(cleaned) && prev.role !== "user") continue;
+
+    normalized.push(cleaned);
+  }
+  return normalized;
+};
+
 // Builds a Gemini-safe history window that keeps functionCall/functionResponse order valid.
 const buildSafeContentsWindow = (messages, limit) => {
   if (!Array.isArray(messages) || messages.length === 0) return [];
@@ -242,12 +285,34 @@ wss.on("connection", (ws) => {
             throw new Error("No valid user turn found for Gemini request.");
           }
         }
+        // Final sanitization pass to avoid INVALID_ARGUMENT from malformed history.
+        contents = sanitizeGeminiContents(contents);
+        if (contents.length === 0) {
+          throw new Error("No valid Gemini contents after sanitization.");
+        }
         console.log("[System] Current model:", currentModelName);
-        const result = await genAI.models.generateContentStream({
-          model: currentModel.name,
-          config: currentModel.config,
-          contents: contents,
-        });
+        let result;
+        try {
+          result = await genAI.models.generateContentStream({
+            model: currentModel.name,
+            config: currentModel.config,
+            contents,
+          });
+        } catch (err) {
+          console.error("[System] Gemini request failed:", {
+            status: err?.status,
+            model: currentModel.name,
+            contentsLength: contents.length,
+            contentsPreview: contents.slice(-4).map((m) => ({
+              role: m.role,
+              hasFunctionCall: hasFunctionCall(m),
+              hasFunctionResponse: hasFunctionResponse(m),
+              partsCount: Array.isArray(m.parts) ? m.parts.length : 0,
+            })),
+          });
+          throw err;
+        }
+
         var calls = [];
         var message = "";
         process.stdout.write("[Cow] ");
@@ -362,10 +427,6 @@ wss.on("connection", (ws) => {
     })().catch(async (e) => {
       console.error("[System] Error occurred:", e);
       await db.push(`/used/${ws.key}`, used);
-      if (e.status == 429) {
-        await run();
-        return;
-      }
       ws.send(JSON.stringify({ type: "error", message: e.toString() }));
     });
   });
