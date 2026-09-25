@@ -10,3 +10,4 @@ tgMsg.json
 poe.js
 .DS_Store
 pnpm-lock.yaml
+dist/

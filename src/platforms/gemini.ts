@@ -1,13 +1,24 @@
-require("dotenv").config({ quiet: true });
-const { GoogleGenAI } = require("@google/genai");
-const cow = require("./../utils/cow");
-const { WebSocketServer } = require("ws");
-const { createServer } = require("node:http");
-const u = require("url");
-const express = require("express");
-const { JsonDB, Config } = require("node-json-db");
-const moment = require("moment");
-const fs = require("node:fs");
+import dotenv from "dotenv";
+import { GoogleGenAI } from "@google/genai";
+import cow from "./../utils/cow";
+import { WebSocketServer } from "ws";
+import type { WebSocket } from "ws";
+import { createServer } from "node:http";
+import * as u from "node:url";
+import express from "express";
+import { JsonDB, Config } from "node-json-db";
+import moment from "moment";
+import fs from "node:fs";
+
+dotenv.config({ quiet: true });
+
+type SessionWebSocket = WebSocket & {
+  streamingResponse: boolean;
+  key: string;
+  messages: Array<{ role: string; parts: Array<{ text?: string; [key: string]: unknown }> }>;
+  asked: string[];
+  model: string;
+};
 
 var db = new JsonDB(new Config("rateLimit", true, true));
 var savedMsg = new JsonDB(new Config("savedMessages", true, true));
@@ -179,9 +190,13 @@ var allowedKeys = [];
 (async () => {
   allowedKeys = await db.getObjectDefault("/keys", []);
 })();
-if (process.env.ENABLE_OPENAI == "true") require("./openai")(app);
+if (process.env.ENABLE_OPENAI == "true") {
+  void import("./openai.js").then(({ default: registerOpenAI }) => {
+    (registerOpenAI as unknown as (application: typeof app) => typeof app)(app);
+  });
+}
 
-wss.on("connection", (ws) => {
+wss.on("connection", (ws: SessionWebSocket) => {
   console.log("[System] Connection");
   const streaming = ws.streamingResponse;
   ws.send(JSON.stringify({ type: "welcome", message: "Connected." }));
@@ -320,10 +335,17 @@ wss.on("connection", (ws) => {
           if (!item.candidates) continue;
           if (!item.candidates[0].content) continue;
           if (!item.candidates[0].content.parts) continue;
-          const part = item.candidates[0].content.parts[0];
+          const part = item.candidates[0].content.parts[0] as {
+            text?: string;
+            functionCall?: Record<string, unknown>;
+            thoughtSignature?: string;
+          };
           if (!part) continue;
           if (part.functionCall) {
-            const callPart = { functionCall: part.functionCall };
+            const callPart: {
+              functionCall: Record<string, unknown>;
+              thoughtSignature?: string;
+            } = { functionCall: part.functionCall };
             if (part.thoughtSignature) {
               callPart.thoughtSignature = part.thoughtSignature;
             }
@@ -462,12 +484,10 @@ app.get("/api/waste", async (req, res) => {
   const used = await db.getObjectDefault(`/used/${req.query.key}`, 0);
   const max = await db.getObjectDefault(`/max/${req.query.key}`, 50);
   if (used >= max) {
-    return ws.send(
-      JSON.stringify({
-        type: "limited",
-        message: "Daily message limit exceeded.",
-      }),
-    );
+    return res.status(429).json({
+      type: "limited",
+      message: "Daily message limit exceeded.",
+    });
   }
   await db.push(`/used/${req.query.key}`, used + 1);
   res.json({ type: "response", message: "Successfully wasted a use." });
@@ -498,38 +518,47 @@ server.on("upgrade", (request, socket, head) => {
     socket.destroy();
     return;
   }
-  const query =
+  const query: Record<string, string | true> =
     url.query
       ?.split("&")
       ?.map((a) => {
         return a.split("=");
       })
-      ?.reduce((a, v) => ({ ...a, [v[0]]: v[1] || true }), {}) || {};
-  if (!query.key || !allowedKeys.includes(query.key)) {
+      ?.reduce<Record<string, string | true>>(
+        (a, v) => ({ ...a, [v[0]]: v[1] || true }),
+        {},
+      ) || {};
+  if (typeof query.key !== "string" || !allowedKeys.includes(query.key)) {
     socket.write("HTTP/1.1 401 Unauthorized\r\n\r\n");
     socket.destroy();
     return;
   }
-  if (query.model && !enabledModels.includes(query.model)) {
+  if (typeof query.model === "string" && !enabledModels.includes(query.model)) {
     socket.write("HTTP/1.1 400 Bad Request\r\n\r\n");
     socket.destroy();
     return;
   }
-  wss.handleUpgrade(request, socket, head, async (ws) => {
+  wss.handleUpgrade(request, socket, head, async (client) => {
+    const ws = client as SessionWebSocket;
+    const queryValue = (key: string): string | undefined =>
+      typeof query[key] === "string" ? query[key] as string : undefined;
     ws.streamingResponse = !!query.streamingResponse;
-    ws.key = query.key;
-    ws.messages = query.messages
-      ? JSON.parse(decodeURIComponent(query.messages))
+    ws.key = queryValue("key") || "";
+    ws.messages = queryValue("messages")
+      ? JSON.parse(decodeURIComponent(queryValue("messages") || ""))
       : [];
-    if (query._readSavedMessages) {
+    if (queryValue("_readSavedMessages")) {
       await savedMsg.reload();
       ws.messages = await savedMsg.getObject(
-        `/${decodeURIComponent(query._readSavedMessages)}`,
+        `/${decodeURIComponent(queryValue("_readSavedMessages") || "")}`,
       );
     }
     ws.asked = [];
-    ws.model = query.model || "cow";
-    wss.emit("connection", ws);
+    ws.model = queryValue("model") || "cow";
+    (wss as unknown as { emit: (event: string, socket: SessionWebSocket) => boolean }).emit(
+      "connection",
+      ws,
+    );
   });
 });
 

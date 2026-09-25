@@ -1,9 +1,10 @@
-require("dotenv").config({ quiet: true });
-const { JsonDB, Config } = require("node-json-db");
+import dotenv from "dotenv";
+import { JsonDB, Config } from "node-json-db";
 var savedMsg = new JsonDB(new Config("savedMessages", true, true));
-const { WebSocket } = require("ws");
-const os = require("os");
-const fetch = require("node-fetch");
+import { WebSocket } from "ws";
+import fetch from "node-fetch";
+
+dotenv.config({ quiet: true });
 var briarLink = "";
 var contacts = [];
 
@@ -141,7 +142,7 @@ function createWs() {
 
     ws.on("message", async (_data) => {
       // TBD: Bot Logic
-      const data = JSON.parse(_data);
+      const data = JSON.parse(_data.toString());
       if (data.name != "ConversationMessageReceivedEvent") return;
       await httpRequestJson(
         "POST",
@@ -190,7 +191,7 @@ function createWs() {
         `ws://localhost:38943/api/generate?key=${process.env.ADMIN_KEY}&_readSavedMessages=briar:${data.data.contactId}`,
       );
       cowws.on("message", async (cowdata) => {
-        const parsed = JSON.parse(cowdata);
+        const parsed = JSON.parse(cowdata.toString());
         if (parsed.type == "welcome") {
           cowws.send("");
         }
