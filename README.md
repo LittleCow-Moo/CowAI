@@ -68,7 +68,7 @@ PSE_ID= # Google Programmable Search Engine ID (Google 搜尋功能用)
 PSE_KEY= # Google Programmable Search Engine API Key (Google 搜尋功能用)
 ```
 
-6. `npm build && npm start`
+6. `npm run build && npm start`
 
 # 使用
 
