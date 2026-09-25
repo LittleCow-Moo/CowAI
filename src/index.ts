@@ -17,7 +17,7 @@ checkMissingField("PSE_ID");
 checkMissingField("PSE_KEY");
 checkMissingField("API_DOMAIN");
 if (process.env.ENABLE_AI_GATEWAY == "true") checkMissingField("AI_GATEWAY");
-import "./platforms/gemini";
+import "./platforms/gemini.js";
 if (process.env.ENABLE_DISCORD == "true" && checkMissingField("DISCORD"))
   void import("./platforms/discord.js");
 if (process.env.ENABLE_TELEGRAM == "true" && checkMissingField("TELEGRAM"))

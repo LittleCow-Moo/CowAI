@@ -16,8 +16,8 @@ var savedMsg = new JsonDB(new Config("savedMessages", true, true));
 import { WebSocket } from "ws";
 import { websocketData } from "websocket-iterator";
 import fetch from "node-fetch";
-import cow from "./../utils/cow";
-import packageInfo from "../../package.json";
+import cow from "./../utils/cow.js";
+import packageInfo from "../../package.json" with { type: "json" };
 
 dotenv.config({ quiet: true });
 const supportedMime = cow.supportedMime;
