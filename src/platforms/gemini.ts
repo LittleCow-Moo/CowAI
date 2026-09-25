@@ -9,6 +9,7 @@ import express from "express";
 import { JsonDB, Config } from "node-json-db";
 import moment from "moment";
 import fs from "node:fs";
+import registerOpenAI from "./openai.js";
 
 dotenv.config({ quiet: true });
 
@@ -194,9 +195,7 @@ var allowedKeys = [];
   allowedKeys = await db.getObjectDefault("/keys", []);
 })();
 if (process.env.ENABLE_OPENAI == "true") {
-  void import("./openai.js").then(({ default: registerOpenAI }) => {
-    (registerOpenAI as unknown as (application: typeof app) => typeof app)(app);
-  });
+  registerOpenAI(app);
 }
 
 wss.on("connection", (ws: SessionWebSocket) => {
