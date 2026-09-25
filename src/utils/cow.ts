@@ -1,8 +1,13 @@
 import fs from "node:fs";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 import functions from "../functions.js";
 
-const promptsPath = path.join(__dirname, "..", "prompts");
+const promptsPath = path.join(
+  path.dirname(fileURLToPath(import.meta.url)),
+  "..",
+  "prompts",
+);
 
 export default {
   prompt: fs
