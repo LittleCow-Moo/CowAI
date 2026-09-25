@@ -11,12 +11,22 @@ import yts from "yt-search";
 import { JSDOM } from "jsdom";
 import qr from "qrcode";
 import crypto from "node:crypto";
+import { Client as GradioClient } from "@gradio/client";
+import { Octokit } from "@octokit/rest";
 
 dotenv.config({ quiet: true });
 type FunctionArgs = Record<string, unknown> & {
-  query?: string; q?: string; location?: string; prompt?: string;
-  image?: string; description?: string; seed?: number | string;
-  width?: number | string; height?: number | string; content?: string; id?: string;
+  query?: string;
+  q?: string;
+  location?: string;
+  prompt?: string;
+  image?: string;
+  description?: string;
+  seed?: number | string;
+  width?: number | string;
+  height?: number | string;
+  content?: string;
+  id?: string;
 };
 const parseDecimalNCR = (str: string): string => {
   return str.replace(/&#(\d+);/g, (_match: string, dec: string) => {
@@ -39,7 +49,7 @@ const google = async (query: string): Promise<GoogleItem[]> => {
     await fetch(
       `https://customsearch.googleapis.com/customsearch/v1?cx=${
         process.env.PSE_ID
-      }&q=${encodeURIComponent(query)}&num=10&key=${process.env.PSE_KEY}`
+      }&q=${encodeURIComponent(query)}&num=10&key=${process.env.PSE_KEY}`,
     )
   ).json()) || { items: [] };
   fetched = (fetched.items || []).map((a: GoogleItem) => {
@@ -72,7 +82,7 @@ const MCJavaServer = async (args: FunctionArgs) => {
 const MCBedrockServer = async (args: FunctionArgs) => {
   const ip = Object.values(args)[0];
   const response = await fetch(
-    `https://api.mcstatus.io/v2/status/bedrock/${ip}`
+    `https://api.mcstatus.io/v2/status/bedrock/${ip}`,
   );
   const body = await response.json();
   return {
@@ -114,7 +124,7 @@ const Invoice = async () => {
     resu.elements[0].elements[0].elements[4].elements[0].elements[0].cdata;
   const content =
     resu.elements[0].elements[0].elements[4].elements[3].elements[0].cdata.split(
-      "</p><p>"
+      "</p><p>",
     );
   content[0] = content[0].split("<p>")[1];
   content[content.length - 1] = content[content.length - 1].split("</p>")[0];
@@ -134,12 +144,11 @@ const GenerateImage = async (args: FunctionArgs) => {
           'No prompt specified. Make sure to put your prompt in the "prompt" property.',
       },
     };
-  const Client = (await import("@gradio/client")).Client;
-  const client = await Client.connect(
+  const client = await GradioClient.connect(
     "https://black-forest-labs-flux-1-schnell.hf.space",
     {
       hf_token: process.env.HF_ACCESS_TOKEN,
-    }
+    },
   );
   const seed = args.seed
     ? typeof args.seed == "number"
@@ -185,34 +194,41 @@ const GetWeather = async (args: FunctionArgs) => {
           error: "No query provided",
         },
       });
-    weather.find({ search: query, degreeType: "C" }, function (err: unknown, result: unknown) {
-      const weatherError = err instanceof Error ? err : null;
-      if (err)
-        return resolve({
+    weather.find(
+      { search: query, degreeType: "C" },
+      function (err: unknown, result: unknown) {
+        const weatherError = err instanceof Error ? err : null;
+        if (err)
+          return resolve({
+            name: "GetWeather",
+            response: {
+              error: weatherError?.stack || String(err),
+            },
+          });
+        const weatherResults = result as WeatherResult[];
+        const weatherResult = weatherResults[0];
+        if (weatherResult.location.imagerelativeurl)
+          delete weatherResult.location.imagerelativeurl;
+        if (weatherResult.current.imageUrl)
+          delete weatherResult.current.imageUrl;
+        if (
+          weatherResult.current.date &&
+          weatherResult.current.observationtime
+        ) {
+          const converted = moment.tz(
+            `${weatherResult.current.date}T${weatherResult.current.observationtime}+00:00`,
+            "Asia/Taipei",
+          );
+          weatherResult.current.date = converted.format("yyyy-MM-DD");
+          weatherResult.current.observationtime = converted.format("HH:mm:ss");
+          weatherResult.location.timezone = "+8";
+        }
+        resolve({
           name: "GetWeather",
-          response: {
-            error: weatherError?.stack || String(err),
-          },
+          response: weatherResult,
         });
-      const weatherResults = result as WeatherResult[];
-      const weatherResult = weatherResults[0];
-      if (weatherResult.location.imagerelativeurl)
-        delete weatherResult.location.imagerelativeurl;
-      if (weatherResult.current.imageUrl) delete weatherResult.current.imageUrl;
-      if (weatherResult.current.date && weatherResult.current.observationtime) {
-        const converted = moment.tz(
-          `${weatherResult.current.date}T${weatherResult.current.observationtime}+00:00`,
-          "Asia/Taipei"
-        );
-        weatherResult.current.date = converted.format("yyyy-MM-DD");
-        weatherResult.current.observationtime = converted.format("HH:mm:ss");
-        weatherResult.location.timezone = "+8";
-      }
-      resolve({
-        name: "GetWeather",
-        response: weatherResult,
-      });
-    });
+      },
+    );
   });
 };
 const SearchRepository = async (args: FunctionArgs) => {
@@ -225,7 +241,6 @@ const SearchRepository = async (args: FunctionArgs) => {
           'No query specified. Make sure to put your query in the "query" property.',
       },
     };
-  const { Octokit } = await import("@octokit/rest");
   const octokit = new Octokit();
   const { data } = await octokit.rest.search.repos({ q: query });
   return {
@@ -271,9 +286,7 @@ const StopWorkSchoolChecker = async (_args: FunctionArgs) => {
   const response = [...document.querySelectorAll("td")]
     .filter((a) => {
       const headers = a.attributes.getNamedItem("headers");
-      return headers
-        ? headers.value.includes("city_Name")
-        : false
+      return headers ? headers.value.includes("city_Name") : false;
     })
     .map((a) => {
       return [
@@ -284,11 +297,14 @@ const StopWorkSchoolChecker = async (_args: FunctionArgs) => {
           .replaceAll("  ", "\n"),
       ];
     })
-    .reduce<Record<string, string>>((a: Record<string, string>, b: unknown[]) => {
-      const key = String(b[0]);
-      a[key] = String(b[1]);
-      return a;
-    }, {});
+    .reduce<Record<string, string>>(
+      (a: Record<string, string>, b: unknown[]) => {
+        const key = String(b[0]);
+        a[key] = String(b[1]);
+        return a;
+      },
+      {},
+    );
   return {
     name: "StopWorkSchoolChecker",
     response,

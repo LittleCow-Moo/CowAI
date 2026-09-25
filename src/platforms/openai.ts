@@ -51,15 +51,15 @@ export default (app) => {
             parts: [{ text: a.content }],
           };
         })
-        .slice(-5)
+        .slice(-5),
     );
     const ws = new WebSocket(
       `ws://192.168.0.5:38943/api/generate?key=${req.headers[
         "authorization"
       ].replace(
         "Bearer ",
-        ""
-      )}&streamingResponse&_readSavedMessages=openai:${pushId}`
+        "",
+      )}&streamingResponse&_readSavedMessages=openai:${pushId}`,
     );
 
     if (!stream) {
@@ -115,7 +115,7 @@ export default (app) => {
                   finish_reason: null,
                 },
               ],
-            })}\n\n`
+            })}\n\n`,
           );
           index++;
         }

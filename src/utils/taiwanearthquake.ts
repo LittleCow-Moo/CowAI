@@ -10,12 +10,12 @@ type EarthquakeArea = {
 export default {
   latest: async () => {
     const request = await fetch(
-      "https://opendata.cwa.gov.tw/api/v1/rest/datastore/E-A0015-001?Authorization=rdec-key-123-45678-011121314&limit=1&format=JSON"
+      "https://opendata.cwa.gov.tw/api/v1/rest/datastore/E-A0015-001?Authorization=rdec-key-123-45678-011121314&limit=1&format=JSON",
     );
     const json = await request.json();
     const eq1 = json.records.Earthquake[0];
     const request2 = await fetch(
-      "https://opendata.cwa.gov.tw/api/v1/rest/datastore/E-A0016-001?Authorization=rdec-key-123-45678-011121314&limit=1&format=JSON"
+      "https://opendata.cwa.gov.tw/api/v1/rest/datastore/E-A0016-001?Authorization=rdec-key-123-45678-011121314&limit=1&format=JSON",
     );
     const json2 = await request2.json();
     const eq2 = json2.records.Earthquake[0];
@@ -25,7 +25,9 @@ export default {
         ? eq2
         : eq1;
     let biggestinte = [];
-    for (const area of Object.values(eq.Intensity.ShakingArea) as EarthquakeArea[]) {
+    for (const area of Object.values(
+      eq.Intensity.ShakingArea,
+    ) as EarthquakeArea[]) {
       if (area.AreaDesc || area.AreaDesc?.startsWith("最大震度")) {
         biggestinte.push(`${area.CountyName}最大${area.AreaIntensity}`);
       }
@@ -54,12 +56,14 @@ export default {
   },
   major: async () => {
     const request = await fetch(
-      "https://opendata.cwa.gov.tw/api/v1/rest/datastore/E-A0015-001?Authorization=rdec-key-123-45678-011121314&limit=1&format=JSON"
+      "https://opendata.cwa.gov.tw/api/v1/rest/datastore/E-A0015-001?Authorization=rdec-key-123-45678-011121314&limit=1&format=JSON",
     );
     const json = await request.json();
     const eq = json.records.Earthquake[0];
     let biggestinte = [];
-    for (const area of Object.values(eq.Intensity.ShakingArea) as EarthquakeArea[]) {
+    for (const area of Object.values(
+      eq.Intensity.ShakingArea,
+    ) as EarthquakeArea[]) {
       if (area.AreaDesc || area.AreaDesc?.startsWith("最大震度")) {
         biggestinte.push(`${area.CountyName}最大${area.AreaIntensity}`);
       }
@@ -82,12 +86,14 @@ export default {
   },
   local: async () => {
     const request = await fetch(
-      "https://opendata.cwa.gov.tw/api/v1/rest/datastore/E-A0016-001?Authorization=rdec-key-123-45678-011121314&limit=1&format=JSON"
+      "https://opendata.cwa.gov.tw/api/v1/rest/datastore/E-A0016-001?Authorization=rdec-key-123-45678-011121314&limit=1&format=JSON",
     );
     const json = await request.json();
     const eq = json.records.Earthquake[0];
     let biggestinte = [];
-    for (const area of Object.values(eq.Intensity.ShakingArea) as EarthquakeArea[]) {
+    for (const area of Object.values(
+      eq.Intensity.ShakingArea,
+    ) as EarthquakeArea[]) {
       if (area.AreaDesc || area.AreaDesc?.startsWith("最大震度")) {
         biggestinte.push(`${area.CountyName}最大${area.AreaIntensity}`);
       }
@@ -110,12 +116,14 @@ export default {
   },
   id: async (args: EarthquakeArgs) => {
     const request = await fetch(
-      "https://opendata.cwa.gov.tw/api/v1/rest/datastore/E-A0015-001?Authorization=rdec-key-123-45678-011121314&format=JSON"
+      "https://opendata.cwa.gov.tw/api/v1/rest/datastore/E-A0015-001?Authorization=rdec-key-123-45678-011121314&format=JSON",
     );
     const json = await request.json();
-    const filtered = json.records.Earthquake.filter((a: { EarthquakeNo: string }) => {
-      return a.EarthquakeNo == args.id;
-    });
+    const filtered = json.records.Earthquake.filter(
+      (a: { EarthquakeNo: string }) => {
+        return a.EarthquakeNo == args.id;
+      },
+    );
     if (!filtered[0])
       return {
         name: "GetEarthquakeByID",
@@ -123,7 +131,9 @@ export default {
       };
     const eq = filtered[0];
     let biggestinte = [];
-    for (const area of Object.values(eq.Intensity.ShakingArea) as EarthquakeArea[]) {
+    for (const area of Object.values(
+      eq.Intensity.ShakingArea,
+    ) as EarthquakeArea[]) {
       if (area.AreaDesc || area.AreaDesc?.startsWith("最大震度")) {
         biggestinte.push(`${area.CountyName}最大${area.AreaIntensity}`);
       }
