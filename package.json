@@ -37,5 +37,16 @@
     "websocket-iterator": "^1.0.1",
     "xml-js": "^1.6.11",
     "yt-search": "^2.11.1"
+  },
+  "devDependencies": {
+    "@types/download": "^8.0.5",
+    "@types/express": "^5.0.6",
+    "@types/jsdom": "^30.0.0",
+    "@types/node": "^22.20.3",
+    "@types/node-fetch": "^2.6.13",
+    "@types/qrcode": "^1.5.6",
+    "@types/yt-search": "^2.10.3",
+    "tsx": "^4.23.13",
+    "typescript": "^7.0.2"
   }
 }

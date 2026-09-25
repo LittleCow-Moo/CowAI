@@ -1,5 +1,5 @@
-require("dotenv").config({ quiet: true });
-const Discord = require("discord.js");
+import dotenv from "dotenv";
+import * as Discord from "discord.js";
 const client = new Discord.Client({
   intents: [
     Discord.GatewayIntentBits.Guilds,
@@ -11,12 +11,16 @@ const client = new Discord.Client({
   ],
   partials: [Discord.Partials.Channel, Discord.Partials.Message],
 });
-const { JsonDB, Config } = require("node-json-db");
+import { JsonDB, Config } from "node-json-db";
 var savedMsg = new JsonDB(new Config("savedMessages", true, true));
-const { WebSocket } = require("ws");
-const { websocketData } = require("websocket-iterator");
-const fetch = require("node-fetch");
-const supportedMime = require("./../utils/cow").supportedMime;
+import { WebSocket } from "ws";
+import { websocketData } from "websocket-iterator";
+import fetch from "node-fetch";
+import cow from "./../utils/cow";
+import packageInfo from "../../package.json";
+
+dotenv.config({ quiet: true });
+const supportedMime = cow.supportedMime;
 const allowedBotsList = (process.env.DISCORD_ALLOWED_BOTS || "").split(",");
 
 client.on("clientReady", () => {
@@ -27,7 +31,7 @@ client.on("clientReady", () => {
         type: 4,
         name: "custom",
         state: `🐮 @${client.user.tag} | 牛牛 v${
-          require("../../package.json").version
+          packageInfo.version
         }`,
       },
     ],
@@ -42,14 +46,19 @@ client.on("messageCreate", async (message) => {
   const botChatTurn = message.author.bot;
   message.content = Discord.cleanContent(
     message.content,
-    client.channels.cache.get("1246648286144630837")
+    client.channels.cache.get("1246648286144630837") as Discord.TextBasedChannel
   )
     .replaceAll("@牛牛AI ", "")
     .replaceAll("@牛牛AI", "");
   console.log("[Discord] Message:", message.content);
-  var pulledMessages = Object.values(
+  type DiscordPulledMessage = {
+    content: string;
+    attachments: { first: () => { proxyURL: string } | undefined };
+    author: { username: string; id: string };
+  };
+  var pulledMessages: DiscordPulledMessage[] = Object.values(
     (await message.channel.messages.fetch({ limit: 5 })).toJSON()
-  ).reverse();
+  ).reverse() as unknown as DiscordPulledMessage[];
   var parsePulledMessages = () => {
     for (const [i, a] of pulledMessages.entries()) {
       if (a.content == "COW_CLEAR_CONTEXT") {
@@ -61,11 +70,11 @@ client.on("messageCreate", async (message) => {
   };
   parsePulledMessages();
   if (pulledMessages.length == 0) return;
-  pulledMessages = await Promise.all(
+  const parsedMessages = await Promise.all(
     pulledMessages.map(async (a, index) => {
       a.content = Discord.cleanContent(
         a.content,
-        client.channels.cache.get("1246648286144630837")
+        client.channels.cache.get("1246648286144630837") as Discord.TextBasedChannel
       )
         .replaceAll("@牛牛AI ", "")
         .replaceAll("@牛牛AI", "");
@@ -117,9 +126,9 @@ client.on("messageCreate", async (message) => {
         : { role: "model", parts: [{ text: a.content }] };
     })
   );
-  pulledMessages = await Promise.all(pulledMessages.filter((a) => !!a));
-  console.log("[Discord] Pulled messages:", pulledMessages);
-  await savedMsg.push(`/discord:${message.id}`, pulledMessages);
+  const filteredMessages = parsedMessages.filter((a) => !!a);
+  console.log("[Discord] Pulled messages:", filteredMessages);
+  await savedMsg.push(`/discord:${message.id}`, filteredMessages);
   const ws = new WebSocket(
     `ws://localhost:38943/api/generate?key=${process.env.ADMIN_KEY}&streamingResponse&_readSavedMessages=discord:${message.id}`
   );
@@ -128,8 +137,7 @@ client.on("messageCreate", async (message) => {
   var wsTimeout;
   var response = "";
   let processedLength = 0;
-  globalThis.WebSocket = WebSocket;
-  for await (const data of websocketData(ws)) {
+  for await (const data of websocketData(ws as unknown as globalThis.WebSocket)) {
     const parsed = JSON.parse(data.toString());
     if (parsed.type === "welcome") {
       await message.channel.sendTyping();
@@ -227,7 +235,7 @@ client.on("messageCreate", async (message) => {
   }
 });
 client.on("interactionCreate", (slash) => {
-  if (slash.type != Discord.InteractionType.ApplicationCommand) return;
+  if (!slash.isChatInputCommand()) return;
   switch (slash.commandName) {
     case "clear":
       slash.reply("COW_CLEAR_CONTEXT");
@@ -246,7 +254,7 @@ client.on("interactionCreate", (slash) => {
         ])}`
       );
       ws.on("message", async (data) => {
-        const parsed = JSON.parse(data);
+        const parsed = JSON.parse(data.toString());
         if (parsed.type == "welcome") {
           await slash.deferReply({ ephemeral: hide });
           ws.send("");
@@ -254,14 +262,12 @@ client.on("interactionCreate", (slash) => {
         if (parsed.type == "end") {
           slash.editReply({
             content: parsed.full.slice(-2000),
-            ephemeral: hide,
           });
           ws.close();
         }
         if (parsed.type == "error") {
           slash.editReply({
             content: parsed.message.slice(-2000),
-            ephemeral: hide,
           });
           ws.close();
         }

@@ -1,9 +1,11 @@
-require("dotenv").config({ quiet: true });
-const Bot = require("keybase-bot");
-const { JsonDB, Config } = require("node-json-db");
+import dotenv from "dotenv";
+import Bot from "keybase-bot";
+import { JsonDB, Config } from "node-json-db";
 var savedMsg = new JsonDB(new Config("savedMessages", true, true));
-const { WebSocket } = require("ws");
-const os = require("os");
+import { WebSocket } from "ws";
+import os from "node:os";
+
+dotenv.config({ quiet: true });
 
 const bot = new Bot();
 
@@ -59,7 +61,7 @@ async function main() {
         `ws://localhost:38943/api/generate?key=${process.env.ADMIN_KEY}&_readSavedMessages=keybase:${message.id}`,
       );
       ws.on("message", async (data) => {
-        const parsed = JSON.parse(data);
+        const parsed = JSON.parse(data.toString());
         if (parsed.type == "welcome") {
           ws.send("");
         }

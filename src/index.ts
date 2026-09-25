@@ -1,9 +1,12 @@
-require("dotenv").config({ quiet: true });
+import dotenv from "dotenv";
+import crypto from "node:crypto";
+
+dotenv.config({ quiet: true });
 if (!process.env.ADMIN_KEY || process.env.ADMIN_KEY == "")
   throw new Error(
-    `Please set an admin key in \`.env\`. I have generated one for you: \`${require("node:crypto").randomUUID()}\``,
+    `Please set an admin key in \`.env\`. I have generated one for you: \`${crypto.randomUUID()}\``,
   );
-const checkMissingField = (field) => {
+const checkMissingField = (field: string): true => {
   if (!process.env[field] || process.env[field] == "") {
     throw new Error(`Please provide ${field} in \`.env\`.`);
   } else return true;
@@ -14,11 +17,11 @@ checkMissingField("PSE_ID");
 checkMissingField("PSE_KEY");
 checkMissingField("API_DOMAIN");
 if (process.env.ENABLE_AI_GATEWAY == "true") checkMissingField("AI_GATEWAY");
-require("./platforms/gemini");
+import "./platforms/gemini";
 if (process.env.ENABLE_DISCORD == "true" && checkMissingField("DISCORD"))
-  require("./platforms/discord");
+  void import("./platforms/discord.js");
 if (process.env.ENABLE_TELEGRAM == "true" && checkMissingField("TELEGRAM"))
-  require("./platforms/telegram");
+  void import("./platforms/telegram.js");
 if (
   process.env.ENABLE_LINE == "true" &&
   checkMissingField("LINE_ID") &&
@@ -27,7 +30,7 @@ if (
   checkMissingField("LINE_SSL_FULLCHAIN") &&
   checkMissingField("LINE_SSL_PRIVKEY")
 )
-  require("./platforms/line");
+  void import("./platforms/line.js");
 if (
   process.env.ENABLE_IRC == "true" &&
   checkMissingField("IRC_HOST") &&
@@ -36,7 +39,7 @@ if (
   checkMissingField("IRC_PASSWORD") &&
   checkMissingField("IRC_CHANNEL")
 )
-  require("./platforms/irc");
+  void import("./platforms/irc.js");
 
 if (
   process.env.ENABLE_KEYBASE == "true" &&
@@ -44,11 +47,11 @@ if (
     (checkMissingField("KEYBASE_USERNAME") &&
       checkMissingField("KEYBASE_PAPERKEY")))
 )
-  require("./platforms/keybase");
+  void import("./platforms/keybase.js");
 
 if (
   process.env.ENABLE_BRIAR == "true" &&
   checkMissingField("BRIAR_API_HOST") &&
   checkMissingField("BRIAR_AUTH_TOKEN")
 )
-  require("./platforms/briar");
+  void import("./platforms/briar.js");
