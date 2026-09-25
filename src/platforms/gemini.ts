@@ -1,6 +1,6 @@
 import dotenv from "dotenv";
 import { GoogleGenAI } from "@google/genai";
-import cow from "./../utils/cow";
+import cow from "./../utils/cow.js";
 import { WebSocketServer } from "ws";
 import type { WebSocket } from "ws";
 import { createServer } from "node:http";

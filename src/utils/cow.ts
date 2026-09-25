@@ -1,12 +1,17 @@
 import fs from "node:fs";
-import functions from "../functions";
+import path from "node:path";
+import functions from "../functions.js";
+
+const promptsPath = path.join(__dirname, "..", "prompts");
 
 export default {
   prompt: fs
-    .readFileSync("src/prompts/cow.md")
+    .readFileSync(path.join(promptsPath, "cow.md"))
     .toString("utf-8")
     .replace("{API_DOMAIN}", process.env.API_DOMAIN),
-  mathPrompt: fs.readFileSync("src/prompts/mathcow.md").toString("utf-8"),
+  mathPrompt: fs
+    .readFileSync(path.join(promptsPath, "mathcow.md"))
+    .toString("utf-8"),
   tools: [
     {
       functionDeclarations: [
