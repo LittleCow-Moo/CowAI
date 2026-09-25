@@ -27,7 +27,7 @@ bot.on("message", async (event) => {
   await lineMsg.push(`/${event.source.userId}`, messages.slice(-5));
   await savedMsg.push(`/line:${event.source.userId}`, messages.slice(-5));
   const ws = new WebSocket(
-    `ws://localhost:38943/api/generate?key=${process.env.ADMIN_KEY}&_readSavedMessages=line:${event.source.userId}`
+    `ws://localhost:38943/api/generate?key=${process.env.ADMIN_KEY}&_readSavedMessages=line:${event.source.userId}`,
   );
   var wsTimeout;
   ws.on("message", async (data) => {
@@ -73,7 +73,7 @@ bot.on("message", async (event) => {
     if (parsed.type == "response") {
       var messages = await lineMsg.getObjectDefault(
         `/${event.source.userId}`,
-        []
+        [],
       );
       messages.push({ role: "model", parts: [{ text: parsed.message }] });
       await lineMsg.push(`/${event.source.userId}`, messages.slice(-5));
@@ -92,15 +92,9 @@ console.log("[Line] Bot ready");
 https
   .createServer(
     {
-      cert: fs.readFileSync(
-        process.env.LINE_SSL_FULLCHAIN,
-        "utf8"
-      ),
-      key: fs.readFileSync(
-        process.env.LINE_SSL_PRIVKEY,
-        "utf8"
-      ),
+      cert: fs.readFileSync(process.env.LINE_SSL_FULLCHAIN, "utf8"),
+      key: fs.readFileSync(process.env.LINE_SSL_PRIVKEY, "utf8"),
     },
-    app
+    app,
   )
   .listen(12346);

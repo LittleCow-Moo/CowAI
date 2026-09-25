@@ -30,9 +30,7 @@ client.on("clientReady", () => {
       {
         type: 4,
         name: "custom",
-        state: `🐮 @${client.user.tag} | 牛牛 v${
-          packageInfo.version
-        }`,
+        state: `🐮 @${client.user.tag} | 牛牛 v${packageInfo.version}`,
       },
     ],
   });
@@ -46,7 +44,9 @@ client.on("messageCreate", async (message) => {
   const botChatTurn = message.author.bot;
   message.content = Discord.cleanContent(
     message.content,
-    client.channels.cache.get("1246648286144630837") as Discord.TextBasedChannel
+    client.channels.cache.get(
+      "1246648286144630837",
+    ) as Discord.TextBasedChannel,
   )
     .replaceAll("@牛牛AI ", "")
     .replaceAll("@牛牛AI", "");
@@ -57,7 +57,7 @@ client.on("messageCreate", async (message) => {
     author: { username: string; id: string };
   };
   var pulledMessages: DiscordPulledMessage[] = Object.values(
-    (await message.channel.messages.fetch({ limit: 5 })).toJSON()
+    (await message.channel.messages.fetch({ limit: 5 })).toJSON(),
   ).reverse() as unknown as DiscordPulledMessage[];
   var parsePulledMessages = () => {
     for (const [i, a] of pulledMessages.entries()) {
@@ -74,7 +74,9 @@ client.on("messageCreate", async (message) => {
     pulledMessages.map(async (a, index) => {
       a.content = Discord.cleanContent(
         a.content,
-        client.channels.cache.get("1246648286144630837") as Discord.TextBasedChannel
+        client.channels.cache.get(
+          "1246648286144630837",
+        ) as Discord.TextBasedChannel,
       )
         .replaceAll("@牛牛AI ", "")
         .replaceAll("@牛牛AI", "");
@@ -82,7 +84,7 @@ client.on("messageCreate", async (message) => {
       const attachment = a.attachments.first();
       const attachmentUrl =
         /(https?:\/\/[a-zA-Z0-9%\/._-]*\.(?:png|jpeg|jpg|webp|heic|heif|wav|mp3|aiff|aac|ogg|flac|mpeg|x-wav)(?:\?[a-zA-Z0-9%=&]*|))/im.exec(
-          a.content
+          a.content,
         );
       var att;
       fetchAttachment: if (
@@ -113,8 +115,8 @@ client.on("messageCreate", async (message) => {
           a.content != ""
             ? `${userInfo}說: ${a.content}`
             : att
-            ? `${userInfo}傳送了一個檔案`
-            : `${userInfo}提及了你`,
+              ? `${userInfo}傳送了一個檔案`
+              : `${userInfo}提及了你`,
       });
       return a.author.id != client.user.id
         ? returning[0]
@@ -124,20 +126,22 @@ client.on("messageCreate", async (message) => {
             }
           : null
         : { role: "model", parts: [{ text: a.content }] };
-    })
+    }),
   );
   const filteredMessages = parsedMessages.filter((a) => !!a);
   console.log("[Discord] Pulled messages:", filteredMessages);
   await savedMsg.push(`/discord:${message.id}`, filteredMessages);
   const ws = new WebSocket(
-    `ws://localhost:38943/api/generate?key=${process.env.ADMIN_KEY}&streamingResponse&_readSavedMessages=discord:${message.id}`
+    `ws://localhost:38943/api/generate?key=${process.env.ADMIN_KEY}&streamingResponse&_readSavedMessages=discord:${message.id}`,
   );
   var replyMessage;
   var sentReply = false;
   var wsTimeout;
   var response = "";
   let processedLength = 0;
-  for await (const data of websocketData(ws as unknown as globalThis.WebSocket)) {
+  for await (const data of websocketData(
+    ws as unknown as globalThis.WebSocket,
+  )) {
     const parsed = JSON.parse(data.toString());
     if (parsed.type === "welcome") {
       await message.channel.sendTyping();
@@ -251,7 +255,7 @@ client.on("interactionCreate", (slash) => {
             role: "user",
             parts: [{ text: question }],
           },
-        ])}`
+        ])}`,
       );
       ws.on("message", async (data) => {
         const parsed = JSON.parse(data.toString());

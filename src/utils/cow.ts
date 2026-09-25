@@ -6,9 +6,7 @@ export default {
     .readFileSync("src/prompts/cow.md")
     .toString("utf-8")
     .replace("{API_DOMAIN}", process.env.API_DOMAIN),
-  mathPrompt: fs
-    .readFileSync("src/prompts/mathcow.md")
-    .toString("utf-8"),
+  mathPrompt: fs.readFileSync("src/prompts/mathcow.md").toString("utf-8"),
   tools: [
     {
       functionDeclarations: [

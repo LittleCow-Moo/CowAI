@@ -24,11 +24,11 @@ dotenv.config({ quiet: true });
 bot.on("registered", async () => {
   bot.say(
     "NickServ",
-    `IDENTIFY littlecow ${process.env.IRC_NICK} ${process.env.IRC_PASSWORD}`
+    `IDENTIFY littlecow ${process.env.IRC_NICK} ${process.env.IRC_PASSWORD}`,
   );
   console.log(
     "[IRC] Bot ready,",
-    `${process.env.IRC_NICK} on ${process.env.IRC_HOST}:${process.env.IRC_PORT}`
+    `${process.env.IRC_NICK} on ${process.env.IRC_HOST}:${process.env.IRC_PORT}`,
   );
   const defaultChannel = bot.channel(process.env.IRC_CHANNEL || "");
   defaultChannel.join();
@@ -69,7 +69,7 @@ bot.on("message", async (event) => {
     const ws = new WebSocket(
       `ws://localhost:38943/api/generate?key=${
         process.env.ADMIN_KEY
-      }&_readSavedMessages=irc:${encodeURIComponent(event.target)}`
+      }&_readSavedMessages=irc:${encodeURIComponent(event.target)}`,
     );
     var wsTimeout;
     ws.on("message", async (data) => {

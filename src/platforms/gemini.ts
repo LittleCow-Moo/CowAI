@@ -15,7 +15,10 @@ dotenv.config({ quiet: true });
 type SessionWebSocket = WebSocket & {
   streamingResponse: boolean;
   key: string;
-  messages: Array<{ role: string; parts: Array<{ text?: string; [key: string]: unknown }> }>;
+  messages: Array<{
+    role: string;
+    parts: Array<{ text?: string; [key: string]: unknown }>;
+  }>;
   asked: string[];
   model: string;
 };
@@ -541,7 +544,7 @@ server.on("upgrade", (request, socket, head) => {
   wss.handleUpgrade(request, socket, head, async (client) => {
     const ws = client as SessionWebSocket;
     const queryValue = (key: string): string | undefined =>
-      typeof query[key] === "string" ? query[key] as string : undefined;
+      typeof query[key] === "string" ? (query[key] as string) : undefined;
     ws.streamingResponse = !!query.streamingResponse;
     ws.key = queryValue("key") || "";
     ws.messages = queryValue("messages")
@@ -555,10 +558,11 @@ server.on("upgrade", (request, socket, head) => {
     }
     ws.asked = [];
     ws.model = queryValue("model") || "cow";
-    (wss as unknown as { emit: (event: string, socket: SessionWebSocket) => boolean }).emit(
-      "connection",
-      ws,
-    );
+    (
+      wss as unknown as {
+        emit: (event: string, socket: SessionWebSocket) => boolean;
+      }
+    ).emit("connection", ws);
   });
 });
 

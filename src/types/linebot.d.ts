@@ -22,7 +22,10 @@ declare module "linebot" {
   }
 
   export interface LineBot {
-    on(event: "message", listener: (event: LineEvent) => void | Promise<unknown>): void;
+    on(
+      event: "message",
+      listener: (event: LineEvent) => void | Promise<unknown>,
+    ): void;
     parser(): (request: unknown, response: unknown) => void;
     push(userId: string, message: string): Promise<unknown>;
   }
