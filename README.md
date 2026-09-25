@@ -54,13 +54,13 @@ IRC_CHANNEL= # IRC機器人要自動加入的頻道，例如機器人的支援�
 
 ENABLE_KEYBASE=[true/false] # 是否要啟用Keybase機器人
 KEYBASE_USERNAME= # 機器人帳號的使用者名稱
-KEYBASE_PAPERKEY # 機器人帳號的 Paper Key，用來登入
+KEYBASE_PAPERKEY= # 機器人帳號的 Paper Key，用來登入
 KEYBASE_USE_SERVICE=[true/false] # 是否要改用電腦上已經在執行的Keybase服務，如果為true則上面兩項不用填
 KEYBASE_HOMEDIR= # 有Keybase登入資料的Home directory在哪裡，我加這個選項是因為我這個面板會亂改home directory :skull:
 
 ENABLE_BRIAR=[true/false] # 是否要啟用Briar機器人
 BRIAR_API_HOST= # briar-headless的API網址*的Host部分* (例如: http://localhost:7000, 輸入localhost:7000)
-BRIAR_AUTH_TOKEN # 存取briar-heasless API使用的Auth Token
+BRIAR_AUTH_TOKEN= # 存取briar-heasless API使用的Auth Token
 BRIAR_USE_TLS=[true/false] # (可選) 存取briar-heasless API時是否要使用https / wss
 
 HF_ACCESS_TOKEN= # HuggingFace Access Token (作畫功能使用，要有read權限)
@@ -68,7 +68,7 @@ PSE_ID= # Google Programmable Search Engine ID (Google 搜尋功能用)
 PSE_KEY= # Google Programmable Search Engine API Key (Google 搜尋功能用)
 ```
 
-6. `npm start`
+6. `npm build && npm start`
 
 # 使用
 
