@@ -1,4 +1,7 @@
-import { Bot as TelegramBot } from "node-telegram-bot-api";
+import {
+  EditMessageTextParams,
+  Bot as TelegramBot,
+} from "node-telegram-bot-api";
 
 import dotenv from "dotenv";
 import { JsonDB, Config } from "node-json-db";
@@ -13,7 +16,7 @@ bot.api.getMe().then((me) => {
   console.log("[Telegram] Bot ready", me.username);
 });
 
-bot.on("message", async (msg, meta) => {
+bot.on("message", async (msg, _meta) => {
   if (msg.chat.type != "private") return;
   console.log("[Telegram] Message");
   bot.api.sendChatAction({ chat_id: msg.chat.id, action: "typing" });
@@ -115,7 +118,7 @@ bot.on("chosen_inline_result", (chosenResult) => {
       },
     ])}`,
   );
-  var editOptions = {
+  var editOptions: EditMessageTextParams = {
     inline_message_id: inlineMessageId,
     reply_markup: {
       inline_keyboard: [
@@ -160,6 +163,59 @@ bot.on("chosen_inline_result", (chosenResult) => {
         bot.api.editMessageText({
           text: parsed.message.slice(-4000),
           ...editOptions,
+        });
+      }
+      ws.close();
+    }
+  });
+});
+
+bot.on("guest_message", (msg) => {
+  if (!("guest_message" in msg.update)) {
+    return;
+  }
+  const guestMsg = msg.update.guest_message;
+  const ws = new WebSocket(
+    `ws://localhost:38943/api/generate?key=${
+      process.env.ADMIN_KEY
+    }&messages=${JSON.stringify([
+      {
+        role: "user",
+        parts: [{ text: guestMsg.text }],
+      },
+    ])}`,
+  );
+  ws.on("message", async (data) => {
+    const parsed = JSON.parse(data.toString());
+    if (parsed.type == "welcome") {
+      ws.send("");
+    }
+    if (parsed.type == "end") {
+      try {
+        await bot.api.editMessageText({
+          text: parsed.full.slice(-4000),
+          parse_mode: "Markdown",
+          message_id: guestMsg.message_id,
+        });
+      } catch (e) {
+        bot.api.editMessageText({
+          text: parsed.full.slice(-4000),
+          message_id: guestMsg.message_id,
+        });
+      }
+      ws.close();
+    }
+    if (parsed.type == "error") {
+      try {
+        await bot.api.editMessageText({
+          text: parsed.message.slice(-4000),
+          parse_mode: "Markdown",
+          message_id: guestMsg.message_id,
+        });
+      } catch (e) {
+        bot.api.editMessageText({
+          text: parsed.message.slice(-4000),
+          message_id: guestMsg.message_id,
         });
       }
       ws.close();
