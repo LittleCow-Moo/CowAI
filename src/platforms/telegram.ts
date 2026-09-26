@@ -192,30 +192,34 @@ bot.on("guest_message", (msg) => {
     }
     if (parsed.type == "end") {
       try {
-        await bot.api.editMessageText({
+        await bot.api.sendMessage({
+          chat_id: guestMsg.chat.id,
           text: parsed.full.slice(-4000),
           parse_mode: "Markdown",
-          message_id: guestMsg.message_id,
+          reply_parameters: { message_id: guestMsg.message_id },
         });
       } catch (e) {
-        bot.api.editMessageText({
+        await bot.api.sendMessage({
+          chat_id: guestMsg.chat.id,
           text: parsed.full.slice(-4000),
-          message_id: guestMsg.message_id,
+          reply_parameters: { message_id: guestMsg.message_id },
         });
       }
       ws.close();
     }
     if (parsed.type == "error") {
       try {
-        await bot.api.editMessageText({
+        await bot.api.sendMessage({
+          chat_id: guestMsg.chat.id,
           text: parsed.message.slice(-4000),
           parse_mode: "Markdown",
-          message_id: guestMsg.message_id,
+          reply_parameters: { message_id: guestMsg.message_id },
         });
       } catch (e) {
-        bot.api.editMessageText({
-          text: parsed.message.slice(-4000),
-          message_id: guestMsg.message_id,
+        await bot.api.sendMessage({
+          chat_id: guestMsg.chat.id,
+          text: parsed.full.slice(-4000),
+          reply_parameters: { message_id: guestMsg.message_id },
         });
       }
       ws.close();
