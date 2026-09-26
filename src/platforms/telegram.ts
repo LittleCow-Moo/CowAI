@@ -191,37 +191,31 @@ bot.on("guest_message", (msg) => {
       ws.send("");
     }
     if (parsed.type == "end") {
-      try {
-        await bot.api.sendMessage({
-          chat_id: guestMsg.chat.id,
-          text: parsed.full.slice(-4000),
-          parse_mode: "Markdown",
-          reply_parameters: { message_id: guestMsg.message_id },
-        });
-      } catch (e) {
-        await bot.api.sendMessage({
-          chat_id: guestMsg.chat.id,
-          text: parsed.full.slice(-4000),
-          reply_parameters: { message_id: guestMsg.message_id },
-        });
-      }
+      await bot.api.answerGuestQuery({
+        guest_query_id: guestMsg.guest_query_id,
+        result: {
+          id: "8964",
+          type: "article",
+          title: "詢問牛牛問題",
+          input_message_content: {
+            message_text: parsed.full.slice(-4000),
+          },
+        },
+      });
       ws.close();
     }
     if (parsed.type == "error") {
-      try {
-        await bot.api.sendMessage({
-          chat_id: guestMsg.chat.id,
-          text: parsed.message.slice(-4000),
-          parse_mode: "Markdown",
-          reply_parameters: { message_id: guestMsg.message_id },
-        });
-      } catch (e) {
-        await bot.api.sendMessage({
-          chat_id: guestMsg.chat.id,
-          text: parsed.full.slice(-4000),
-          reply_parameters: { message_id: guestMsg.message_id },
-        });
-      }
+      await bot.api.answerGuestQuery({
+        guest_query_id: guestMsg.guest_query_id,
+        result: {
+          id: "8964",
+          type: "article",
+          title: "詢問牛牛問題",
+          input_message_content: {
+            message_text: parsed.message.slice(-4000),
+          },
+        },
+      });
       ws.close();
     }
   });
