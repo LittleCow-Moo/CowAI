@@ -20,7 +20,7 @@
     "dotenv": "^18.0.0",
     "download": "^8.0.0",
     "express": "^5.1.0",
-    "form-data": "^4.0.1",
+    "form-data": "^4.0.6",
     "irc-framework": "^4.14.0",
     "jsdom": "^30.0.1",
     "keybase-bot": "^3.6.1",
