@@ -66,7 +66,7 @@ function scheduleReconnect() {
   console.warn(
     `[Briar] WS reconnecting in ${delay}ms (attempt ${reconnectAttempts})`,
   );
-  setTimeout(() => createWs(), delay);
+  setTimeout(createWs, delay);
 }
 
 function createWs() {

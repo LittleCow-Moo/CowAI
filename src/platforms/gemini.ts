@@ -522,11 +522,11 @@ server.on("upgrade", (request, socket, head) => {
   }
   const query: Record<string, string | true> =
     url.query
-      ?.split("&")
-      ?.map((a) => {
+      .split("&")
+      .map((a) => {
         return a.split("=");
       })
-      ?.reduce<Record<string, string | true>>(
+      .reduce<Record<string, string | true>>(
         (a, v) => ({ ...a, [v[0]]: v[1] || true }),
         {},
       ) || {};
@@ -595,5 +595,5 @@ const dbCleanup = async () => {
   }
 };
 
-dbCleanup();
+void dbCleanup();
 setInterval(dbCleanup, 60000);

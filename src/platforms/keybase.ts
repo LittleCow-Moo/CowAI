@@ -23,7 +23,7 @@ async function main() {
     const info = bot.myInfo();
     console.log(`[Keybase] Bot ready ${info.username}`);
 
-    const onError = (e) => console.error(e);
+    const onError = console.error;
     await bot.chat.watchAllChannelsForNewMessages(async (message) => {
       if (message.content.type !== "text") {
         // I copied this from the example and do not want to implement multimodal for now :P
@@ -92,4 +92,4 @@ async function shutDown() {
 process.on("SIGINT", shutDown);
 process.on("SIGTERM", shutDown);
 
-main();
+void main();
