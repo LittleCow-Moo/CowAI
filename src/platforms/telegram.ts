@@ -9,25 +9,26 @@ import { WebSocket } from "ws";
 
 dotenv.config({ quiet: true });
 const bot = new TelegramBot(process.env.TELEGRAM || "");
-var savedMsg = new JsonDB(new Config("savedMessages", true, true));
-var tgMsg = new JsonDB(new Config("tgMsg", true, true));
+const savedMsg = new JsonDB(new Config("savedMessages", true, true));
+const tgMsg = new JsonDB(new Config("tgMsg", true, true));
 
 bot.api.getMe().then((me) => {
   console.log("[Telegram] Bot ready", me.username);
 });
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 bot.on("message", async (msg, _meta) => {
   if (msg.chat.type != "private") return;
   console.log("[Telegram] Message");
   bot.api.sendChatAction({ chat_id: msg.chat.id, action: "typing" });
-  var messages = await tgMsg.getObjectDefault(`/${msg.chat.id}`, []);
+  const messages = await tgMsg.getObjectDefault(`/${msg.chat.id}`, []);
   messages.push({ role: "user", parts: [{ text: msg.message.text }] });
   await tgMsg.push(`/${msg.chat.id}`, messages.slice(-5));
   await savedMsg.push(`/tg:${msg.chat.id}`, messages.slice(-5));
   const ws = new WebSocket(
     `ws://localhost:38943/api/generate?key=${process.env.ADMIN_KEY}&_readSavedMessages=tg:${msg.chat.id}`,
   );
-  var wsTimeout;
+  let wsTimeout;
   ws.on("message", async (data) => {
     const parsed = JSON.parse(data.toString());
     if (parsed.type == "welcome") {
@@ -35,7 +36,7 @@ bot.on("message", async (msg, _meta) => {
       wsTimeout = setTimeout(async () => {
         try {
           await savedMsg.delete(`/tg:${msg.chat.id}`);
-        } catch (e) {}
+        } catch {}
         ws.close();
       }, 60000);
     }
@@ -45,7 +46,7 @@ bot.on("message", async (msg, _meta) => {
       ws.close();
     }
     if (parsed.type == "response") {
-      var messages = await tgMsg.getObjectDefault(`/${msg.chat.id}`, []);
+      const messages = await tgMsg.getObjectDefault(`/${msg.chat.id}`, []);
       messages.push({ role: "model", parts: [{ text: parsed.message }] });
       await tgMsg.push(`/${msg.chat.id}`, messages.slice(-5));
       try {
@@ -54,12 +55,12 @@ bot.on("message", async (msg, _meta) => {
           text: parsed.message,
           parse_mode: "Markdown",
         });
-      } catch (e) {
+      } catch {
         bot.api.sendMessage({ chat_id: msg.chat.id, text: parsed.message });
       }
       try {
         await savedMsg.delete(`/tg:${msg.chat.id}`);
-      } catch (e) {}
+      } catch {}
     }
   });
 });
@@ -118,7 +119,7 @@ bot.on("chosen_inline_result", (chosenResult) => {
       },
     ])}`,
   );
-  var editOptions: EditMessageTextParams = {
+  const editOptions: EditMessageTextParams = {
     inline_message_id: inlineMessageId,
     reply_markup: {
       inline_keyboard: [
@@ -144,7 +145,7 @@ bot.on("chosen_inline_result", (chosenResult) => {
           parse_mode: "Markdown",
           ...editOptions,
         });
-      } catch (e) {
+      } catch {
         bot.api.editMessageText({
           text: parsed.full.slice(-4000),
           ...editOptions,
@@ -159,7 +160,7 @@ bot.on("chosen_inline_result", (chosenResult) => {
           parse_mode: "Markdown",
           ...editOptions,
         });
-      } catch (e) {
+      } catch {
         bot.api.editMessageText({
           text: parsed.message.slice(-4000),
           ...editOptions,

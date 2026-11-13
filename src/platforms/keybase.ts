@@ -1,7 +1,7 @@
 import dotenv from "dotenv";
 import Bot from "keybase-bot";
 import { JsonDB, Config } from "node-json-db";
-var savedMsg = new JsonDB(new Config("savedMessages", true, true));
+const savedMsg = new JsonDB(new Config("savedMessages", true, true));
 import { WebSocket } from "ws";
 import os from "node:os";
 

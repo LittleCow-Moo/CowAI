@@ -1,12 +1,12 @@
 import dotenv from "dotenv";
 import { JsonDB, Config } from "node-json-db";
-var savedMsg = new JsonDB(new Config("savedMessages", true, true));
+const savedMsg = new JsonDB(new Config("savedMessages", true, true));
 import { WebSocket } from "ws";
 import fetch from "node-fetch";
 
 dotenv.config({ quiet: true });
-var briarLink = "";
-var contacts = [];
+let briarLink = "";
+let contacts = [];
 
 async function httpRequestJson(method, path, body = null) {
   const host = process.env.BRIAR_API_HOST;
@@ -101,13 +101,6 @@ function createWs() {
               );
               return;
             }
-            const useTls =
-              process.env.BRIAR_USE_TLS === "true" || /^https?:/.test(host);
-            const normalizedHost = host
-              .replace(/^https?:\/\//, "")
-              .replace(/^wss?:\/\//, "");
-            const protocol = useTls ? "https" : "http";
-            const url = `${protocol}://${normalizedHost}/v1/contacts/add/link`;
 
             const json = await httpRequestJson("GET", "/v1/contacts/add/link");
             if (json && json.link) {
@@ -135,7 +128,8 @@ function createWs() {
       console.error("[Briar] WS error", err && err.message ? err.message : err);
     });
 
-    ws.on("close", (code, reason) => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    ws.on("close", (code, _reason) => {
       console.warn(`[Briar] WS closed (code=${code})`);
       scheduleReconnect();
     });
@@ -158,14 +152,14 @@ function createWs() {
           await httpRequestJson("POST", `/v1/messages/${data.data.contactId}`, {
             text: `哞！我的 Briar 連結是: ${briarLink}`,
           });
-        } catch (e) {}
+        } catch {}
         return;
       }
       contacts = [...(await httpRequestJson("GET", "/v1/contacts"))];
-      var username =
+      const username =
         (contacts.filter((a) => a.contactId == data.data.contactId) || [])[0]
           ?.author?.name || "";
-      var pulledMessages = await Promise.all(
+      const pulledMessages = await Promise.all(
         (await httpRequestJson("GET", `/v1/messages/${data.data.contactId}`))
           .filter(
             (a) =>

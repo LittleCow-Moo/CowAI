@@ -1,5 +1,5 @@
 import dotenv from "dotenv";
-import { GoogleGenAI } from "@google/genai";
+import { FunctionResponse, GoogleGenAI } from "@google/genai";
 import cow from "./../utils/cow.js";
 import { WebSocketServer } from "ws";
 import type { WebSocket } from "ws";
@@ -24,8 +24,8 @@ type SessionWebSocket = WebSocket & {
   model: string;
 };
 
-var db = new JsonDB(new Config("rateLimit", true, true));
-var savedMsg = new JsonDB(new Config("savedMessages", true, true));
+const db = new JsonDB(new Config("rateLimit", true, true));
+const savedMsg = new JsonDB(new Config("savedMessages", true, true));
 if (!fs.existsSync("images/")) fs.mkdirSync("images");
 db.push(`/max/${process.env.ADMIN_KEY}`, "infinity");
 
@@ -45,7 +45,7 @@ const requestOptions = process.env.CUSTOM_BASE_URL
     : {};
 
 const genAI = new GoogleGenAI({ apiKey: process.env.KEY });
-var models = {
+const models = {
   cow: {
     name: "gemini-3.1-flash-lite",
     config: {
@@ -90,7 +90,6 @@ const apiLinkRegex = new RegExp(
   "gm",
 );
 
-const debug = true;
 const memory = 5;
 const hasFunctionCall = (message) =>
   message?.role === "model" &&
@@ -190,7 +189,7 @@ const buildSafeContentsWindow = (messages, limit) => {
 };
 const wss = new WebSocketServer({ noServer: true });
 const app = express();
-var allowedKeys = [];
+let allowedKeys = [];
 (async () => {
   allowedKeys = await db.getObjectDefault("/keys", []);
 })();
@@ -214,13 +213,13 @@ wss.on("connection", (ws: SessionWebSocket) => {
       );
     }
     await db.push(`/used/${ws.key}`, used + 1);
-    var prompt = message.toString();
+    let prompt = message.toString();
     ws.send(JSON.stringify({ type: "confirm", message: prompt }));
-    var full = "";
+    let full = "";
     (async () => {
       if (prompt != "") {
         console.log(`[User] ${prompt}`);
-        var inlineData = [];
+        const inlineData = [];
         const attachment =
           /(https?:\/\/[a-zA-Z0-9%\/._-]*\.(?:png|jpeg|jpg|webp|heic|heif|wav|mp3|aiff|aac|ogg|flac|mpeg|x-wav)(?:\?[a-zA-Z0-9%=&]*|))/im.exec(
             prompt,
@@ -229,7 +228,7 @@ wss.on("connection", (ws: SessionWebSocket) => {
           const response = await fetch(attachment[0]);
           const arrayBuffer = await response.arrayBuffer();
           const data = Buffer.from(arrayBuffer).toString("base64");
-          var mime = response.headers.get("content-type");
+          let mime = response.headers.get("content-type");
           if (!mime) break fetchAttachment;
           if (cow.supportedMime.indexOf(mime) == -1) break fetchAttachment;
           if (mime == "audio/mpeg") mime = "audio/mp3";
@@ -257,7 +256,7 @@ wss.on("connection", (ws: SessionWebSocket) => {
       }
       ws.messages = await Promise.all(
         ws.messages.map(async (msg) => {
-          var parts = msg.parts;
+          let parts = msg.parts;
           parts = await Promise.all(
             parts.map((part) => {
               if (!part.text) return part;
@@ -267,12 +266,12 @@ wss.on("connection", (ws: SessionWebSocket) => {
           return { role: msg.role, parts };
         }),
       );
-      var first = true;
-      var memoryThisTurn = memory;
-      var currentModelName = ws.model;
+      let first = true;
+      let memoryThisTurn = memory;
+      let currentModelName = ws.model;
       const run = async () => {
-        var currentModel = models[currentModelName];
-        var contents = buildSafeContentsWindow(ws.messages, memoryThisTurn);
+        const currentModel = models[currentModelName];
+        let contents = buildSafeContentsWindow(ws.messages, memoryThisTurn);
         if (contents.length === 0) {
           let latestUserMessage = null;
           const wsMessagesLength = ws.messages.length;
@@ -330,8 +329,8 @@ wss.on("connection", (ws: SessionWebSocket) => {
           throw err;
         }
 
-        var calls = [];
-        var message = "";
+        let calls = [];
+        let message = "";
         process.stdout.write("[Cow] ");
         for await (const item of result) {
           if (!item.candidates) continue;
@@ -354,7 +353,7 @@ wss.on("connection", (ws: SessionWebSocket) => {
             calls.push(callPart);
           }
           if (!part.text) continue;
-          var callsFix = cow.utils.toolCallFix(part.text || "");
+          const callsFix = cow.utils.toolCallFix(part.text || "");
           if (callsFix.calls[0]) {
             for (const call of callsFix.calls) {
               calls.push({ functionCall: call });
@@ -364,16 +363,15 @@ wss.on("connection", (ws: SessionWebSocket) => {
           process.stdout.write(part.text || "");
           message += part.text || "";
           full += part.text || "";
-          streaming
-            ? ws.send(
-                JSON.stringify({
-                  type: "part",
-                  message: part.text,
-                  full,
-                  first,
-                }),
-              )
-            : null;
+          if (streaming)
+            ws.send(
+              JSON.stringify({
+                type: "part",
+                message: part.text,
+                full,
+                first,
+              }),
+            );
           if (first == true) first = false;
         }
         if (message != "") {
@@ -395,13 +393,12 @@ wss.on("connection", (ws: SessionWebSocket) => {
         }
         if (calls[0]) {
           memoryThisTurn++;
-          var functionResponses = [];
+          const functionResponses = [];
           for (const call of calls) {
             if (!call.functionCall.name) continue;
             console.log();
-            debug
-              ? console.log(`[System] Function call received:`, call)
-              : null;
+            console.log(`[System] Function call received:`, call);
+
             ws.send(
               JSON.stringify({
                 type: "function",
@@ -409,7 +406,7 @@ wss.on("connection", (ws: SessionWebSocket) => {
                 message: "Function call received.",
               }),
             );
-            var functionResponse;
+            let functionResponse: FunctionResponse;
             if (["CallMathCow"].indexOf(call.functionCall.name) != -1) {
               console.log("[System] Model decided to use MathCow");
               calls = [];
@@ -422,12 +419,10 @@ wss.on("connection", (ws: SessionWebSocket) => {
                 call.functionCall.args,
               );
             }
-            debug
-              ? console.log(
-                  `[System] ${call.functionCall.name} result:`,
-                  functionResponse.response,
-                )
-              : null;
+            console.log(
+              `[System] ${call.functionCall.name} result:`,
+              functionResponse.response,
+            );
             ws.send(
               JSON.stringify({
                 type: "functionResponse",
@@ -514,7 +509,7 @@ app.get("/api/images/qr/:id.:ext", (req, res) => {
 const server = createServer(app);
 
 server.on("upgrade", (request, socket, head) => {
-  let url = u.parse(request.url);
+  const url = u.parse(request.url);
   if (url.pathname != "/api/generate") {
     socket.write("HTTP/1.1 404 Not Found\r\n\r\n");
     socket.destroy();
@@ -576,11 +571,11 @@ const dbCleanup = async () => {
   try {
     savedMsg.reload();
     await savedMsg.delete("/");
-  } catch (e) {}
-  var dbDate;
+  } catch {}
+  let dbDate: string;
   try {
     dbDate = await db.getData("/date");
-  } catch (e) {
+  } catch {
     await db.push("/date", nowDate);
   }
   if (dbDate != nowDate) {

@@ -11,3 +11,5 @@ poe.js
 .DS_Store
 pnpm-lock.yaml
 dist/
+.github/instructions/codacy.instructions.md
+.codacy/

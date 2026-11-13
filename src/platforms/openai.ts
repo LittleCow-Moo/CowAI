@@ -2,8 +2,8 @@ import express from "express";
 import crypto from "node:crypto";
 import { JsonDB, Config } from "node-json-db";
 import { WebSocket } from "ws";
-var db = new JsonDB(new Config("rateLimit", true, true));
-var savedMsg = new JsonDB(new Config("savedMessages", true, true));
+const db = new JsonDB(new Config("rateLimit", true, true));
+const savedMsg = new JsonDB(new Config("savedMessages", true, true));
 
 const models = [
   {
@@ -21,7 +21,7 @@ const models = [
 ];
 
 export default (app) => {
-  var allowedKeys = [];
+  let allowedKeys: string[] = [];
   (async () => {
     allowedKeys = await db.getObjectDefault("/keys", []);
   })();
@@ -54,7 +54,7 @@ export default (app) => {
         .slice(-5),
     );
     const ws = new WebSocket(
-      `ws://192.168.0.5:38943/api/generate?key=${req.headers[
+      `ws://localhost:38943/api/generate?key=${req.headers[
         "authorization"
       ].replace(
         "Bearer ",
@@ -94,7 +94,7 @@ export default (app) => {
         "Cache-Control": "no-cache",
         Connection: "keep-alive",
       });
-      var index = 0;
+      let index = 0;
       ws.on("message", (data) => {
         const parsed = JSON.parse(data.toString());
         if (parsed.type === "welcome") {

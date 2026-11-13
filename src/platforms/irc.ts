@@ -1,6 +1,6 @@
 import dotenv from "dotenv";
 import IRC from "irc-framework";
-var bot = new IRC.Client();
+const bot = new IRC.Client();
 bot.connect({
   host: process.env.IRC_HOST,
   port: parseInt(process.env.IRC_PORT),
@@ -15,8 +15,8 @@ bot.connect({
     : {}),
 });
 import { JsonDB, Config } from "node-json-db";
-var savedMsg = new JsonDB(new Config("savedMessages", true, true));
-var ircMsg = new JsonDB(new Config("ircMsg", true, true));
+const savedMsg = new JsonDB(new Config("savedMessages", true, true));
+const ircMsg = new JsonDB(new Config("ircMsg", true, true));
 import { WebSocket } from "ws";
 
 dotenv.config({ quiet: true });
@@ -32,17 +32,17 @@ bot.on("registered", async () => {
   );
   const defaultChannel = bot.channel(process.env.IRC_CHANNEL || "");
   defaultChannel.join();
-  var channels = await ircMsg.getObjectDefault(`/channels`, []);
+  const channels = await ircMsg.getObjectDefault(`/channels`, []);
   for (const channel of channels) {
     try {
       bot.channel(channel).join();
-    } catch (e) {}
+    } catch {}
   }
 });
 
 bot.on("message", async (event) => {
   if (event.message.match(/^cow!join /)) {
-    var toJoin = event.message.split(" ")[1];
+    const toJoin = event.message.split(" ")[1];
     event.reply("Joining " + toJoin + "...");
     bot.join(toJoin);
     await ircMsg.push("/channels[]", toJoin, true);
@@ -50,8 +50,8 @@ bot.on("message", async (event) => {
   }
   if (event.from_server) return;
   if (!event.target.startsWith("#")) return;
-  var splittedMessage = event.message.split(" ");
-  var messages = await ircMsg.getObjectDefault(`/${event.target}`, []);
+  const splittedMessage = event.message.split(" ");
+  const messages = await ircMsg.getObjectDefault(`/${event.target}`, []);
   messages.push({
     role: "user",
     parts: [{ text: event.nick + "說: " + event.message }],
@@ -71,7 +71,7 @@ bot.on("message", async (event) => {
         process.env.ADMIN_KEY
       }&_readSavedMessages=irc:${encodeURIComponent(event.target)}`,
     );
-    var wsTimeout;
+    let wsTimeout;
     ws.on("message", async (data) => {
       const parsed = JSON.parse(data.toString());
       if (parsed.type == "welcome") {
@@ -79,7 +79,7 @@ bot.on("message", async (event) => {
         wsTimeout = setTimeout(async () => {
           try {
             await savedMsg.delete(`/irc:${event.target}`);
-          } catch (e) {}
+          } catch {}
           ws.close();
         }, 60000);
       }
@@ -89,13 +89,13 @@ bot.on("message", async (event) => {
         ws.close();
       }
       if (parsed.type == "response") {
-        var messages = await ircMsg.getObjectDefault(`/${event.target}`, []);
+        const messages = await ircMsg.getObjectDefault(`/${event.target}`, []);
         messages.push({ role: "model", parts: [{ text: parsed.message }] });
         await ircMsg.push(`/${event.target}`, messages.slice(-5));
         bot.say(event.target, parsed.message);
         try {
           await savedMsg.delete(`/irc:${event.target}`);
-        } catch (e) {}
+        } catch {}
       }
     });
   }

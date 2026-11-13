@@ -12,7 +12,7 @@ const client = new Discord.Client({
   partials: [Discord.Partials.Channel, Discord.Partials.Message],
 });
 import { JsonDB, Config } from "node-json-db";
-var savedMsg = new JsonDB(new Config("savedMessages", true, true));
+const savedMsg = new JsonDB(new Config("savedMessages", true, true));
 import { WebSocket } from "ws";
 import { websocketData } from "websocket-iterator";
 import fetch from "node-fetch";
@@ -22,6 +22,37 @@ import packageInfo from "../../package.json" with { type: "json" };
 dotenv.config({ quiet: true });
 const supportedMime = cow.supportedMime;
 const allowedBotsList = (process.env.DISCORD_ALLOWED_BOTS || "").split(",");
+const discordAttachmentHosts = new Set([
+  "cdn.discordapp.com",
+  "media.discordapp.net",
+  "images-ext-1.discordapp.net",
+  "images-ext-2.discordapp.net",
+]);
+
+const isAllowedDiscordAttachmentUrl = (value: string) => {
+  try {
+    const url = new URL(value);
+    return (
+      url.protocol == "https:" &&
+      discordAttachmentHosts.has(url.hostname) &&
+      url.pathname.startsWith("/attachments/")
+    );
+  } catch {
+    return false;
+  }
+};
+
+const fetchDiscordAttachment = async (value: string) => {
+  let url = value;
+  for (let redirects = 0; redirects <= 3; redirects++) {
+    if (!isAllowedDiscordAttachmentUrl(url)) return;
+    const response = await fetch(url, { redirect: "manual" });
+    if (![301, 302, 303, 307, 308].includes(response.status)) return response;
+    const location = response.headers.get("location");
+    if (!location) return;
+    url = new URL(location, url).toString();
+  }
+};
 
 client.on("clientReady", () => {
   console.log("[Discord] Bot ready", client.user.tag);
@@ -56,10 +87,10 @@ client.on("messageCreate", async (message) => {
     attachments: { first: () => { proxyURL: string } | undefined };
     author: { username: string; id: string };
   };
-  var pulledMessages: DiscordPulledMessage[] = Object.values(
+  let pulledMessages: DiscordPulledMessage[] = Object.values(
     (await message.channel.messages.fetch({ limit: 5 })).toJSON(),
   ).reverse() as unknown as DiscordPulledMessage[];
-  var parsePulledMessages = () => {
+  const parsePulledMessages = () => {
     for (const [i, a] of pulledMessages.entries()) {
       if (a.content == "COW_CLEAR_CONTEXT") {
         pulledMessages = pulledMessages.slice(i + 1);
@@ -80,22 +111,23 @@ client.on("messageCreate", async (message) => {
       )
         .replaceAll("@牛牛AI ", "")
         .replaceAll("@牛牛AI", "");
-      var returning = [];
+      const returning = [];
       const attachment = a.attachments.first();
       const attachmentUrl =
         /(https?:\/\/[a-zA-Z0-9%\/._-]*\.(?:png|jpeg|jpg|webp|heic|heif|wav|mp3|aiff|aac|ogg|flac|mpeg|x-wav)(?:\?[a-zA-Z0-9%=&]*|))/im.exec(
           a.content,
         );
-      var att;
+      let att;
       fetchAttachment: if (
         index == pulledMessages.length - 1 &&
         (attachment || (!attachment && attachmentUrl))
       ) {
         att = attachment ? attachment.proxyURL : attachmentUrl[0];
-        const response = await fetch(att);
+        const response = await fetchDiscordAttachment(att);
+        if (!response) break fetchAttachment;
         const arrayBuffer = await response.arrayBuffer();
         const data = Buffer.from(arrayBuffer).toString("base64");
-        var mime = response.headers.get("content-type");
+        let mime = response.headers.get("content-type");
         if (!mime) break fetchAttachment;
         if (supportedMime.indexOf(mime) == -1) break fetchAttachment;
         console.log("[Discord] Attachment detected:", att);
@@ -134,10 +166,10 @@ client.on("messageCreate", async (message) => {
   const ws = new WebSocket(
     `ws://localhost:38943/api/generate?key=${process.env.ADMIN_KEY}&streamingResponse&_readSavedMessages=discord:${message.id}`,
   );
-  var replyMessage;
-  var sentReply = false;
-  var wsTimeout;
-  var response = "";
+  let replyMessage;
+  let sentReply = false;
+  let wsTimeout;
+  let response = "";
   let processedLength = 0;
   for await (const data of websocketData(
     ws as unknown as globalThis.WebSocket,
@@ -172,8 +204,8 @@ client.on("messageCreate", async (message) => {
               accumulatedContent,
             ];
             await replyMessage.edit(parts[0]);
-            for (let i = 1; i < parts.length; i++) {
-              replyMessage = await message.channel.send(parts[i]);
+            for (const part of parts.slice(1)) {
+              replyMessage = await message.channel.send(part);
             }
           }
           processedLength = response.length;
@@ -233,7 +265,7 @@ client.on("messageCreate", async (message) => {
     const parts = text.match(/[\s\S]{1,2000}(?!\S)/g) || [text];
     await replyMessage.edit(parts[0]);
     for (let i = 1; i < parts.length; i++) {
-      await message.channel.send(parts[i]);
+      await message.channel.send(String(parts[i]));
     }
     return replyMessage;
   }
@@ -244,7 +276,7 @@ client.on("interactionCreate", (slash) => {
     case "clear":
       slash.reply("COW_CLEAR_CONTEXT");
       break;
-    case "cow":
+    case "cow": {
       const question = slash.options.getString("question") || "";
       const hide = slash.options.getBoolean("hidden", false) || false;
       const ws = new WebSocket(
@@ -276,6 +308,7 @@ client.on("interactionCreate", (slash) => {
           ws.close();
         }
       });
+    }
   }
 });
 
