@@ -1,5 +1,12 @@
 import dotenv from "dotenv";
-import { GoogleGenAI, HttpOptions, ThinkingLevel } from "@google/genai";
+import {
+  Content,
+  FunctionResponse,
+  GoogleGenAI,
+  HttpOptions,
+  Part,
+  ThinkingLevel,
+} from "@google/genai";
 import cow from "./../utils/cow.js";
 import { WebSocketServer } from "ws";
 import type { WebSocket } from "ws";
@@ -17,10 +24,7 @@ dotenv.config({ quiet: true });
 type SessionWebSocket = WebSocket & {
   streamingResponse: boolean;
   key: string;
-  messages: Array<{
-    role: string;
-    parts: Array<{ text?: string; [key: string]: unknown }>;
-  }>;
+  messages: Content[];
   asked: string[];
   model: string;
 };
@@ -30,20 +34,21 @@ var savedMsg = new JsonDB(new Config("savedMessages", true, true));
 if (!fs.existsSync("images/")) fs.mkdirSync("images");
 db.push(`/max/${process.env.ADMIN_KEY}`, "infinity");
 
-const requestOptions = process.env.CUSTOM_BASE_URL
-  ? { baseUrl: process.env.CUSTOM_BASE_URL }
-  : process.env.ENABLE_AI_GATEWAY == "true"
-    ? {
-        baseUrl: `https://gateway.ai.cloudflare.com/v1/${process.env.AI_GATEWAY}/google-ai-studio`,
-        customHeaders: new Headers(
-          String(process.env.AI_GATEWAY_TOKEN || "") != ""
-            ? {
-                "cf-aig-authorization": `Bearer ${process.env.AI_GATEWAY_TOKEN}`,
-              }
-            : {},
-        ),
-      }
-    : ({} satisfies HttpOptions);
+const requestOptions = (
+  process.env.CUSTOM_BASE_URL
+    ? { baseUrl: process.env.CUSTOM_BASE_URL }
+    : process.env.ENABLE_AI_GATEWAY == "true"
+      ? {
+          baseUrl: `https://gateway.ai.cloudflare.com/v1/${process.env.AI_GATEWAY}/google-ai-studio`,
+          headers:
+            String(process.env.AI_GATEWAY_TOKEN || "") != ""
+              ? {
+                  "cf-aig-authorization": `Bearer ${process.env.AI_GATEWAY_TOKEN}`,
+                }
+              : {},
+        }
+      : {}
+) satisfies HttpOptions;
 
 const genAI = new GoogleGenAI({ apiKey: process.env.KEY });
 var models: CowModels = {
@@ -93,16 +98,16 @@ const apiLinkRegex = new RegExp(
 
 const debug = true;
 const memory = 5;
-const hasFunctionCall = (message) =>
+const hasFunctionCall = (message: Content) =>
   message?.role === "model" &&
   Array.isArray(message.parts) &&
   message.parts.some((part) => part?.functionCall);
-const hasFunctionResponse = (message) =>
+const hasFunctionResponse = (message: Content) =>
   message?.role === "user" &&
   Array.isArray(message.parts) &&
   message.parts.some((part) => part?.functionResponse);
 
-const hasValidContent = (part) =>
+const hasValidContent = (part: Part) =>
   part &&
   ((typeof part.text === "string" && part.text.trim().length > 0) ||
     part.inlineData ||
@@ -111,7 +116,7 @@ const hasValidContent = (part) =>
 
 // Final guard before sending to Gemini API.
 // Gemini is strict about role ordering and function call/response pairing.
-const sanitizeGeminiContents = (messages) => {
+const sanitizeGeminiContents = (messages: Content[]) => {
   if (!Array.isArray(messages) || messages.length === 0) return [];
   const normalized = [];
   for (const turn of messages) {
@@ -145,7 +150,7 @@ const sanitizeGeminiContents = (messages) => {
 };
 
 // Builds a Gemini-safe history window that keeps functionCall/functionResponse order valid.
-const buildSafeContentsWindow = (messages, limit) => {
+const buildSafeContentsWindow = (messages: Content[], limit: number) => {
   if (!Array.isArray(messages) || messages.length === 0) return [];
   let start = messages.length;
   let nonFunctionTurns = 0;
@@ -191,7 +196,7 @@ const buildSafeContentsWindow = (messages, limit) => {
 };
 const wss = new WebSocketServer({ noServer: true });
 const app = express();
-var allowedKeys = [];
+var allowedKeys: string[] = [];
 (async () => {
   allowedKeys = await db.getObjectDefault("/keys", []);
 })();
@@ -273,7 +278,10 @@ wss.on("connection", (ws: SessionWebSocket) => {
       var currentModelName = ws.model;
       const run = async () => {
         var currentModel = models[currentModelName];
-        var contents = buildSafeContentsWindow(ws.messages, memoryThisTurn);
+        var contents: Content[] = buildSafeContentsWindow(
+          ws.messages,
+          memoryThisTurn,
+        );
         if (contents.length === 0) {
           let latestUserMessage = null;
           const wsMessagesLength = ws.messages.length;
@@ -346,10 +354,7 @@ wss.on("connection", (ws: SessionWebSocket) => {
           };
           if (!part) continue;
           if (part.functionCall) {
-            const callPart: {
-              functionCall: Record<string, unknown>;
-              thoughtSignature?: string;
-            } = { functionCall: part.functionCall };
+            const callPart: Part = { functionCall: part.functionCall };
             if (part.thoughtSignature) {
               callPart.thoughtSignature = part.thoughtSignature;
             }
@@ -411,7 +416,7 @@ wss.on("connection", (ws: SessionWebSocket) => {
                 message: "Function call received.",
               }),
             );
-            var functionResponse;
+            var functionResponse: FunctionResponse;
             if (["CallMathCow"].indexOf(call.functionCall.name) != -1) {
               console.log("[System] Model decided to use MathCow");
               calls = [];
@@ -420,7 +425,9 @@ wss.on("connection", (ws: SessionWebSocket) => {
               await run();
               return;
             } else {
-              functionResponse = await cow.functions[call.functionCall.name](
+              const functionName = call.functionCall
+                .name as keyof typeof cow.functions;
+              functionResponse = await cow.functions[functionName](
                 call.functionCall.args,
               );
             }
@@ -472,7 +479,7 @@ app.get("/api/usage", async (req, res) => {
       type: "error",
       message: "Please provide a key to lookup usage info.",
     });
-  if (!allowedKeys.includes(req.query.key))
+  if (!allowedKeys.includes(String(req.query.key)))
     return res.status(401).json({ type: "error", message: "Key not found." });
   const used = await db.getObjectDefault(`/used/${req.query.key}`, 0);
   const max = await db.getObjectDefault(`/max/${req.query.key}`, 50);

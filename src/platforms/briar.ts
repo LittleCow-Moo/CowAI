@@ -3,12 +3,17 @@ import { JsonDB, Config } from "node-json-db";
 var savedMsg = new JsonDB(new Config("savedMessages", true, true));
 import { WebSocket } from "ws";
 import fetch from "node-fetch";
+import { HttpMethods } from "../types/cow.js";
 
 dotenv.config({ quiet: true });
 var briarLink = "";
 var contacts = [];
 
-async function httpRequestJson(method, path, body = null) {
+async function httpRequestJson(
+  method: HttpMethods,
+  path: string,
+  body: Record<string, unknown> | null = null,
+) {
   const host = process.env.BRIAR_API_HOST;
   const token = process.env.BRIAR_AUTH_TOKEN;
   if (!host) {
@@ -22,7 +27,7 @@ async function httpRequestJson(method, path, body = null) {
   const protocol = useTls ? "https" : "http";
   const url = `${protocol}://${normalizedHost}${path.startsWith("/") ? path : `/${path}`}`;
   try {
-    const headers = {
+    const headers: HeadersInit = {
       Authorization: `Bearer ${token}`,
       Accept: "application/json",
     };
@@ -84,7 +89,7 @@ function createWs() {
 
   try {
     const ws = new WebSocket(url, { headers });
-    globalThis.botWs = ws;
+    globalThis.botWs = ws satisfies WebSocket;
 
     ws.on("open", () => {
       reconnectAttempts = 0;
@@ -191,19 +196,19 @@ function createWs() {
         `ws://localhost:38943/api/generate?key=${process.env.ADMIN_KEY}&_readSavedMessages=briar:${data.data.contactId}`,
       );
       cowws.on("message", async (cowdata) => {
-        const parsed = JSON.parse(cowdata.toString());
+        const parsed: Record<string, string> = JSON.parse(cowdata.toString());
         if (parsed.type == "welcome") {
           cowws.send("");
         }
         if (parsed.type == "end") {
           await httpRequestJson("POST", `/v1/messages/${data.data.contactId}`, {
-            text: parsed.full,
+            text: String(parsed.full),
           });
           cowws.close();
         }
         if (parsed.type == "error") {
           await httpRequestJson("POST", `/v1/messages/${data.data.contactId}`, {
-            text: parsed.message,
+            text: String(parsed.message),
           });
           cowws.close();
         }

@@ -15,7 +15,8 @@ import { Client as GradioClient } from "@gradio/client";
 import { Octokit } from "@octokit/rest";
 
 dotenv.config({ quiet: true });
-type FunctionArgs = Record<string, unknown> & {
+type FunctionArgs = {
+  url?: string;
   query?: string;
   q?: string;
   location?: string;

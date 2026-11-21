@@ -269,7 +269,7 @@ export default {
         returningInput = returningInput.replaceAll(match[0], "");
         const methodName = match[1];
         const argsString = match[2];
-        const args = {};
+        const args: Record<string, any> = {};
         const argPairs =
           argsString.match(/(\w+)\s*=\s*("[^"]*"|'[^']*'|[^,]+)/g) || [];
         for (const arg of argPairs) {

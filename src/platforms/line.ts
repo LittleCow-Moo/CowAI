@@ -29,7 +29,7 @@ bot.on("message", async (event) => {
   const ws = new WebSocket(
     `ws://localhost:38943/api/generate?key=${process.env.ADMIN_KEY}&_readSavedMessages=line:${event.source.userId}`,
   );
-  var wsTimeout;
+  var wsTimeout: NodeJS.Timeout;
   ws.on("message", async (data) => {
     const parsed = JSON.parse(data.toString());
     if (parsed.type == "welcome") {
