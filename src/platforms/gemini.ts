@@ -101,6 +101,13 @@ const hasFunctionResponse = (message) =>
   Array.isArray(message.parts) &&
   message.parts.some((part) => part?.functionResponse);
 
+const hasValidContent = (part) =>
+  part &&
+  ((typeof part.text === "string" && part.text.trim().length > 0) ||
+    part.inlineData ||
+    part.functionCall ||
+    part.functionResponse);
+
 // Final guard before sending to Gemini API.
 // Gemini is strict about role ordering and function call/response pairing.
 const sanitizeGeminiContents = (messages) => {
@@ -110,14 +117,7 @@ const sanitizeGeminiContents = (messages) => {
     if (!turn || (turn.role !== "user" && turn.role !== "model")) continue;
     if (!Array.isArray(turn.parts) || turn.parts.length === 0) continue;
 
-    const filteredParts = turn.parts.filter(
-      (p) =>
-        p &&
-        (typeof p.text === "string" ||
-          p.inlineData ||
-          p.functionCall ||
-          p.functionResponse),
-    );
+    const filteredParts = turn.parts.filter(hasValidContent);
     if (filteredParts.length === 0) continue;
     const cleaned = { role: turn.role, parts: filteredParts };
 
@@ -216,6 +216,16 @@ wss.on("connection", (ws: SessionWebSocket) => {
     await db.push(`/used/${ws.key}`, used + 1);
     var prompt = message.toString();
     ws.send(JSON.stringify({ type: "confirm", message: prompt }));
+    if (prompt.trim() === "") {
+      await db.push(`/used/${ws.key}`, used);
+      ws.send(
+        JSON.stringify({
+          type: "error",
+          message: "Please enter a prompt or attach supported media.",
+        }),
+      );
+      return;
+    }
     var full = "";
     (async () => {
       if (prompt != "") {
@@ -279,7 +289,8 @@ wss.on("connection", (ws: SessionWebSocket) => {
           for (let i = wsMessagesLength - 1; i >= 0; i--) {
             if (
               ws.messages[i].role === "user" &&
-              !hasFunctionResponse(ws.messages[i])
+              !hasFunctionResponse(ws.messages[i]) &&
+              ws.messages[i].parts.some(hasValidContent)
             ) {
               latestUserMessage = ws.messages[i];
               break;
