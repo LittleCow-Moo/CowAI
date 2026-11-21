@@ -1,5 +1,5 @@
 import dotenv from "dotenv";
-import { GoogleGenAI } from "@google/genai";
+import { GoogleGenAI, HttpOptions, ThinkingLevel } from "@google/genai";
 import cow from "./../utils/cow.js";
 import { WebSocketServer } from "ws";
 import type { WebSocket } from "ws";
@@ -10,6 +10,7 @@ import { JsonDB, Config } from "node-json-db";
 import moment from "moment";
 import fs from "node:fs";
 import registerOpenAI from "./openai.js";
+import { CowModels } from "../types/cow.js";
 
 dotenv.config({ quiet: true });
 
@@ -42,10 +43,10 @@ const requestOptions = process.env.CUSTOM_BASE_URL
             : {},
         ),
       }
-    : {};
+    : ({} satisfies HttpOptions);
 
 const genAI = new GoogleGenAI({ apiKey: process.env.KEY });
-var models = {
+var models: CowModels = {
   cow: {
     name: "gemini-3.5-flash-lite",
     config: {
@@ -61,7 +62,7 @@ var models = {
       tools: cow.tools,
       safetySettings: cow.safetySettings,
       thinkingConfig: {
-        thinkingBudget: 0,
+        thinkingLevel: ThinkingLevel.MINIMAL,
       },
       httpOptions: requestOptions,
     },
@@ -75,7 +76,7 @@ var models = {
       ),
       safetySettings: cow.safetySettings,
       thinkingConfig: {
-        thinkingBudget: 2048, // To control TTFT
+        thinkingLevel: ThinkingLevel.LOW, // To control TTFT
       },
       httpOptions: requestOptions,
     },
