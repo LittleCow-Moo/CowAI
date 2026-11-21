@@ -47,7 +47,7 @@ const requestOptions = process.env.CUSTOM_BASE_URL
 const genAI = new GoogleGenAI({ apiKey: process.env.KEY });
 var models = {
   cow: {
-    name: "gemini-3.1-flash-lite",
+    name: "gemini-3.5-flash-lite",
     config: {
       systemInstruction: cow.prompt.replaceAll(
         "{time}",
@@ -67,7 +67,7 @@ var models = {
     },
   },
   mathcow: {
-    name: "gemini-3.5-flash",
+    name: "gemini-4-hydrogen",
     config: {
       systemInstruction: cow.mathPrompt.replaceAll(
         "{time}",
