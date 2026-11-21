@@ -216,16 +216,6 @@ wss.on("connection", (ws: SessionWebSocket) => {
     await db.push(`/used/${ws.key}`, used + 1);
     var prompt = message.toString();
     ws.send(JSON.stringify({ type: "confirm", message: prompt }));
-    if (prompt.trim() === "") {
-      await db.push(`/used/${ws.key}`, used);
-      ws.send(
-        JSON.stringify({
-          type: "error",
-          message: "Please enter a prompt or attach supported media.",
-        }),
-      );
-      return;
-    }
     var full = "";
     (async () => {
       if (prompt != "") {
